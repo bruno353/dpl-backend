@@ -15,8 +15,8 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Deeplink API')
-    .setDescription('Deeplink API')
+    .setTitle('Deeplink API DAO')
+    .setDescription('Deeplink API DAO')
     .setVersion('1.0')
     .addBearerAuth(
       {
