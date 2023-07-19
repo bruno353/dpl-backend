@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "usuario" ALTER COLUMN "codatNetsuitSyncTimestamp" DROP NOT NULL,
+ALTER COLUMN "codatNetsuitSyncTimestamp" DROP DEFAULT,
+ALTER COLUMN "codatNetsuitSyncTimestamp" SET DATA TYPE TEXT,
+ALTER COLUMN "lpAmount" SET DEFAULT '0',
+ALTER COLUMN "lpAmount" SET DATA TYPE TEXT,
+ALTER COLUMN "timestampCodigoEmail" SET DATA TYPE TEXT,
+ALTER COLUMN "timestampContaCriada" SET DATA TYPE TEXT,
+ALTER COLUMN "usdcAmount" SET DEFAULT '0',
+ALTER COLUMN "usdcAmount" SET DATA TYPE TEXT,
+ALTER COLUMN "usdcAmountCodigoEmail" SET DATA TYPE TEXT;

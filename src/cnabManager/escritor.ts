@@ -1,0 +1,84 @@
+import { constante, formatoData } from './lib.js';
+
+const escrever = (arquivo, dados: string | string[]) => {
+  Array.from(dados).forEach((c) => {
+    arquivo.push(
+      c
+        .toUpperCase()
+        .replace('Á', 'A')
+        .replace('À', 'A')
+        .replace('Â', 'A')
+        .replace('Ã', 'A')
+        .replace('É', 'E')
+        .replace('È', 'E')
+        .replace('Ê', 'E')
+        .replace('Í', 'I')
+        .replace('Ì', 'I')
+        .replace('Î', 'I')
+        .replace('Ó', 'O')
+        .replace('Ò', 'O')
+        .replace('Ô', 'O')
+        .replace('Õ', 'O')
+        .replace('Ú', 'U')
+        .replace('Ù', 'U')
+        .replace('Û', 'U')
+        .replace('Ç', 'C')
+        .replace('&', 'E'),
+    );
+  });
+};
+
+const fixo = (arquivo) => (dados, tamanho, numerico) =>
+  escrever(
+    arquivo,
+    constante(
+      typeof dados == 'function'
+        ? dados()
+        : dados instanceof Array
+        ? dados[0]
+        : dados,
+      tamanho,
+      numerico ? numerico : false,
+    ), // Added a check for numerico
+  );
+
+const texto = (arquivo) => (X, campo, tamanho) =>
+  escrever(arquivo, constante(X[campo], tamanho, false)); // Assume numerico to be false
+
+const numero = (arquivo) => (X, campo, tamanho, precisao, sinal) => {
+  const n = Math.round(Math.abs(X[campo]) * 10 ** (precisao || 0));
+  const s = X[campo] < 0 ? 'D' : 'C';
+  return escrever(arquivo, constante(n, tamanho, true) + (sinal ? s : ''));
+};
+
+const data = (arquivo) => (X, campo, tamanho, texto) => {
+  let dados = formatoData(X[campo], tamanho);
+  if (dados.length != tamanho) {
+    dados = constante(texto ? ' ' : '0', tamanho, false); // Assume numerico to be false
+  }
+  return escrever(arquivo, dados);
+};
+
+const mapa = (arquivo) => (X, campo, mapa) => {
+  const K = Object.keys(mapa);
+  const V = Object.values(mapa);
+  let i = V.indexOf(X[campo]);
+  if (i < 0) {
+    i = V.indexOf('*');
+  }
+  return escrever(arquivo, constante(K[i < 0 ? 0 : i], K[0].length, true));
+};
+
+export default (Dados, layout) => {
+  const Arquivo = [];
+  layout({
+    X: Dados,
+    fixo: fixo(Arquivo),
+    texto: texto(Arquivo),
+    numero: numero(Arquivo),
+    data: data,
+    mapa: mapa(Arquivo),
+  });
+
+  return Arquivo.join('');
+};

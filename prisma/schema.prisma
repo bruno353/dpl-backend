@@ -1,0 +1,622 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") 
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  sessionToken String    @unique
+  tokenExpired Boolean   @default(false)
+  usuarioId    String
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@map("session")
+}
+
+model Usuario {
+
+  id       String @id @default(uuid())
+  email    String @unique //unique
+  password String
+
+  isAdmin  Boolean @default(false)
+  adminGerenteCPF String? //CPF do gerente admin - criador de contas cedentes.
+
+  cedenteSRM  Boolean  @default(false) //Se o usuário está cadastrado como cedente na API SRM.
+
+  userEnabled     Boolean @default(true)
+  accountVerified Boolean @default(false)
+
+  isBorrower  Boolean @default(false)
+  nomeEmpresa String?
+  tipoNegocio String?
+  country     String?
+  sobre       String? // como veio até a Scalable
+  arr         String? // Receita anual recorrente
+  runway      String? 
+
+  nome      String?
+  sobrenome String?
+  cnpj      String?
+
+  codatId                   String? 
+  codatNetsuiteId            String?
+  codatNetsuitSyncTimestamp String?
+
+
+  emailConfirmado       Boolean?  @default(false)
+  hashConfirmarEmail    String? 
+
+
+  usdcAmount            String   @default("0")
+  lpAmount              String   @default("0")
+
+
+  timestampCodigoEmail  String?   
+  usdcAmountCodigoEmail String?  
+  contractCodigoEmail   String? 
+  typeCodigoEmail       String?
+  codigoEmail           Boolean?  @default(false)
+  codeEmail2            String?   @default("false")
+  codeEmail3            String?   @default("false")
+  isMultiSign           Boolean?  @default(false)
+  emailsMultiSign       String[]   
+  reentrancyGuard       Boolean?  @default(false)
+
+
+  timestampContaCriada  String? 
+
+  onBoardingSteps  Int @default(1) //Parametro para controlar se o user fez o onboarding ou não -> onboarding tem 7 steps; se esse valor estiver com "8" significa que completou todos os steps ou escolher pular o onboarding.
+
+  oauth       String?
+  verified2FA Boolean   @default(false)
+  use2FA      Boolean   @default(false)
+  secret2FA   String?
+
+  address       String?   @unique
+  tantumId      String?
+  privateKeyEVM String?   @unique
+
+  pluggyItemIds String[]
+
+  NetsuiteCodatAPIConnection   NetsuiteCodatAPIConnection?
+  KYBUsuario                   KYBUsuario?
+  OmieAPIConnection            OmieAPIConnection?
+  GoogleAnalyticsAPIConnection GoogleAnalyticsAPIConnection?
+  ContaAzulAPIConnection       ContaAzulAPIConnection?
+  VindiAPIConnection           VindiAPIConnection?
+  StatsFinanceiroUsuario       StatsFinanceiroUsuario[]
+  PluggyAPIConnection          PluggyAPIConnection[]
+  RecuperarSenha               RecuperarSenha[]
+  ArquivosUploadUsuario        ArquivosUploadUsuario?
+  Session                      Session[]
+  ErrosLogs                    ErrosLogs[]
+  PropostasCredito             PropostasCredito[]
+  FinancialDashboard           FinancialDashboard[]
+  OperacoesCredito             OperacoesCredito[]
+
+
+  emailVerificado Boolean?  @default(false)
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("usuario")
+
+}
+
+
+model StatsFinanceiroUsuario { 
+
+  id String @id @default(uuid())
+
+  grossMargin    String? @default("0")
+  debtRevenueRatio    String? @default("0")
+  runway    String? @default("0")
+  ltvCAC    String? @default("0")
+  arpu    String? @default("0")
+  arrGrowthYoY  String? @default("0")
+  churn    String? @default("0")
+
+  usuarioId String  
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("statsFinanceiroUsuario")
+}
+
+model ArquivosUploadUsuario { 
+
+  id String @id @default(uuid())
+
+  subscricoesFiles                          String[] @default([])
+  bancarioFiles                             String[] @default([])
+  contabilFiles                             String[] @default([])
+  outrosFiles                               String[] @default([])
+  balancoPatrimonial                        String[] @default([])
+  dre                                       String[] @default([])
+  demonstracaoDeFluxoDeCaixa                String[] @default([])
+  declaracaoFaturamentoUltimos12Meses       String[] @default([])
+  orcamentoAnualEProjecao                   String[] @default([])
+  relatorioMetricasFinanceirasEOperacionais String[] @default([])
+  historicoDeCredito                        String[] @default([])
+  contratosClientesEFornecedores            String[] @default([])
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("arquivosUploadUsuario")
+}
+
+model RecuperarSenha { 
+
+  id String @id @default(uuid())
+
+  email     String
+  txid      String @unique
+  timeStamp String
+  isValid   Boolean @default(true)
+
+  
+  usuarioId String   
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("recuperarSenha")
+}
+
+model Empresa { 
+
+  id String @id @default(uuid())
+
+  address        String
+  nome           String?
+  mercadoAtuacao String?
+  isEnabled      Boolean?
+  borrower       String?
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("empresa")
+}
+
+
+
+model OmieAPIConnection { 
+
+  id String @id @default(uuid())
+
+  userAddress String
+
+  appSecret String
+  appKey    String
+
+  receitaTotal                 String?
+  receitaEmprestimosBancarios  String?
+  receitaServicoPrestado       String?
+  receitaVendaAtivos           String?
+  ARPU                         String?
+  despesaTotal                 String?
+  despesaComissoes             String?
+  despesaJurosSobreEmprestimos String?
+  despesaInvestimentos         String?
+  despesaImpostoTaxas          String?
+  despesaCompraDeServicos      String?
+  despesaFinanceiraBancos      String?
+  despesaDevolucaoVendas       String?
+  despesaSalarios              String?
+  despesaPagamentoEmprestimos  String? 
+  despesaVendasMarketing       String?
+
+  DRE                          String?
+  clientes                     String? @default("{}")
+  numeroClientesAtivosPorMes   String? @default("{}")
+  numeroClientesInativosPorMes String? @default("{}")
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("omieAPIConnection")
+}
+
+model GoogleAnalyticsAPIConnection { 
+
+  id String @id @default(uuid())
+
+  appId String
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("googleAnalyticsAPIConnection")
+}
+
+
+model NetsuiteCodatAPIConnection { 
+
+  id String @id @default(uuid())
+
+  codatNetsuiteId String?
+  codatId         String?
+  codatAPIKey     String?
+
+  receitaTotal                 String?
+  ARPU                         String?
+  despesaTotal                 String?
+  despesaJurosSobreEmprestimos String?
+  despesaImpostoTaxas          String?
+  despesaFinanceiraBancos      String?  
+  despesaSalarios              String?
+  despesaPagamentoEmprestimos  String? 
+  despesaVendasMarketing       String?
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("netsuiteCodatAPIConnection")
+}
+
+model ContaAzulAPIConnection { 
+
+  id String @id @default(uuid())
+
+  stateCode String
+
+  unPaidMRR String?
+  receitaAnual String? //media de receita de todos anos
+  data         String[]
+  churn        String?
+  usersAvailablePerMonth String?
+  receitaMensal String? //media de receita de todos os meses
+  activeSubscriptions String?
+  ARPU                String?
+  receitaTotal        String?
+  ARRGrowthYoY        String?
+  receitaPorAno       String? //listagem das receitas por ano
+  receitaPorMes       String? //listagem das receitas por mês
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+  totalTimestamp  String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("contaAzulAPIConnection")
+}
+
+model VindiAPIConnection { 
+
+  id String @id @default(uuid())
+
+  appPrivateKey       String
+
+  unPaidMRR           String?
+  receitaAnual        String? //media de receita de todos anos
+  data                String[]
+  churn               String?
+  receitaMensal       String? //media de receita de todos os meses
+  activeSubscriptions String?
+  ARPU                String?
+  receitaTotal        String?
+  ARRGrowthYoY        String?
+  receitaPorAno       String? //listagem das receitas por ano
+  receitaPorMes       String? //listagem das receitas por mês
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+  totalTimestamp  String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("vindiAPIConnection")
+}
+
+model CodatAPIConnection { 
+
+  id String @id @default(uuid())
+
+  apiKey  String @unique
+  addresses String[]  //array de addresses
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("codatAPIConnection")
+}
+
+model PluggyAPIConnection { 
+
+  id  String @id @default(uuid())
+
+  itemId                 String
+  connectorId            String?
+  connectorName          String?
+  accountNumber          String[]
+  transactions           Json[]
+
+  investments            String?
+  checkingAccountBalance String? 
+  creditCardBalance      String?
+  KYB                    String?
+
+  usuarioId String   
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("pluggyAPIConnection")
+}
+
+model KYBUsuario { 
+
+  id String @id @default(uuid())
+
+  complianceInfo               String?
+  infoBasica                   String?
+  processosJudiciaisSocios     String?
+
+  usuarioId String   @unique
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  isUpdated       Boolean? @default(true)
+  updateTimestamp String?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("kybUsuario")
+}
+
+model EmailsNewsletter { 
+
+  id  String @id @default(uuid())
+
+  email String @unique
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("emailsNewsletter")
+}
+
+//logs de erros que acontecem com integração de APIs externas.
+model ErrosLogs { 
+
+  id String @id @default(uuid())
+
+  nomeFuncao                   String? //Nome da função/endpoint em que ocorreu este erro
+  erro                         String? //Erro devolvido pela API
+  erroDescricao                String? //Descricao do erro devolvido pela API
+  configChamadaAPI             String? //As configs de como foi chamada esta API
+  observacoes                  String? //Adicional
+
+  usuarioId String? //Se a chamada foi realizada por um usuario, o id deste usuario.
+  usuario   Usuario?  @relation(fields: [usuarioId], references: [id])
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("errosLogs")
+}
+
+
+//As propostas de crédito e negociacao entre user e admin.
+//o termo admin neste caso se refere ao analista de crédito.
+model PropostasCredito { 
+
+  id String @id @default(uuid())
+
+  montanteProposto             String //Montante máximo oferecido pelo admin para o user
+  taxaJurosProposto            String? //Taxa de juros mensal fixada pelo admin.
+  termoProposto                String? //Em quantos meses o user deve pagar o empréstimo.
+  montanteRequisitado          String? //Baseado no máximo oferecido pelo admin, quanto o user aceitou de empréstimo.
+
+  propostaVisualizada          Boolean @default(false) //Se a proposta já foi visualizada pelo user.
+  mensagemNovaProposta         Boolean @default(true)  //Se esta é uma proposta nova, se sim, irá mostrar uma caixa para o user sobre uma nova proposta. Após mostrar essa caixa (no front), esse item se torna false.
+  propostaAberta               Boolean @default(true)  //Se a proposta está aberta (uma proposta aberta por user).
+  propostaAceita               Boolean @default(false) //Se a proposta foi aceita e os contratos foram enviados pelo user.
+  operacaoEmAndamento          Boolean @default(false) //Após a proposta ser aceita e oficializada, a operação terá começado.
+
+  usuarioId String 
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  OperacaoCredito   OperacoesCredito?
+
+  ArquivosContratosUploadUsuario ArquivosContratosUploadUsuario?
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("propostasCredito")
+}
+
+//A operacao de crédito
+//o termo admin neste caso se refere ao analista de crédito - gerente da operacao.
+model OperacoesCredito { 
+
+  id String @id @default(uuid())
+
+  sigmaId   String //Id da operacao no sigma
+
+  montante  String //Montante da operacao
+  taxaJuros String //Taxa de juros
+  termo     String //Termo da operacao
+
+  aberto    Boolean @default(false) //Se a operação foi iniciada e está aberta e em andamento;
+  finalizada Boolean @default(false) //Se após a operação ocorrer com sucesso, ela foi finalizada;
+
+  usuarioId String 
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  propostaCreditoId  String? @unique
+  propostasCredito   PropostasCredito? @relation(fields: [propostaCreditoId], references: [id])
+
+  ccbFile  String[] @default([])
+
+  pagamentos Pagamento[]
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime? @updatedAt
+
+  @@map("operacoesCredito")
+}
+
+//Os pagamentos que são cadastrados no model de operacao de crédito (pagamentos feitos pelo devedor sobre o empréstimo)
+model Pagamento {
+  id              String @id @default(uuid())
+  dataVencimento  DateTime
+  montante        String
+  pago            Boolean @default(false) //se o pagamento desta parcela foi realizado ou não
+  operacaoCreditoId String
+  operacaoCredito OperacoesCredito @relation(fields: [operacaoCreditoId], references: [id])
+  criadoEm     DateTime?  @default(now())
+  atualizadoEm DateTime? @updatedAt
+  @@map("pagamentos")
+}
+
+//Arquivos contratos upload
+model ArquivosContratosUploadUsuario { 
+
+  id String @id @default(uuid())
+
+  urlFiles      String[] @default([])
+
+  propostaCreditoId String   @unique
+  propostaCredito   PropostasCredito  @relation(fields: [propostaCreditoId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("arquivosContratosUploadUsuario")
+}
+
+//KYB realizados na plataforma - comply cube
+model KYBComplyCube { 
+
+  id String @id @default(uuid())
+
+  checkId   String
+  nomeEmpresa String
+  cnpjEmpresa String
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("kYBComplyCube")
+}
+
+//CNABs criados na plataforma
+model CNABData { 
+
+  id String @id @default(uuid())
+
+  data             String
+  cnpjSacado       String?
+  cepSacado        String?
+  logradouroSacado String?
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("cNABData")
+}
+
+//Dados sheets armazenados na plataforma.
+model SheetsData { 
+
+  id String @id @default(uuid())
+
+  data String[] @default([])
+
+  spreadSheetId String? 
+  spreadSheetName String?
+  spreadSheetTableName String?
+
+  financialDashboardId String? 
+  financialDashboard   FinancialDashboard?  @relation(fields: [financialDashboardId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("sheetsData")
+}
+
+//Dados de gráficos criados pelo user nos dashboards.
+model ChartData { 
+
+  id String @id @default(uuid())
+
+  data String //a métrica que ele está armazenando no gráfico
+
+  metricsName String //o nome da métrica que o usuário quer dar -> ex: "Relação de faturamento"
+
+  chartName String //o gráfico que ele está criando (nome: ex> 'lineBar', 'lineChart', 'DonutcHART) 
+
+  financialDashboardId String? 
+  financialDashboard   FinancialDashboard?  @relation(fields: [financialDashboardId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("chartData")
+}
+
+model FinancialDashboard {
+  id String @id @default(uuid())
+
+  SheetsData      SheetsData[]
+  ChartData       ChartData[]
+
+  name String? //o nome do dashboard
+
+  usuarioId String 
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime? @updatedAt
+
+  @@map("financialDashboard")
+}
