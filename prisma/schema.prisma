@@ -6,3 +6,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL") 
 }
+
+model TaskT {
+  id    Int     @id @default(autoincrement())
+}
