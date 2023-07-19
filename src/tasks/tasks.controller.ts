@@ -31,7 +31,7 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
-  scalableSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
+  deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
 
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   @ApiOperation({
@@ -49,7 +49,10 @@ export class TasksController {
   KYBBigData(@Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    if (String(req.headers['x-scalable-signature']) !== this.scalableSignature)
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
       throw new UnauthorizedException();
     return this.tasksService.updateTasksData();
   }
