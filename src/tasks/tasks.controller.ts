@@ -31,7 +31,7 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
-  scalableSignature = process.env.SCALABLE_SIGNATURE;
+  scalableSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
 
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   @ApiOperation({
