@@ -7,7 +7,7 @@ import {
 
 // import { import_ } from '@brillout/import';
 import { ethers } from 'ethers';
-import taskContractABI from './contracts/taskContractABI.json';
+import * as taskContractABI from './contracts/taskContractABI.json';
 
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
@@ -32,18 +32,22 @@ export class TasksService {
       taskContractABI,
       this.web3Provider,
     );
+    console.log('fui chamado2');
 
     const contractSigner = await newcontract.connect(connectedWallet);
+    console.log('fui chamado3');
 
     let taskCount = 0;
     await contractSigner.taskCount().then(function (response) {
       taskCount = response;
     });
+    console.log('fui chamado4');
 
     const tasks = [];
     //looping through all the tasks and getting the right data:
     for (let i = 0; i < taskCount; i++) {
       let taskMetadata;
+      console.log('fui chamado5');
       await contractSigner.getTask(i).then(function (response) {
         taskMetadata = response;
         console.log(' a task metadata:');
