@@ -15,12 +15,12 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Scalable API')
-    .setDescription('API da plataforma Scalable')
+    .setTitle('Deeplink API')
+    .setDescription('Deeplink API')
     .setVersion('1.0')
     .addBearerAuth(
       {
-        description: 'Por favor insira o token a seguir:',
+        description: 'Set the bearer',
         name: 'Authorization',
         bearerFormat: 'Bearer',
         scheme: 'Bearer',

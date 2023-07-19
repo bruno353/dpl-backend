@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "pagamentos" ADD COLUMN     "atualizadoEm" TIMESTAMP(3),
-ADD COLUMN     "criadoEm" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP;
