@@ -7,6 +7,49 @@ datasource db {
   url      = env("DATABASE_URL") 
 }
 
-model TaskT {
-  id    Int     @id @default(autoincrement())
+model Task {
+  id String @id @default(uuid())
+
+  taskId String  @unique //The id of the task onchain
+
+  status String? //The task status -> 0, 1 or 2 - ['open', 'active', 'completed']
+
+  type String? @default("Individual") //the type of the task -> individual or group
+
+  skills String[] @default([]) //the skills of this task. ex: Frontend, Bckend, Solidity
+
+  departament String?   //the departament of the task
+
+  deadline String? //the task deadline in Unix timestamp
+
+  description String? //task desc
+
+  title String? //task title
+
+  file String? //The file hash on ipfs (if its got any file linked to the task)
+
+  links String[] //["{"title": "My video","url": "https://www.youtube.com/watch?v=zizonToFXDs"}"]
+
+  payments Payment[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("task")
+}
+
+model Payment {
+    id String @id @default(uuid())
+
+    tokenContract String //the token contract of the payment task
+    amount String //The amount
+    decimals String //Decimals of the smart-contract token
+
+    taskId String  
+    task   Task  @relation(fields: [taskId], references: [id])
+
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime? @updatedAt
+
+    @@map("payment")
 }

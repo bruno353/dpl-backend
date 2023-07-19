@@ -8,6 +8,7 @@ import {
 // import { import_ } from '@brillout/import';
 import { ethers } from 'ethers';
 import * as taskContractABI from './contracts/taskContractABI.json';
+import * as erc20ContractABI from './contracts/erc20ContractABI.json';
 
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
@@ -22,7 +23,7 @@ export class TasksService {
   web3Provider = new ethers.providers.JsonRpcProvider(this.web3UrlProvider);
   viewPrivateKey = process.env.VIEW_PRIVATE_KEY;
   taskContractAddress = process.env.TASK_CONTRACT_ADDRESS;
-
+  ipfsBaseURL = process.env.IPFS_BASE_URL;
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   async updateTasksData() {
     const walletEther = new ethers.Wallet(this.viewPrivateKey);
@@ -32,30 +33,129 @@ export class TasksService {
       taskContractABI,
       this.web3Provider,
     );
-    console.log('fui chamado2');
 
     const contractSigner = await newcontract.connect(connectedWallet);
-    console.log('fui chamado3');
 
     let taskCount = 0;
     await contractSigner.taskCount().then(function (response) {
       taskCount = response;
     });
-    console.log('fui chamado4');
 
     const tasks = [];
     //looping through all the tasks and getting the right data:
     for (let i = 0; i < taskCount; i++) {
       let taskMetadata;
-      console.log('fui chamado5');
       await contractSigner.getTask(i).then(function (response) {
         taskMetadata = response;
-        console.log(' a task metadata:');
-        console.log(taskMetadata);
         tasks.push(taskMetadata);
       });
     }
 
-    return tasks;
+    const tasksWithMetadata = [];
+
+    //getting the metadata from ipfs:
+    for (let i = 0; i < taskCount; i++) {
+      const ipfsRes = await this.getDataFromIPFS(
+        tasks[i][0],
+        i,
+        tasks[i][1],
+        tasks[i][6],
+      );
+      console.log('a respsota q recebi');
+      console.log(ipfsRes);
+      tasksWithMetadata.push(ipfsRes);
+    }
+
+    for (const task of tasksWithMetadata) {
+      //string the links objects:
+      let finalLinkAsStrings = [];
+      if (task['links'] && task['links'].length > 0) {
+        finalLinkAsStrings = task['links'].map((dataItem) =>
+          JSON.stringify(dataItem),
+        );
+      }
+      await this.prisma.task.create({
+        data: {
+          taskId: String(task['id']),
+          deadline: task['deadline'],
+          description: task['description'],
+          file: task['file'],
+          links: finalLinkAsStrings,
+          payments: {
+            create: task['payments'],
+          },
+          skills: task['skills'],
+          status: String(task['status']),
+          title: task['title'],
+          departament: task['departament'],
+          type: task['type'],
+        },
+      });
+    }
+
+    return tasksWithMetadata;
+  }
+
+  async getDataFromIPFS(
+    hash: string,
+    taskId: number,
+    deadline: number,
+    state: number,
+  ) {
+    const url = `${this.ipfsBaseURL}/${hash}`;
+
+    let res;
+    await axios
+      .get(url)
+      .then(async (response) => {
+        console.log('the metadata:');
+        console.log(response.data);
+        const payments = await this.getDecimalsFromPaymentsToken(
+          response.data.payments,
+        );
+        response.data.payments = payments;
+        response.data.id = String(taskId);
+        response.data.deadline = String(deadline);
+        response.data.status = String(state);
+        console.log(`the metadata data`);
+        console.log(response.data);
+        res = response.data;
+      })
+      .catch(async (err) => {
+        console.log('erro ocorreu');
+        console.log(err);
+        return;
+      });
+    return res;
+  }
+
+  async getDecimalsFromPaymentsToken(payments) {
+    console.log('getting decimals');
+    console.log(payments);
+    const newPayments = [...payments]; // creating a copy of the payments
+
+    const walletEther = new ethers.Wallet(this.viewPrivateKey);
+    const connectedWallet = walletEther.connect(this.web3Provider);
+
+    for (let i = 0; i < payments.length; i++) {
+      const newcontract = new ethers.Contract(
+        payments[i].tokenContract,
+        erc20ContractABI,
+        this.web3Provider,
+      );
+      const contractSigner = await newcontract.connect(connectedWallet);
+
+      let decimals = null;
+      await contractSigner.decimals().then(function (response) {
+        decimals = response;
+      });
+      console.log('the decimal from token:');
+      console.log(decimals);
+      if (decimals) {
+        newPayments[i].decimals = String(Number(decimals)); // modifying the copy
+      }
+    }
+    // returning the state with the correctly decimals
+    return newPayments;
   }
 }
