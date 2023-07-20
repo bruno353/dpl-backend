@@ -179,6 +179,19 @@ export class TasksService {
       take: limit,
     });
 
+    // Function to obtain the counting of tasks
+    const getTaskCountForStatus = async (status: string) => {
+      return await this.prisma.task.count({
+        where: {
+          ...where,
+          status: status,
+        },
+      });
+    };
+    const openTaskCount = await getTaskCountForStatus('0');
+    const activeTaskCount = await getTaskCountForStatus('1');
+    const completedTaskCount = await getTaskCountForStatus('2');
+
     const totalTasks = await this.prisma.task.count({
       where,
     });
@@ -210,6 +223,11 @@ export class TasksService {
 
     return {
       tasks: finalTasks,
+      counting: {
+        open: openTaskCount,
+        active: activeTaskCount,
+        completed: completedTaskCount,
+      },
       pagination: {
         currentPage: page,
         totalPages,
