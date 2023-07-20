@@ -53,6 +53,7 @@ export class GetTasksDto {
   @ApiProperty({
     description: 'Current page for pagination',
     minimum: 1,
+    default: 1,
   })
   page: number;
 
