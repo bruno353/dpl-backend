@@ -47,6 +47,23 @@ export class GetTasksDto {
     example: 'Web3 development of website',
   })
   searchBar: string;
+
+  @IsOptional()
+  @IsInt()
+  @ApiProperty({
+    description: 'Current page for pagination',
+    minimum: 1,
+  })
+  page: number;
+
+  @IsOptional()
+  @IsInt()
+  @ApiProperty({
+    description: 'Tasks limit per page for pagination',
+    minimum: 1,
+    default: 10,
+  })
+  limit: number;
 }
 
 class PaymentDto {

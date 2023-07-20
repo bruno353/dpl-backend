@@ -125,7 +125,16 @@ export class TasksService {
   }
 
   async getTasks(data: GetTasksDto) {
-    const { departament, status, deadlineSorting, searchBar } = data;
+    const {
+      departament,
+      status,
+      deadlineSorting,
+      searchBar,
+      page = 1,
+      limit = 10,
+    } = data;
+
+    const skip = (page - 1) * limit;
 
     let orderBy = {};
     if (deadlineSorting) {
@@ -166,9 +175,16 @@ export class TasksService {
       orderBy: {
         deadline: deadlineSorting === 'oldest' ? 'desc' : 'asc',
       },
+      skip,
+      take: limit,
     });
 
-    // Converting taskId to id as Number and doing the status mapping.
+    const totalTasks = await this.prisma.task.count({
+      where,
+    });
+
+    const totalPages = Math.ceil(totalTasks / limit);
+
     const statusOptions = ['open', 'active', 'completed'];
     const finalTasks = tasks
       .filter((task) => {
@@ -192,7 +208,15 @@ export class TasksService {
         };
       });
 
-    return finalTasks;
+    return {
+      tasks: finalTasks,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalTasks,
+        limit,
+      },
+    };
   }
 
   // FUNCTIONS
