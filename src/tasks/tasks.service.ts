@@ -164,7 +164,7 @@ export class TasksService {
       },
       where,
       orderBy: {
-        deadline: deadlineSorting === 'newest' ? 'desc' : 'asc',
+        deadline: deadlineSorting === 'oldest' ? 'desc' : 'asc',
       },
     });
 
