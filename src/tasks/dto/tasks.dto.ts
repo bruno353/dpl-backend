@@ -120,6 +120,13 @@ export class TaskDto {
   @IsString()
   deadline: string;
 
+  @ApiProperty({
+    description: 'How many days are left to do the task',
+    example: '15 days left',
+  })
+  @IsString()
+  daysLeft: string;
+
   @ApiProperty({ example: 'Lorem ipsum relgiar' })
   @IsString()
   description: string;
@@ -205,6 +212,7 @@ export class TasksResponseDto {
         departament: 'Frontend',
         type: 'Individual',
         deadline: '1689811200',
+        daysLeft: '0 day left',
         description: 'Lorem ipsum relgiar',
         title: 'My Task',
         payments: [
