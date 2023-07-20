@@ -146,8 +146,8 @@ export class TasksService {
 
     if (searchBar) {
       where['OR'] = [
-        { title: { contains: searchBar } },
-        { skills: { hasSome: { contains: searchBar } } },
+        { title: { contains: searchBar.toLowerCase() } },
+        { skills: { has: { contains: searchBar.toLowerCase() } } },
       ];
     }
 
@@ -170,17 +170,18 @@ export class TasksService {
         },
       },
       where,
-      orderBy,
+      orderBy: {
+        deadline: deadlineSorting === 'newest' ? 'desc' : 'asc',
+      },
     });
 
     // Converting taskId to id as Number and doing the status mapping.
     const statusOptions = ['open', 'active', 'completed'];
     const finalTasks = tasks.map((task) => {
-      const { taskId, status, deadline, ...rest } = task;
+      const { taskId, status, ...rest } = task;
       return {
         id: Number(taskId),
         status: statusOptions[status],
-        deadline: parseInt(deadline),
         ...rest,
       };
     });
