@@ -170,6 +170,30 @@ class PaginationDto {
   limit: number;
 }
 
+class CountingDto {
+  @ApiProperty({
+    description: 'Of the total tasks after the filtering, how many are open',
+    example: 1,
+  })
+  @IsNumber()
+  open: number;
+
+  @ApiProperty({
+    description: 'Of the total tasks after the filtering, how many are active',
+    example: 2,
+  })
+  @IsNumber()
+  active: number;
+
+  @ApiProperty({
+    description:
+      'Of the total tasks after the filtering, how many are completed',
+    example: 20,
+  })
+  @IsNumber()
+  completed: number;
+}
+
 export class TasksResponseDto {
   @ApiProperty({
     type: [TaskDto],
@@ -198,6 +222,18 @@ export class TasksResponseDto {
   tasks: TaskDto[];
 
   @ApiProperty({
+    type: CountingDto,
+    example: {
+      open: 1,
+      active: 2,
+      completed: 20,
+    },
+  })
+  @ValidateNested()
+  @Type(() => CountingDto)
+  counting: CountingDto;
+
+  @ApiProperty({
     type: PaginationDto,
     example: {
       currentPage: 1,
@@ -207,6 +243,6 @@ export class TasksResponseDto {
     },
   })
   @ValidateNested()
-  @Type(() => PaginationDto)
-  pagination: PaginationDto;
+  @Type(() => CountingDto)
+  pagination: CountingDto;
 }
