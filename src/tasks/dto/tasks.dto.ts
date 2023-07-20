@@ -24,12 +24,12 @@ export class GetTasksDto {
   departament: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   @ApiProperty({
     description: 'The task status 0 -> open; 1 -> active; 2 -> completed',
-    enum: [0, 1, 2],
+    enum: ['0', '1', '2'],
   })
-  status: number;
+  status: string;
 
   @IsOptional()
   @IsString()
