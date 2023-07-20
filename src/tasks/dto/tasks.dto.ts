@@ -151,3 +151,62 @@ export class TaskDto {
   @Type(() => PaymentDto)
   payments: PaymentDto[];
 }
+
+class PaginationDto {
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  currentPage: number;
+
+  @ApiProperty({ example: 2 })
+  @IsNumber()
+  totalPages: number;
+
+  @ApiProperty({ example: 20 })
+  @IsNumber()
+  totalTasks: number;
+
+  @ApiProperty({ example: 10 })
+  @IsNumber()
+  limit: number;
+}
+
+export class TasksResponseDto {
+  @ApiProperty({
+    type: [TaskDto],
+    example: [
+      {
+        id: 1,
+        status: 'open',
+        skills: ['Frontend', 'Web development', 'Backend'],
+        departament: 'Frontend',
+        type: 'Individual',
+        deadline: '1689811200',
+        description: 'Lorem ipsum relgiar',
+        title: 'My Task',
+        payments: [
+          {
+            tokenContract: '0x6eFbB027a552637492D827524242252733F06916',
+            amount: '10000000000000000000',
+            decimals: '18',
+          },
+        ],
+      },
+    ],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => TaskDto)
+  tasks: TaskDto[];
+
+  @ApiProperty({
+    type: PaginationDto,
+    example: {
+      currentPage: 1,
+      totalPages: 2,
+      totalTasks: 20,
+      limit: 10,
+    },
+  })
+  @ValidateNested()
+  @Type(() => PaginationDto)
+  pagination: PaginationDto;
+}
