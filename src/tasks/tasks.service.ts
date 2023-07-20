@@ -144,13 +144,6 @@ export class TasksService {
       where['status'] = status;
     }
 
-    if (searchBar) {
-      where['OR'] = [
-        { title: { contains: searchBar.toLowerCase() } },
-        { skills: { has: { contains: searchBar.toLowerCase() } } },
-      ];
-    }
-
     const tasks = await this.prisma.task.findMany({
       select: {
         taskId: true,
@@ -177,14 +170,27 @@ export class TasksService {
 
     // Converting taskId to id as Number and doing the status mapping.
     const statusOptions = ['open', 'active', 'completed'];
-    const finalTasks = tasks.map((task) => {
-      const { taskId, status, ...rest } = task;
-      return {
-        id: Number(taskId),
-        status: statusOptions[status],
-        ...rest,
-      };
-    });
+    const finalTasks = tasks
+      .filter((task) => {
+        if (!searchBar) return true;
+        const lowerCaseSearchBar = searchBar.toLowerCase();
+        return (
+          (task.title &&
+            task.title.toLowerCase().includes(lowerCaseSearchBar)) ||
+          (task.skills &&
+            task.skills.some((skill) =>
+              skill.toLowerCase().includes(lowerCaseSearchBar),
+            ))
+        );
+      })
+      .map((task) => {
+        const { taskId, status, ...rest } = task;
+        return {
+          id: Number(taskId),
+          status: statusOptions[status],
+          ...rest,
+        };
+      });
 
     return finalTasks;
   }
