@@ -24,7 +24,7 @@ import {
 import { Request } from 'express';
 
 import { TasksService } from './tasks.service';
-import { TaskDto } from './dto/tasks.dto';
+import { GetTasksDto, TaskDto } from './dto/tasks.dto';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
 @Controller('functions')
@@ -68,9 +68,9 @@ export class TasksController {
   })
   @ApiResponse({ status: 200, type: TaskDto, isArray: true })
   @Post('getTasks')
-  getTasks(@Req() req: Request) {
+  getTasks(@Body() data: GetTasksDto, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    return this.tasksService.getTasks();
+    return this.tasksService.getTasks(data);
   }
 }

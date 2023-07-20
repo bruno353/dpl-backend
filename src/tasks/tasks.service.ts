@@ -13,6 +13,7 @@ import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
+import { GetTasksDto } from './dto/tasks.dto';
 
 @Injectable()
 export class TasksService {
@@ -123,7 +124,33 @@ export class TasksService {
     return tasksWithMetadata;
   }
 
-  async getTasks() {
+  async getTasks(data: GetTasksDto) {
+    const { departament, status, deadlineSorting, searchBar } = data;
+
+    let orderBy = {};
+    if (deadlineSorting) {
+      orderBy = {
+        deadline: deadlineSorting === 'newest' ? 'desc' : 'asc',
+      };
+    }
+
+    const where = {};
+
+    if (departament) {
+      where['departament'] = departament;
+    }
+
+    if (status) {
+      where['status'] = status;
+    }
+
+    if (searchBar) {
+      where['OR'] = [
+        { title: { contains: searchBar } },
+        { skills: { hasSome: { contains: searchBar } } },
+      ];
+    }
+
     const tasks = await this.prisma.task.findMany({
       select: {
         taskId: true,
@@ -142,15 +169,18 @@ export class TasksService {
           },
         },
       },
+      where,
+      orderBy,
     });
 
     // Converting taskId to id as Number and doing the status mapping.
     const statusOptions = ['open', 'active', 'completed'];
     const finalTasks = tasks.map((task) => {
-      const { taskId, status, ...rest } = task;
+      const { taskId, status, deadline, ...rest } = task;
       return {
         id: Number(taskId),
         status: statusOptions[status],
+        deadline: parseInt(deadline),
         ...rest,
       };
     });

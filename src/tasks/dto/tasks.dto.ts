@@ -14,6 +14,41 @@ import {
   IsArray,
 } from 'class-validator';
 
+export class GetTasksDto {
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'The task departament',
+    enum: ['Data', 'Blockchain', 'Cloud', 'Frontend'],
+  })
+  departament: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'The task status',
+    enum: ['open', 'active', 'completed'],
+  })
+  status: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description:
+      'Returning tasks with a longer or a shorter deadline compared to the currently time',
+    enum: ['newest', 'oldest'],
+  })
+  deadlineSorting: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Search tasks based on its title and skills',
+    example: 'Web3 development of website',
+  })
+  searchBar: string;
+}
+
 class PaymentDto {
   @ApiProperty({ example: '1' })
   @IsString()
