@@ -125,11 +125,37 @@ export class TasksService {
 
   async getTasks() {
     const tasks = await this.prisma.task.findMany({
-      include: {
-        payments: true,
+      select: {
+        taskId: true,
+        status: true,
+        title: true,
+        description: true,
+        deadline: true,
+        departament: true,
+        skills: true,
+        type: true,
+        payments: {
+          select: {
+            tokenContract: true,
+            amount: true,
+            decimals: true,
+          },
+        },
       },
     });
-    return tasks;
+
+    // Converting taskId to id as Number and doing the status mapping.
+    const statusOptions = ['open', 'active', 'completed'];
+    const finalTasks = tasks.map((task) => {
+      const { taskId, status, ...rest } = task;
+      return {
+        id: Number(taskId),
+        status: statusOptions[status],
+        ...rest,
+      };
+    });
+
+    return finalTasks;
   }
 
   // FUNCTIONS
