@@ -5,11 +5,13 @@ import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'src/database/prisma.service';
 import { EventsHandlerController } from './events-handler.controller';
 import { EventsHandlerService } from './events-handler.service';
+import { TasksModule } from '../tasks/tasks.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PassportModule,
+    TasksModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {

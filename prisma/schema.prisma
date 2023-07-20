@@ -53,3 +53,16 @@ model Payment {
 
     @@map("payment")
 }
+
+//events emitted by the smart-contracts
+model Event {
+  id String @id @default(uuid())
+
+  name String  //The event name
+  data String  //The event data
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("event")
+}
