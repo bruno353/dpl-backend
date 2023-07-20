@@ -50,10 +50,6 @@ export class GetTasksDto {
 }
 
 class PaymentDto {
-  @ApiProperty({ example: '1' })
-  @IsString()
-  id: string;
-
   @ApiProperty({ example: '0x6eFbB027a552637492D827524242252733F06916' })
   @IsString()
   tokenContract: string;
@@ -65,103 +61,75 @@ class PaymentDto {
   @ApiProperty({ example: '18' })
   @IsString()
   decimals: string;
-
-  @ApiProperty({ example: '1' })
-  @IsString()
-  taskId: string;
-
-  @ApiProperty({ example: '2023-07-19T12:34:56.789Z' })
-  @IsString()
-  createdAt: string;
-
-  @ApiProperty({ example: '2023-07-19T12:34:56.789Z' })
-  @IsOptional()
-  @IsString()
-  updatedAt?: string;
 }
 
 export class TaskDto {
-  @ApiProperty({ example: '0' })
-  @IsString()
-  id: string;
+  @ApiProperty({ description: 'The task id onchain', example: 0 })
+  @IsNumber()
+  id: number;
 
-  @ApiProperty({ example: '1' })
+  @ApiProperty({
+    description: 'The task status',
+    example: 'open',
+    enum: ['open', 'active', 'completed'],
+  })
   @IsString()
-  taskId: string;
-
-  @ApiProperty({ example: '0' })
-  @IsOptional()
-  @IsString()
-  status?: string;
-
-  @ApiProperty({ example: 'Individual' })
-  @IsOptional()
-  @IsString()
-  type?: string;
+  status: string;
 
   @ApiProperty({ example: ['Frontend', 'Web development', 'Backend'] })
   @IsArray()
   @IsString({ each: true })
   skills: string[];
 
-  @ApiProperty({ example: 'Frontend' })
-  @IsOptional()
+  @ApiProperty({
+    example: 'Frontend',
+    enum: ['Data', 'Blockchain', 'Cloud', 'Frontend'],
+  })
   @IsString()
-  departament?: string;
-
-  @ApiProperty({ example: '1689811200' })
-  @IsOptional()
-  @IsString()
-  deadline?: string;
-
-  @ApiProperty({ example: 'Testeeteteteetet' })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiProperty({ example: 'TestyeTeste' })
-  @IsOptional()
-  @IsString()
-  title?: string;
-
-  @ApiProperty({ example: 'QmPafYj2nTXJDPhb4ggdjDUFavXXHoE2gxaeQ9tEgPbUug' })
-  @IsOptional()
-  @IsString()
-  file?: string;
+  departament: string;
 
   @ApiProperty({
-    example: [
-      '{"title": "My video","url": "https://www.youtube.com/watch?v=zizonToFXDs"}',
-    ],
+    example: 'Individual',
+    enum: ['Individual', 'Group'],
   })
-  @IsArray()
-  @IsString({ each: true })
-  links: string[];
+  @IsString()
+  type: string;
+
+  @ApiProperty({
+    description: 'the task deadline in Unix timestamp',
+    example: '1689811200',
+  })
+  @IsString()
+  deadline: string;
+
+  @ApiProperty({ example: 'Lorem ipsum relgiar' })
+  @IsString()
+  description: string;
+
+  @ApiProperty({ example: 'My Task' })
+  @IsString()
+  title: string;
+
+  // @ApiProperty({
+  //   example: [
+  //     '{"title": "My video","url": "https://www.youtube.com/watch?v=zizonToFXDs"}',
+  //   ],
+  // })
+  // @IsArray()
+  // @IsString({ each: true })
+  // links: string[];
 
   @ApiProperty({
     type: [PaymentDto],
     example: [
       {
-        id: '1',
         tokenContract: '0x6eFbB027a552637492D827524242252733F06916',
         amount: '10000000000000000000',
         decimals: '18',
-        taskId: '1',
-        createdAt: '2023-07-19T12:34:56.789Z',
-        updatedAt: '2023-07-19T12:34:56.789Z',
       },
     ],
   })
   @ValidateNested({ each: true })
   @Type(() => PaymentDto)
   payments: PaymentDto[];
-
-  @ApiProperty({ example: '2023-07-19T12:34:56.789Z' })
-  @IsString()
-  createdAt: string;
-
-  @ApiProperty({ example: '2023-07-19T12:34:56.789Z' })
-  @IsOptional()
-  @IsString()
-  updatedAt?: string;
 }
