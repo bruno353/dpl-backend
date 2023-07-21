@@ -153,6 +153,21 @@ export class TasksService {
       where['status'] = status;
     }
 
+    if (searchBar) {
+      where['OR'] = [
+        {
+          title: {
+            contains: searchBar,
+          },
+        },
+        {
+          skills: {
+            hasSome: [searchBar],
+          },
+        },
+      ];
+    }
+
     const tasks = await this.prisma.task.findMany({
       select: {
         taskId: true,
@@ -199,48 +214,35 @@ export class TasksService {
     const totalPages = Math.ceil(totalTasks / limit);
 
     const statusOptions = ['open', 'active', 'completed'];
-    const finalTasks = tasks
-      .filter((task) => {
-        if (!searchBar) return true;
-        const lowerCaseSearchBar = searchBar.toLowerCase();
-        return (
-          (task.title &&
-            task.title.toLowerCase().includes(lowerCaseSearchBar)) ||
-          (task.skills &&
-            task.skills.some((skill) =>
-              skill.toLowerCase().includes(lowerCaseSearchBar),
-            ))
-        );
-      })
-      .map((task) => {
-        const { taskId, status, deadline, ...rest } = task;
+    const finalTasks = tasks.map((task) => {
+      const { taskId, status, deadline, ...rest } = task;
 
-        //here do the "days left" flow:
-        let daysLeft;
-        const now = Date.now();
-        const deadlineDay = Number(task.deadline) * 1000;
-        const distance = deadlineDay - now;
+      //here do the "days left" flow:
+      let daysLeft;
+      const now = Date.now();
+      const deadlineDay = Number(task.deadline) * 1000;
+      const distance = deadlineDay - now;
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
 
-        if (days < 0) {
-          daysLeft = 'ended';
+      if (days < 0) {
+        daysLeft = 'ended';
+      } else {
+        if (days <= 1) {
+          daysLeft = `${days} day left`;
         } else {
-          if (days <= 1) {
-            daysLeft = `${days} day left`;
-          } else {
-            daysLeft = `${days} days left`;
-          }
+          daysLeft = `${days} days left`;
         }
+      }
 
-        return {
-          id: Number(taskId),
-          status: statusOptions[status],
-          deadline,
-          daysLeft,
-          ...rest,
-        };
-      });
+      return {
+        id: Number(taskId),
+        status: statusOptions[status],
+        deadline,
+        daysLeft,
+        ...rest,
+      };
+    });
 
     return {
       tasks: finalTasks,
