@@ -158,11 +158,13 @@ export class TasksService {
         {
           title: {
             contains: searchBar,
+            mode: 'insensitive',
           },
         },
         {
           skills: {
             hasSome: [searchBar],
+            mode: 'insensitive',
           },
         },
       ];
