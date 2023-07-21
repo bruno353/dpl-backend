@@ -128,6 +128,106 @@ export class TasksService {
     return tasksWithMetadata;
   }
 
+  //updates a single task
+  async updateSingleTaskData(id: number) {
+    const walletEther = new ethers.Wallet(this.viewPrivateKey);
+    const connectedWallet = walletEther.connect(this.web3Provider);
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    const contractSigner = await newcontract.connect(connectedWallet);
+
+    let taskCount = 0;
+    await contractSigner.taskCount().then(function (response) {
+      taskCount = response;
+    });
+
+    const tasks = [];
+
+    let taskMetadata;
+    await contractSigner.getTask(id).then(function (response) {
+      taskMetadata = response;
+      tasks.push(taskMetadata);
+    });
+
+    const tasksWithMetadata = [];
+
+    //getting the metadata from ipfs:
+    for (let i = 0; i < taskCount; i++) {
+      const ipfsRes = await this.getDataFromIPFS(
+        tasks[i][0],
+        i,
+        tasks[i][1],
+        tasks[i][6],
+      );
+      console.log(ipfsRes);
+      if (ipfsRes) {
+        tasksWithMetadata.push(ipfsRes);
+      }
+    }
+
+    for (const task of tasksWithMetadata) {
+      let finalLinkAsStrings = [];
+      if (task['links'] && task['links'].length > 0) {
+        finalLinkAsStrings = task['links'].map((dataItem) =>
+          JSON.stringify(dataItem),
+        );
+      }
+
+      const existingTask = await this.prisma.task.findUnique({
+        where: { taskId: String(task['id']) },
+        include: { payments: true },
+      });
+
+      if (existingTask) {
+        await this.prisma.payment.deleteMany({
+          where: { taskId: existingTask.id },
+        });
+      }
+
+      const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
+
+      await this.prisma.task.upsert({
+        where: { taskId: String(task['id']) },
+        update: {
+          deadline: task['deadline'],
+          description: task['description'],
+          file: task['file'],
+          links: finalLinkAsStrings,
+          payments: {
+            create: task['payments'],
+          },
+          skills: task['skills'],
+          skillsSearch,
+          status: String(task['status']),
+          title: task['title'],
+          departament: task['departament'],
+          type: task['type'],
+        },
+        create: {
+          taskId: String(task['id']),
+          deadline: task['deadline'],
+          description: task['description'],
+          file: task['file'],
+          links: finalLinkAsStrings,
+          payments: {
+            create: task['payments'],
+          },
+          skills: task['skills'],
+          skillsSearch,
+          status: String(task['status']),
+          title: task['title'],
+          departament: task['departament'],
+          type: task['type'],
+        },
+      });
+    }
+    return tasksWithMetadata;
+  }
+
   async getTasks(data: GetTasksDto) {
     const {
       departament,

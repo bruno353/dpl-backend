@@ -58,6 +58,7 @@ export class EventsHandlerService {
             data: String(finalData),
           },
         });
+        await this.tasksService.updateSingleTaskData(taskId);
         this.tasksService.updateTasksData();
       },
     );
