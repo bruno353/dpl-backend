@@ -88,6 +88,8 @@ export class TasksService {
         });
       }
 
+      const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
+
       await this.prisma.task.upsert({
         where: { taskId: String(task['id']) },
         update: {
@@ -99,6 +101,7 @@ export class TasksService {
             create: task['payments'],
           },
           skills: task['skills'],
+          skillsSearch,
           status: String(task['status']),
           title: task['title'],
           departament: task['departament'],
@@ -114,6 +117,7 @@ export class TasksService {
             create: task['payments'],
           },
           skills: task['skills'],
+          skillsSearch,
           status: String(task['status']),
           title: task['title'],
           departament: task['departament'],
@@ -162,8 +166,8 @@ export class TasksService {
           },
         },
         {
-          skills: {
-            hasSome: [searchBar],
+          skillsSearch: {
+            contains: searchBar,
             mode: 'insensitive',
           },
         },

@@ -16,7 +16,9 @@ model Task {
 
   type String? @default("Individual") //the type of the task -> individual or group
 
-  skills String[] @default([]) //the skills of this task. ex: Frontend, Bckend, Solidity
+  skills String[] @default([]) //the skills of this task. ex: Frontend, Backend, Solidity
+
+  skillsSearch String? //parameter mandatory to execute case insensitive searchs on the database - additional paramater to facilitate the searchs on database
 
   departament String?   //the departament of the task
 
