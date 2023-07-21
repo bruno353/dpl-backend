@@ -191,14 +191,8 @@ export class TasksService {
     const openTaskCount = await getTaskCountForStatus('0');
     const activeTaskCount = await getTaskCountForStatus('1');
     const completedTaskCount = await getTaskCountForStatus('2');
-
-    const totalTasks = await this.prisma.task.count({
-      where,
-    });
-
-    const totalPages = Math.ceil(totalTasks / limit);
-
     const statusOptions = ['open', 'active', 'completed'];
+
     const finalTasks = tasks
       .filter((task) => {
         if (!searchBar) return true;
@@ -242,8 +236,13 @@ export class TasksService {
         };
       });
 
+    const totalTasks = finalTasks.length;
+    const totalPages = Math.ceil(totalTasks / limit);
+
+    const paginatedTasks = finalTasks.slice((page - 1) * limit, page * limit);
+
     return {
-      tasks: finalTasks,
+      tasks: paginatedTasks,
       counting: {
         open: openTaskCount,
         active: activeTaskCount,
