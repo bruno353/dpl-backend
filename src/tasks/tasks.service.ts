@@ -14,6 +14,7 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { GetTasksDto } from './dto/tasks.dto';
+import { UploadIPFSMetadataDTO } from './dto/metadata.dto';
 
 @Injectable()
 export class TasksService {
@@ -126,6 +127,26 @@ export class TasksService {
       });
     }
     return tasksWithMetadata;
+  }
+
+  async uploadIPFSMetadata(data: UploadIPFSMetadataDTO) {
+    const pinataAxios = axios.create({
+      baseURL: 'https://api.pinata.cloud/pinning/',
+      headers: {
+        pinata_api_key: '7b27a531082e163ee9ae',
+        pinata_secret_api_key:
+          '0397c0df5cc360ed98cf81f8435569775b0763aa004c00f470146911138475db',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const response = await pinataAxios.post('pinJSONToIPFS', data);
+
+    const ipfsHash = response.data.IpfsHash;
+
+    console.log('JSON uploaded to IPFS with hash', ipfsHash);
+
+    return ipfsHash;
   }
 
   //updates a single task

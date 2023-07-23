@@ -25,6 +25,10 @@ import { Request } from 'express';
 
 import { TasksService } from './tasks.service';
 import { GetTasksDto, TaskDto, TasksResponseDto } from './dto/tasks.dto';
+import {
+  IPFSUploadResponseDTO,
+  UploadIPFSMetadataDTO,
+} from './dto/metadata.dto';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
 @Controller('functions')
@@ -72,5 +76,21 @@ export class TasksController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.getTasks(data);
+  }
+
+  // Uploads the task's ipfs metadata:
+  @ApiOperation({
+    summary: "Uploads the task's ipfs metadata",
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: IPFSUploadResponseDTO })
+  @Post('uploadIPFSMetadata')
+  uploadIPFSMetadata(@Body() data: UploadIPFSMetadataDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.uploadIPFSMetadata(data);
   }
 }
