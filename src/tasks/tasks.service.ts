@@ -140,6 +140,12 @@ export class TasksService {
       },
     });
 
+    if (data.numberOfApplicants === 'Only 1') {
+      data['type'] = 'Individual';
+    } else {
+      data['type'] = 'Group';
+    }
+
     const response = await pinataAxios.post('pinJSONToIPFS', data);
 
     const ipfsHash = response.data.IpfsHash;
