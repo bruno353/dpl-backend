@@ -234,10 +234,8 @@ class LinksDTO {
     description: "The link's url",
     example: 'www.github.com.br',
   })
-  @Max(100)
-  @Min(0.01)
   @IsString()
-  url: number;
+  url: string;
 }
 
 export class UploadIPFSMetadataDTO {
