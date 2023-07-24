@@ -238,7 +238,7 @@ class LinksDTO {
   url: string;
 }
 
-export class UploadIPFSMetadataDTO {
+export class UploadIPFSMetadataTaskCreationDTO {
   @IsNotEmpty()
   @ApiProperty({
     description: "Task's title",
@@ -346,7 +346,48 @@ export class UploadIPFSMetadataDTO {
   links: LinksDTO[] | null;
 }
 
-export class IPFSUploadResponseDTO {
+export class UploadIPFSMetadataTaskApplicationDTO {
+  @IsNotEmpty()
+  @ApiProperty({
+    description: "Application's title",
+    example: 'My task',
+  })
+  @IsString()
+  displayName: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: "Application's description",
+    example: 'Lorem ipsum religaris...',
+  })
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'How likely to meet the deadline for the task',
+    example: 'Very unlikely',
+    enum: ['Very unlikely', 'Unlikely', 'Likely', 'Very likely'],
+  })
+  @IsString()
+  howLikelyToMeetTheDeadline: string;
+
+  @IsOptional()
+  @ApiProperty({
+    type: [LinksDTO],
+    example: [
+      {
+        title: 'Github repository',
+        url: 'www.github.com',
+      },
+    ],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => LinksDTO)
+  links: LinksDTO[] | null;
+}
+
+export class IPFSUploadTaskCreationResponseDTO {
   @IsNotEmpty()
   @ApiProperty({
     description: 'The ipfs hash metadata',

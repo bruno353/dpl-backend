@@ -26,8 +26,9 @@ import { Request } from 'express';
 import { TasksService } from './tasks.service';
 import { GetTasksDto, TaskDto, TasksResponseDto } from './dto/tasks.dto';
 import {
-  IPFSUploadResponseDTO,
-  UploadIPFSMetadataDTO,
+  IPFSUploadTaskCreationResponseDTO,
+  UploadIPFSMetadataTaskApplicationDTO,
+  UploadIPFSMetadataTaskCreationDTO,
 } from './dto/metadata.dto';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
@@ -78,19 +79,41 @@ export class TasksController {
     return this.tasksService.getTasks(data);
   }
 
-  // Uploads the task's ipfs metadata:
+  // Uploads the task's ipfs metadata for task create:
   @ApiOperation({
-    summary: "Uploads the task's ipfs metadata",
+    summary: "Uploads the task's ipfs metadata for task creation",
   })
   @ApiHeader({
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
-  @ApiResponse({ status: 200, type: IPFSUploadResponseDTO })
-  @Post('uploadIPFSMetadata')
-  uploadIPFSMetadata(@Body() data: UploadIPFSMetadataDTO, @Req() req: Request) {
+  @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
+  @Post('uploadIPFSMetadataTaskCreation')
+  uploadIPFSMetadataTaskCreation(
+    @Body() data: UploadIPFSMetadataTaskCreationDTO,
+    @Req() req: Request,
+  ) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    return this.tasksService.uploadIPFSMetadata(data);
+    return this.tasksService.uploadIPFSMetadataTaskCreation(data);
+  }
+
+  // Uploads the task's ipfs metadata for task application:
+  @ApiOperation({
+    summary: "Uploads the task's ipfs metadata for task application",
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
+  @Post('uploadIPFSMetadataTaskApplication')
+  uploadIPFSMetadataTaskApplication(
+    @Body() data: UploadIPFSMetadataTaskApplicationDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.uploadIPFSMetadataTaskApplication(data);
   }
 }

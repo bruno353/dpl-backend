@@ -14,7 +14,10 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { GetTasksDto } from './dto/tasks.dto';
-import { UploadIPFSMetadataDTO } from './dto/metadata.dto';
+import {
+  UploadIPFSMetadataTaskApplicationDTO,
+  UploadIPFSMetadataTaskCreationDTO,
+} from './dto/metadata.dto';
 
 @Injectable()
 export class TasksService {
@@ -26,6 +29,8 @@ export class TasksService {
   viewPrivateKey = process.env.VIEW_PRIVATE_KEY;
   taskContractAddress = process.env.TASK_CONTRACT_ADDRESS;
   ipfsBaseURL = process.env.IPFS_BASE_URL;
+  pinataApiKey = process.env.PINATA_API_KEY;
+  pinataSecretApiKey = process.env.PINATA_SECRET_API_KEY;
 
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   async updateTasksData() {
@@ -129,13 +134,14 @@ export class TasksService {
     return tasksWithMetadata;
   }
 
-  async uploadIPFSMetadata(data: UploadIPFSMetadataDTO) {
+  async uploadIPFSMetadataTaskCreation(
+    data: UploadIPFSMetadataTaskCreationDTO,
+  ) {
     const pinataAxios = axios.create({
       baseURL: 'https://api.pinata.cloud/pinning/',
       headers: {
-        pinata_api_key: '7b27a531082e163ee9ae',
-        pinata_secret_api_key:
-          '0397c0df5cc360ed98cf81f8435569775b0763aa004c00f470146911138475db',
+        pinata_api_key: this.pinataSecretApiKey,
+        pinata_secret_api_key: this.pinataSecretApiKey,
         'Content-Type': 'application/json',
       },
     });
@@ -145,6 +151,27 @@ export class TasksService {
     } else {
       data['type'] = 'Group';
     }
+
+    const response = await pinataAxios.post('pinJSONToIPFS', data);
+
+    const ipfsHash = response.data.IpfsHash;
+
+    console.log('JSON uploaded to IPFS with hash', ipfsHash);
+
+    return ipfsHash;
+  }
+
+  async uploadIPFSMetadataTaskApplication(
+    data: UploadIPFSMetadataTaskApplicationDTO,
+  ) {
+    const pinataAxios = axios.create({
+      baseURL: 'https://api.pinata.cloud/pinning/',
+      headers: {
+        pinata_api_key: this.pinataSecretApiKey,
+        pinata_secret_api_key: this.pinataSecretApiKey,
+        'Content-Type': 'application/json',
+      },
+    });
 
     const response = await pinataAxios.post('pinJSONToIPFS', data);
 
