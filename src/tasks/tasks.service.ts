@@ -496,13 +496,11 @@ export class TasksService {
     }
 
     return {
-      task: {
-        id: Number(taskId),
-        status: this.statusOptions[status],
-        deadline,
-        daysLeft,
-        ...rest,
-      },
+      id: Number(taskId),
+      status: this.statusOptions[status],
+      deadline,
+      daysLeft,
+      ...rest,
     };
   }
 
