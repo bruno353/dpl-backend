@@ -468,6 +468,13 @@ export class TasksService {
       },
     });
 
+    if (!task) {
+      throw new BadRequestException('Task not found', {
+        cause: new Error(),
+        description: 'Task not found',
+      });
+    }
+
     const { taskId, status, deadline, ...rest } = task;
 
     //here do the "days left" flow:
