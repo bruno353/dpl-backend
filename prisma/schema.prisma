@@ -32,7 +32,11 @@ model Task {
 
   links String[] //["{"title": "My video","url": "https://www.youtube.com/watch?v=zizonToFXDs"}"]
 
+  applications String @default("[]") //A stringified array opf applications for the task -> struct OffChainApplication {address applicant; bool accepted; Reward[] reward;}
+
   payments Payment[]
+
+  estimatedBudget String @default("0") //getting the value from the tokens we return the estimated budget in USD.
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt

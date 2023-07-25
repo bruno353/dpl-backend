@@ -10,10 +10,14 @@ import { ethers } from 'ethers';
 import * as taskContractABI from '../contracts/taskContractABI.json';
 import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 
+import Decimal from 'decimal.js';
+Decimal.set({ precision: 60 });
+
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { GetTasksDto } from './dto/tasks.dto';
+import { UtilsService } from '../utils/utils.service';
 import {
   UploadIPFSMetadataTaskApplicationDTO,
   UploadIPFSMetadataTaskCreationDTO,
@@ -21,7 +25,10 @@ import {
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utilsService: UtilsService,
+  ) {}
 
   //setting variables:
   web3UrlProvider = process.env.WEB3_URL_PROVIDER;
@@ -31,6 +38,10 @@ export class TasksService {
   ipfsBaseURL = process.env.IPFS_BASE_URL;
   pinataApiKey = process.env.PINATA_API_KEY;
   pinataSecretApiKey = process.env.PINATA_SECRET_API_KEY;
+  environment = process.env.ENVIRONMENT;
+  usdcTokenAddress = process.env.USDC_TOKEN_ADDRESS;
+  usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
+  wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
 
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   async updateTasksData() {
@@ -54,7 +65,7 @@ export class TasksService {
     for (let i = 0; i < taskCount; i++) {
       let taskMetadata;
       await contractSigner.getTask(i).then(function (response) {
-        taskMetadata = response;
+        taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
         tasks.push(taskMetadata);
       });
     }
@@ -71,6 +82,8 @@ export class TasksService {
       );
       console.log(ipfsRes);
       if (ipfsRes) {
+        //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
+        ipfsRes['applications'] = JSON.stringify(tasks[i][6]);
         tasksWithMetadata.push(ipfsRes);
       }
     }
@@ -106,8 +119,10 @@ export class TasksService {
           payments: {
             create: task['payments'],
           },
+          estimatedBudget: task['estimatedBudget'],
           skills: task['skills'],
           skillsSearch,
+          applications: task['applications'],
           status: String(task['status']),
           title: task['title'],
           departament: task['departament'],
@@ -119,9 +134,11 @@ export class TasksService {
           description: task['description'],
           file: task['file'],
           links: finalLinkAsStrings,
+          applications: task['applications'],
           payments: {
             create: task['payments'],
           },
+          estimatedBudget: task['estimatedBudget'],
           skills: task['skills'],
           skillsSearch,
           status: String(task['status']),
@@ -203,7 +220,7 @@ export class TasksService {
 
     let taskMetadata;
     await contractSigner.getTask(id).then(function (response) {
-      taskMetadata = response;
+      taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
       tasks.push(taskMetadata);
     });
 
@@ -254,7 +271,9 @@ export class TasksService {
           payments: {
             create: task['payments'],
           },
+          estimatedBudget: task['estimatedBudget'],
           skills: task['skills'],
+          applications: task['applications'],
           skillsSearch,
           status: String(task['status']),
           title: task['title'],
@@ -270,7 +289,9 @@ export class TasksService {
           payments: {
             create: task['payments'],
           },
+          estimatedBudget: task['estimatedBudget'],
           skills: task['skills'],
+          applications: task['applications'],
           skillsSearch,
           status: String(task['status']),
           title: task['title'],
@@ -337,6 +358,7 @@ export class TasksService {
         deadline: true,
         departament: true,
         skills: true,
+        estimatedBudget: true,
         type: true,
         payments: {
           select: {
@@ -421,6 +443,7 @@ export class TasksService {
   }
 
   // FUNCTIONS
+  //example metadata: QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv
   async getDataFromIPFS(
     hash: string,
     taskId: number,
@@ -439,6 +462,9 @@ export class TasksService {
           response.data.payments,
         );
         response.data.payments = payments;
+        response.data['estimatedBudget'] = await this.getEstimateBudgetToken(
+          payments,
+        );
         response.data.id = String(taskId);
         response.data.deadline = String(deadline);
         response.data.status = String(state);
@@ -452,6 +478,51 @@ export class TasksService {
         return null;
       });
     return res;
+  }
+
+  //example of payment:   "payments": [    {      "tokenContract": "0x6eFbB027a552637492D827524242252733F06916",      "amount": "1000000000000000000",  "decimals": "18"    }  ],
+  async getEstimateBudgetToken(payments) {
+    let budget = '0';
+
+    if (this.environment === 'PROD') {
+      try {
+        for (let i = 0; i < payments.length; i++) {
+          //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
+          let valueToken = '1';
+          if (payments[i].tokenContract === this.wEthTokenAddress) {
+            valueToken = await this.utilsService.getWETHPriceTokens(
+              this.wEthTokenAddress,
+            );
+          }
+
+          const totalTokens = new Decimal(payments[i].amount).div(
+            new Decimal(payments[i].decimals),
+          );
+          budget = new Decimal(budget)
+            .plus(new Decimal(totalTokens).mul(new Decimal(valueToken)))
+            .toFixed(2);
+        }
+      } catch (err) {
+        console.log('error catching estimated budget value');
+        console.log(err);
+      }
+    } else {
+      try {
+        //if its a dev environment, just consider every token to be a stablecoin 1:1
+        for (let i = 0; i < payments.length; i++) {
+          const totalTokens = new Decimal(payments[i].amount).div(
+            new Decimal(payments[i].decimals),
+          );
+          budget = new Decimal(budget)
+            .plus(new Decimal(totalTokens))
+            .toFixed(2);
+        }
+      } catch (err) {
+        console.log('error catching estimated budget value');
+        console.log(err);
+      }
+    }
+    return budget;
   }
 
   async getDecimalsFromPaymentsToken(payments) {

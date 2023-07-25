@@ -1,17 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'src/database/prisma.service';
-import { TasksController } from './tasks.controller';
-import { TasksService } from './tasks.service';
-import { UtilsModule } from 'src/utils/utils.module';
+import { UtilsService } from '../utils/utils.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PassportModule,
-    UtilsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
@@ -23,8 +20,7 @@ import { UtilsModule } from 'src/utils/utils.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [TasksController],
-  providers: [TasksService, PrismaService],
-  exports: [TasksService],
+  providers: [UtilsService, PrismaService],
+  exports: [UtilsService],
 })
-export class TasksModule {}
+export class UtilsModule {}
