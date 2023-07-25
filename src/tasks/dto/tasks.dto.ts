@@ -107,6 +107,14 @@ export class TaskDto {
   departament: string;
 
   @ApiProperty({
+    description:
+      'getting the value from the tokens we return the estimated budget in USD.',
+    example: '520.21',
+  })
+  @IsString()
+  estimatedBudget: string;
+
+  @ApiProperty({
     example: 'Individual',
     enum: ['Individual', 'Group'],
   })
@@ -253,4 +261,14 @@ export class TasksResponseDto {
   @ValidateNested()
   @Type(() => CountingDto)
   pagination: CountingDto;
+}
+
+export class GetTaskDto {
+  @IsString()
+  @ApiProperty({
+    description: 'How many days are left to do the task',
+    example: '15 days left',
+  })
+  @IsNotEmpty()
+  id: string;
 }

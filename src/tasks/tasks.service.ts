@@ -16,7 +16,7 @@ Decimal.set({ precision: 60 });
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
-import { GetTasksDto } from './dto/tasks.dto';
+import { GetTaskDto, GetTasksDto } from './dto/tasks.dto';
 import { UtilsService } from '../utils/utils.service';
 import {
   UploadIPFSMetadataTaskApplicationDTO,
@@ -42,6 +42,8 @@ export class TasksService {
   usdcTokenAddress = process.env.USDC_TOKEN_ADDRESS;
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
+
+  statusOptions = ['open', 'active', 'completed'];
 
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   async updateTasksData() {
@@ -395,7 +397,6 @@ export class TasksService {
 
     const totalPages = Math.ceil(totalTasks / limit);
 
-    const statusOptions = ['open', 'active', 'completed'];
     const finalTasks = tasks.map((task) => {
       const { taskId, status, deadline, ...rest } = task;
 
@@ -419,7 +420,7 @@ export class TasksService {
 
       return {
         id: Number(taskId),
-        status: statusOptions[status],
+        status: this.statusOptions[status],
         deadline,
         daysLeft,
         ...rest,
@@ -438,6 +439,62 @@ export class TasksService {
         totalPages,
         totalTasks,
         limit,
+      },
+    };
+  }
+
+  async getTask(data: GetTaskDto) {
+    const task = await this.prisma.task.findUnique({
+      select: {
+        taskId: true,
+        status: true,
+        title: true,
+        description: true,
+        deadline: true,
+        departament: true,
+        skills: true,
+        estimatedBudget: true,
+        type: true,
+        payments: {
+          select: {
+            tokenContract: true,
+            amount: true,
+            decimals: true,
+          },
+        },
+      },
+      where: {
+        taskId: data.id,
+      },
+    });
+
+    const { taskId, status, deadline, ...rest } = task;
+
+    //here do the "days left" flow:
+    let daysLeft;
+    const now = Date.now();
+    const deadlineDay = Number(task.deadline) * 1000;
+    const distance = deadlineDay - now;
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+
+    if (days < 0) {
+      daysLeft = 'ended';
+    } else {
+      if (days <= 1) {
+        daysLeft = `${days} day left`;
+      } else {
+        daysLeft = `${days} days left`;
+      }
+    }
+
+    return {
+      task: {
+        id: Number(taskId),
+        status: this.statusOptions[status],
+        deadline,
+        daysLeft,
+        ...rest,
       },
     };
   }
