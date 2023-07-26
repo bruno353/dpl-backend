@@ -381,7 +381,7 @@ export class UploadIPFSMetadataTaskApplicationDTO {
   @IsNumber()
   @Max(250)
   @Min(0)
-  budgetPercentageRequested: string;
+  budgetPercentageRequested: number;
 
   @IsOptional()
   @ApiProperty({
