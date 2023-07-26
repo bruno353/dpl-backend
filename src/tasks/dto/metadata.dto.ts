@@ -372,6 +372,17 @@ export class UploadIPFSMetadataTaskApplicationDTO {
   @IsString()
   howLikelyToMeetTheDeadline: string;
 
+  @IsNotEmpty()
+  @ApiProperty({
+    description:
+      'The percentage of the budget that the user is requesting for doing the task - Ex: 120 means he wants 120% of the currently value in dollars of the tokens set as the budget',
+    example: 120,
+  })
+  @IsNumber()
+  @Max(250)
+  @Min(0)
+  budgetPercentageRequested: string;
+
   @IsOptional()
   @ApiProperty({
     type: [LinksDTO],
