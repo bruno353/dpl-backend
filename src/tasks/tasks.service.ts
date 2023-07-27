@@ -156,24 +156,38 @@ export class TasksService {
   async uploadIPFSMetadataTaskCreation(
     data: UploadIPFSMetadataTaskCreationDTO,
   ) {
-    const pinataAxios = axios.create({
-      baseURL: 'https://api.pinata.cloud/pinning/',
-      headers: {
-        pinata_api_key: this.pinataSecretApiKey,
-        pinata_secret_api_key: this.pinataSecretApiKey,
-        'Content-Type': 'application/json',
-      },
-    });
-
     if (data.numberOfApplicants === 'Only 1') {
       data['type'] = 'Individual';
     } else {
       data['type'] = 'Group';
     }
 
-    const response = await pinataAxios.post('pinJSONToIPFS', data);
+    const config = {
+      method: 'post',
+      url: `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
+      headers: {
+        pinata_api_key: this.pinataApiKey,
+        pinata_secret_api_key: this.pinataSecretApiKey,
+        'Content-Type': 'application/json',
+      },
+      data,
+    };
 
-    const ipfsHash = response.data.IpfsHash;
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('Error during IPFS upload', {
+        cause: new Error(),
+        description: 'Error during IPFS upload',
+      });
+    }
+
+    const ipfsHash = dado.IpfsHash;
 
     console.log('JSON uploaded to IPFS with hash', ipfsHash);
 
