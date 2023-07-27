@@ -63,7 +63,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event ApplicationCreated(uint256 taskId, uint16 applicationId, string metadata, Reward[] reward, address proposer, address applicant);
     // this.newcontract.on(
     //   'ApplicationCreated',
@@ -101,7 +100,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event ApplicationAccepted(uint256 taskId, uint16 application, address proposer, address applicant);
     // this.newcontract.on(
     //   'ApplicationAccepted',
@@ -129,7 +127,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event SubmissionCreated(uint256 taskId, uint8 submissionId, string metadata, address proposer, address executor);
     // this.newcontract.on(
     //   'SubmissionCreated',
@@ -158,7 +155,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event SubmissionReviewed(uint256 taskId, uint8 submissionId, SubmissionJudgement judgement, string feedback, address proposer, address executor);
     // this.newcontract.on(
     //   'SubmissionReviewed',
@@ -196,7 +192,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event TaskCompleted(uint256 taskId, address proposer, address executor);
     // this.newcontract.on(
     //   'TaskCompleted',
@@ -223,7 +218,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event ChangeScopeRequested(uint256 taskId, uint8 requestId, string metadata, uint64 deadline, Reward[] reward);
     // this.newcontract.on(
     //   'ChangeScopeRequested',
@@ -250,7 +244,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event DropExecutorRequested(uint256 taskId, uint8 requestId, string explanation);
     // this.newcontract.on(
     //   'DropExecutorRequested',
@@ -277,7 +270,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event CancelTaskRequested(uint256 taskId, uint8 requestId, string explanation);
     // this.newcontract.on(
     //   'CancelTaskRequested',
@@ -304,7 +296,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event RequestAccepted(uint256 taskId, RequestType requestType, uint8 requestId);
     // this.newcontract.on(
     //   'RequestAccepted',
@@ -331,7 +322,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event RequestExecuted(uint256 taskId, RequestType requestType, uint8 requestId, address by);
     // this.newcontract.on(
     //   'RequestExecuted',
@@ -359,7 +349,6 @@ export class EventsHandlerService {
     //     this.tasksService.updateTasksData();
     //   },
     // );
-
     // //event TaskCancelled(uint256 taskId);
     // this.newcontract.on('TaskCancelled', async (taskId, event) => {
     //   const finalData = {
