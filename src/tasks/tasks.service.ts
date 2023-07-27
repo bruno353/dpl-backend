@@ -83,12 +83,12 @@ export class TasksService {
         tasks[i][0],
         i,
         tasks[i][1],
-        tasks[i][6],
+        tasks[i][4],
       );
       console.log(ipfsRes);
       if (ipfsRes) {
         //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
-        ipfsRes['applications'] = JSON.stringify(tasks[i][6]);
+        ipfsRes['applications'] = JSON.stringify(tasks[i][7]);
         tasksWithMetadata.push(ipfsRes);
       }
     }
@@ -265,10 +265,12 @@ export class TasksService {
         tasks[i][0],
         i,
         tasks[i][1],
-        tasks[i][6],
+        tasks[i][4],
       );
       console.log(ipfsRes);
       if (ipfsRes) {
+        //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
+        ipfsRes['applications'] = JSON.stringify(tasks[i][7]);
         tasksWithMetadata.push(ipfsRes);
       }
     }
