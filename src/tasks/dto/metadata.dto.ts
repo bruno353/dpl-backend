@@ -385,7 +385,8 @@ export class UploadIPFSMetadataTaskApplicationDTO {
 
   @IsOptional()
   @ApiProperty({
-    type: [LinksDTO],
+    type: LinksDTO,
+    isArray: true,
     example: [
       {
         title: 'Github repository',
