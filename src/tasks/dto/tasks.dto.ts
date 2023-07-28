@@ -266,8 +266,8 @@ export class TasksResponseDto {
 export class GetTaskDto {
   @IsString()
   @ApiProperty({
-    description: 'How many days are left to do the task',
-    example: '15 days left',
+    description: 'The chain task id',
+    example: '2',
   })
   @IsNotEmpty()
   id: string;
