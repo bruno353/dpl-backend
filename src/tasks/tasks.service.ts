@@ -402,7 +402,6 @@ export class TasksService {
         departament: true,
         skills: true,
         estimatedBudget: true,
-        contributors: true,
         projectLength: true,
         contributorsNeeded: true,
         type: true,
@@ -518,6 +517,10 @@ export class TasksService {
 
     if (task && task.links && Array.isArray(task.links)) {
       task.links = task.links.map((link) => JSON.parse(link));
+    }
+
+    if (task && task.contributors && Array.isArray(task.contributors)) {
+      task.contributors = task.contributors.map((contributor) => JSON.parse(contributor));
     }
 
     if (!task) {
