@@ -40,6 +40,8 @@ model Task {
 
   contributorsNeeded String @default("1") //number of contributors need
 
+  contributors String @default("[]") //A stringified array of the task's contributors -> struct {address: string}
+
   projectLength String @default("Less than 1 week") //How much time is estimated to complete the task 
 
   createdAt    DateTime  @default(now())

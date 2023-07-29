@@ -402,6 +402,7 @@ export class TasksService {
         departament: true,
         skills: true,
         estimatedBudget: true,
+        contributors: true,
         projectLength: true,
         contributorsNeeded: true,
         type: true,
@@ -500,6 +501,7 @@ export class TasksService {
         links: true,
         skills: true,
         estimatedBudget: true,
+        contributors: true,
         type: true,
         payments: {
           select: {
