@@ -156,6 +156,7 @@ export class TasksService {
           type: task['type'],
         },
       });
+      await this.applicationsFromTask(task['id']);
     }
     return tasksWithMetadata;
   }
@@ -342,6 +343,8 @@ export class TasksService {
           type: task['type'],
         },
       });
+
+      await this.applicationsFromTask(task['id']);
     }
     return tasksWithMetadata;
   }
@@ -520,7 +523,9 @@ export class TasksService {
     }
 
     if (task && task.contributors && Array.isArray(task.contributors)) {
-      task.contributors = task.contributors.map((contributor) => JSON.parse(contributor));
+      task.contributors = task.contributors.map((contributor) =>
+        JSON.parse(contributor),
+      );
     }
 
     if (!task) {
@@ -670,5 +675,97 @@ export class TasksService {
     }
     // returning the state with the correctly decimals
     return newPayments;
+  }
+
+  //Query to get all the applications from a task and store it on database
+  async applicationsFromTask(id: number) {
+    console.log(id);
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    const filter = await newcontract.filters.ApplicationCreated();
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const events = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    const filteredEvents = events.filter((event) => event.args.taskId.eq(id)); //[  {    name: 'ApplicationCreated',    args: [      [BigNumber],      0,      'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      [Array],      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      taskId: [BigNumber],      applicationId: 0,      metadata: 'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      reward: [Array],      proposer: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      applicant: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170'    ],    signature: 'ApplicationCreated(uint256,uint16,string,(bool,address,uint88)[],address,address)',    topic: '0x7dea79221549b396f31442a220505470acfcfd38f772b6b3faa676d25df5998d',    blockNumber: 38426300,    timestamp: 1690664419  }]
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    const finalEvents = [];
+
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+      console.log('creating args');
+      if (event['args'][3] && Array.isArray(event['args'][3])) {
+        event['reward'] = event['args'][3].map((reward) =>
+          JSON.stringify(reward),
+        );
+      }
+      const applicationExists = await this.prisma.application.findFirst({
+        where: {
+          taskId: String(id),
+          applicationId: String(event['args'][1]),
+        },
+      });
+      if (!applicationExists) {
+        finalEvents.push({
+          taskId: String(id),
+          applicationId: String(event['args'][1]),
+          metadata: String(event['args'][2]),
+          reward: event['reward'] || [],
+          proposer: event['args'][4],
+          applicant: event['args'][5],
+          timestamp: event['timestamp'],
+          transactionHash: event['transactionHash'],
+          blockNumber: String(event['blockNumber']),
+        });
+      }
+    }
+
+    console.log('creating application events');
+    console.log(finalEvents);
+    await this.prisma.application.createMany({
+      data: finalEvents,
+    });
+
+    console.log(filteredEvents);
   }
 }

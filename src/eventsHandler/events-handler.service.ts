@@ -370,5 +370,70 @@ export class EventsHandlerService {
     //   await this.tasksService.updateSingleTaskData(taskId);
     //   this.tasksService.updateTasksData();
     // });
+
+    //event ApplicationCreated(uint256 taskId, uint16 applicationId, string metadata, Reward[] reward, address proposer, address applicant);
+    this.newcontract.on(
+      'ApplicationCreated',
+      async (
+        taskId,
+        applicationId,
+        metadata,
+        reward,
+        proposer,
+        applicant,
+        event,
+      ) => {
+        const finalData = {
+          taskId: String(taskId),
+          applicationId: String(applicationId),
+          proposer: proposer,
+          msgSender: applicant,
+          metadata: metadata,
+          reward: JSON.stringify(reward),
+          blockNumber: String(event.blockNumber),
+          blockHash: String(event.blockHash),
+          timestamp: String(Date.now()),
+          event: event.event,
+          transactionHash: event.transactionHash,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'ApplicationCreated',
+            data: JSON.stringify(finalData),
+          },
+        });
+
+        const applicationExists = await this.prisma.application.findFirst({
+          where: {
+            taskId: String(taskId),
+            applicationId: String(applicationId),
+          },
+        });
+        if (!applicationExists) {
+          const block = await this.web3Provider.getBlock(event['blockNumber']);
+          const timestamp = String(block.timestamp); // Timestamp in seconds
+
+          if (reward && Array.isArray(reward)) {
+            reward = reward.map((singleReward) => JSON.stringify(singleReward));
+          }
+
+          await this.prisma.application.create({
+            data: {
+              taskId: String(taskId),
+              applicationId: String(applicationId),
+              metadata: metadata,
+              reward: reward || [],
+              proposer: proposer,
+              applicant: applicant,
+              timestamp: timestamp,
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+            },
+          });
+        }
+      },
+    );
   }
 }

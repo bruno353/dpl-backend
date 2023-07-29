@@ -137,4 +137,21 @@ export class TasksController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.uploadIPFSMetadataTaskApplication(data);
   }
+
+  //Query to get all the applications from a task and store it on database
+  @ApiOperation({
+    summary:
+      'Query to get all the applications from a task and store it on database',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  // @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
+  @Post('applicationsFromTask')
+  applicationsFromTask(@Body() data: any, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.applicationsFromTask(data.id);
+  }
 }

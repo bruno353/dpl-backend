@@ -35,6 +35,7 @@ model Task {
   applications String @default("[]") //A stringified array opf applications for the task -> struct OffChainApplication {address applicant; bool accepted; Reward[] reward;}
 
   payments Payment[]
+  Application Application[]
 
   estimatedBudget String @default("0") //getting the value from the tokens we return the estimated budget in USD.
 
@@ -64,6 +65,30 @@ model Payment {
     updatedAt    DateTime? @updatedAt
 
     @@map("payment")
+}
+
+model Application {
+    id String @id @default(uuid())
+
+    applicationId String //the token contract of the payment task
+    metadata String //The amount
+    reward  String[] //Rewards: struct Reward {bool nextToken; address to; uint88 amount;}
+    proposer String //Proposer
+    applicant String //Applicant
+
+    timestamp String //Timestamp Unix global in seconds of when the event was emitted;
+
+    transactionHash String //The hash of the transaction that emitted the vent
+    blockNumber     String @default("0")
+
+    taskId String  
+    task   Task  @relation(fields: [taskId], references: [taskId])
+
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime? @updatedAt
+
+    @@unique([taskId, applicationId]) //cannot exist application with same taskId and applicationId
+    @@map("application")
 }
 
 //events emitted by the smart-contracts
