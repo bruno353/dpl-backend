@@ -27,7 +27,7 @@ export class UtilsService {
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
 
-  //function used internaly to get all the price from the tokens allowed to be set as payments on the protocol (so we can give to the user the estimate amount of dollars the task is worth it)
+  //function used internaly to get all  the price from the tokens allowed to be set as payments on the protocol (so we can give to the user the estimate amount of dollars the task is worth it)
   public async getWETHPriceTokens(tokenAddress: string) {
     const url = `${this.apiCovalentBase}/pricing/historical_by_addresses_v2/matic-mainnet/USD/${tokenAddress}/?key=${this.apiCovalentKey}`;
     let response = '0';
