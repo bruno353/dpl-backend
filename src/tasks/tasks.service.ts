@@ -502,6 +502,10 @@ export class TasksService {
       },
     });
 
+    if (task && task.links && Array.isArray(task.links)) {
+      task.links = task.links.map((link) => JSON.parse(link));
+    }
+
     if (!task) {
       throw new BadRequestException('Task not found', {
         cause: new Error(),
