@@ -125,6 +125,7 @@ export class TasksService {
             create: task['payments'],
           },
           estimatedBudget: task['estimatedBudget'],
+          contributorsNeeded: task['numberOfApplicants'],
           skills: task['skills'],
           skillsSearch,
           applications: task['applications'],
@@ -144,6 +145,7 @@ export class TasksService {
             create: task['payments'],
           },
           estimatedBudget: task['estimatedBudget'],
+          contributorsNeeded: task['numberOfApplicants'],
           skills: task['skills'],
           skillsSearch,
           status: String(task['status']),
@@ -159,7 +161,7 @@ export class TasksService {
   async uploadIPFSMetadataTaskCreation(
     data: UploadIPFSMetadataTaskCreationDTO,
   ) {
-    if (data.numberOfApplicants === 'Only 1') {
+    if (data.numberOfApplicants === '1') {
       data['type'] = 'Individual';
     } else {
       data['type'] = 'Group';
@@ -307,6 +309,7 @@ export class TasksService {
             create: task['payments'],
           },
           estimatedBudget: task['estimatedBudget'],
+          contributorsNeeded: task['numberOfApplicants'],
           skills: task['skills'],
           applications: task['applications'],
           skillsSearch,
@@ -325,6 +328,7 @@ export class TasksService {
             create: task['payments'],
           },
           estimatedBudget: task['estimatedBudget'],
+          contributorsNeeded: task['numberOfApplicants'],
           skills: task['skills'],
           applications: task['applications'],
           skillsSearch,

@@ -38,6 +38,8 @@ model Task {
 
   estimatedBudget String @default("0") //getting the value from the tokens we return the estimated budget in USD.
 
+  contributorsNeeded String @default("1") //number of contributors need
+
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
