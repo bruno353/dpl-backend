@@ -786,6 +786,7 @@ export class TasksService {
             metadataData['budgetPercentageRequested'],
           ),
           metadataAdditionalLink: metadataData['additionalLink'],
+          metadataDisplayName: metadataData['displayName'],
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),

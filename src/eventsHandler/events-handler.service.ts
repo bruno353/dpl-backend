@@ -437,6 +437,7 @@ export class EventsHandlerService {
                 metadataData['budgetPercentageRequested'],
               ),
               metadataAdditionalLink: metadataData['additionalLink'],
+              metadataDisplayName: metadataData['displayName'],
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),
