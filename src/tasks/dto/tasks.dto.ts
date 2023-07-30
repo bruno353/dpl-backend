@@ -170,6 +170,13 @@ export class TaskDto {
   @IsString()
   status: string;
 
+  @ApiProperty({
+    description: 'How many events there are - updates',
+    example: 2,
+  })
+  @IsNumber()
+  updatesCount: number;
+
   @ApiProperty({ example: ['Frontend', 'Web development', 'Backend'] })
   @IsArray()
   @IsString({ each: true })

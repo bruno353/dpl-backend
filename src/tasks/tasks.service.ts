@@ -562,9 +562,17 @@ export class TasksService {
       }
     }
 
+    //getting events to know how many updates there are
+    const updatesCount = await this.prisma.event.findMany({
+      where: {
+        taskId: data.id,
+      },
+    });
+
     return {
       id: Number(taskId),
       status: this.statusOptions[status],
+      updatesCount: updatesCount.length,
       deadline,
       daysLeft,
       ...rest,
