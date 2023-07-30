@@ -742,7 +742,7 @@ export class TasksService {
     const timestampCache = {};
 
     const finalEvents = [];
-
+    console.log('getting events');
     // Get block data for each event
     for (const event of filteredEvents) {
       const applicationExists = await this.prisma.application.findFirst({
