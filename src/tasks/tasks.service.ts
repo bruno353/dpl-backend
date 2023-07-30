@@ -354,6 +354,7 @@ export class TasksService {
       departament,
       status,
       deadlineSorting,
+      estimatedBudgetSorting,
       searchBar,
       page = 1,
       limit = 10,
@@ -362,9 +363,16 @@ export class TasksService {
     const skip = (page - 1) * limit;
 
     let orderBy = {};
-    if (deadlineSorting) {
+    if (deadlineSorting && !estimatedBudgetSorting) {
       orderBy = {
         deadline: deadlineSorting === 'newest' ? 'desc' : 'asc',
+      };
+    }
+
+    if (estimatedBudgetSorting) {
+      orderBy = {
+        estimatedBudget: estimatedBudgetSorting === 'greater' ? 'desc' : 'asc',
+        ...orderBy, // Caso deadlineSorting também esteja definido, será de menor prioridade
       };
     }
 
@@ -417,9 +425,7 @@ export class TasksService {
         },
       },
       where,
-      orderBy: {
-        deadline: deadlineSorting === 'oldest' ? 'desc' : 'asc',
-      },
+      orderBy,
       skip,
       take: limit,
     });

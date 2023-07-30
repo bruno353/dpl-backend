@@ -43,6 +43,15 @@ export class GetTasksDto {
   @IsOptional()
   @IsString()
   @ApiProperty({
+    description:
+      'Returning tasks with a greater or lesser estimated budget - this sorting has priority over deadlineSorting',
+    enum: ['greater', 'lesser'],
+  })
+  estimatedBudgetSorting: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
     description: 'Search tasks based on its title and skills',
     example: 'Web3 development of website',
   })
