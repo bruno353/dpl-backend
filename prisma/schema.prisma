@@ -70,11 +70,16 @@ model Payment {
 model Application {
     id String @id @default(uuid())
 
-    applicationId String //the token contract of the payment task
-    metadata String //The amount
+    applicationId String //Application id onchain
+    metadata String //The metadata hash
     reward  String[] //Rewards: struct Reward {bool nextToken; address to; uint88 amount;}
     proposer String //Proposer
     applicant String //Applicant
+
+    metadataDescription String? //Application description
+    metadataProposedBudget String? //Percentage of how much of the budget the user is asking for
+    metadataAdditionalLink String?
+    metadataDisplayName String? //The name that the user wants to show in his application
 
     timestamp String //Timestamp Unix global in seconds of when the event was emitted;
 

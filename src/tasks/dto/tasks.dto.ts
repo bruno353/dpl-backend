@@ -67,6 +67,73 @@ export class GetTasksDto {
   limit: number;
 }
 
+class ApplicationDto {
+  @IsString()
+  @ApiProperty({
+    description: 'Application id onchain',
+    example: '2',
+  })
+  applicationId: string;
+
+  @IsArray()
+  @ValidateNested()
+  @Type(() => RewardDto)
+  @ApiProperty({
+    description: 'Rewards smart-contract logic',
+  })
+  reward: RewardDto[];
+
+  @IsString()
+  @ApiProperty({
+    description: 'Application proposer',
+    example: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
+  })
+  proposer: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Application applicant',
+    example: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
+  })
+  applicant: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Application description',
+    example: 'Lorem ipsum...',
+  })
+  metadataDescription: string;
+
+  @IsNumber()
+  @ApiProperty({
+    description: 'Percentage of how much of the budget the user is asking for',
+    example: 98,
+  })
+  metadataProposedBudget: number;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Any additional link',
+    example: 'www.mysite.com.br',
+  })
+  metadataAdditionalLink: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The name that the user wants to show in his application',
+    example: 'Bruno',
+  })
+  metadataDisplayName: string;
+
+  @IsString()
+  @ApiProperty({
+    description:
+      'Timestamp Unix global in seconds of when the event was emitted',
+    example: '16904383',
+  })
+  timestamp: string;
+}
+
 class PaymentDto {
   @ApiProperty({ example: '0x6eFbB027a552637492D827524242252733F06916' })
   @IsString()
@@ -98,6 +165,13 @@ export class TaskDto {
   @IsArray()
   @IsString({ each: true })
   skills: string[];
+
+  @ApiProperty({
+    type: ApplicationDto,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => ApplicationDto)
+  application: ApplicationDto[];
 
   @ApiProperty({
     example: 'Frontend',
@@ -271,4 +345,27 @@ export class GetTaskDto {
   })
   @IsNotEmpty()
   id: string;
+}
+
+class RewardDto {
+  @IsBoolean()
+  @ApiProperty({
+    description: 'Smart-contract logic',
+    example: false,
+  })
+  nextToken: boolean;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Smart-contract logic',
+    example: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
+  })
+  address: string;
+
+  @IsInt()
+  @ApiProperty({
+    description: 'Smart-contract logic',
+    example: 10000,
+  })
+  amount: number;
 }

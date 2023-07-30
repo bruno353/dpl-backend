@@ -419,6 +419,11 @@ export class EventsHandlerService {
             reward = reward.map((singleReward) => JSON.stringify(singleReward));
           }
 
+          const metadataData =
+            await this.tasksService.getApplicationDataFromIPFS(
+              String(event['args'][2]),
+            );
+
           await this.prisma.application.create({
             data: {
               taskId: String(taskId),
@@ -427,6 +432,11 @@ export class EventsHandlerService {
               reward: reward || [],
               proposer: proposer,
               applicant: applicant,
+              metadataDescription: metadataData['description'],
+              metadataProposedBudget: String(
+                metadataData['budgetPercentageRequested'],
+              ),
+              metadataAdditionalLink: metadataData['additionalLink'],
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),

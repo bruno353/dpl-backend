@@ -512,6 +512,7 @@ export class TasksService {
             decimals: true,
           },
         },
+        applications: true,
       },
       where: {
         taskId: data.id,
@@ -565,6 +566,7 @@ export class TasksService {
   }
 
   // FUNCTIONS
+  //get the task metadata
   //example metadata: QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv
   async getDataFromIPFS(
     hash: string,
@@ -596,6 +598,26 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro ocorreu');
+        console.log(err);
+        return null;
+      });
+    return res;
+  }
+
+  //get the application metadata
+  async getApplicationDataFromIPFS(hash: string) {
+    const url = `${this.ipfsBaseURL}/${hash}`;
+
+    let res;
+    await axios
+      .get(url)
+      .then(async (response) => {
+        console.log('the metadata:');
+        console.log(response.data);
+        res = response.data;
+      })
+      .catch(async (err) => {
+        console.log('erro happened');
         console.log(err);
         return null;
       });
@@ -677,7 +699,7 @@ export class TasksService {
     return newPayments;
   }
 
-  //Query to get all the applications from a task and store it on database
+  //Query the events log to get all the applications from a task and store it on database
   async applicationsFromTask(id: number) {
     console.log(id);
     const newcontract = new ethers.Contract(
@@ -723,22 +745,6 @@ export class TasksService {
 
     // Get block data for each event
     for (const event of filteredEvents) {
-      if (timestampCache[event['blockNumber']]) {
-        // If the timestamp for this block is already cached, use it
-        event['timestamp'] = timestampCache[event['blockNumber']];
-      } else {
-        // Otherwise, fetch the block and cache the timestamp
-        const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = block.timestamp; // Timestamp in seconds
-        timestampCache[event['blockNumber']] = timestamp;
-        event['timestamp'] = String(timestamp);
-      }
-      console.log('creating args');
-      if (event['args'][3] && Array.isArray(event['args'][3])) {
-        event['reward'] = event['args'][3].map((reward) =>
-          JSON.stringify(reward),
-        );
-      }
       const applicationExists = await this.prisma.application.findFirst({
         where: {
           taskId: String(id),
@@ -746,6 +752,28 @@ export class TasksService {
         },
       });
       if (!applicationExists) {
+        if (timestampCache[event['blockNumber']]) {
+          // If the timestamp for this block is already cached, use it
+          event['timestamp'] = timestampCache[event['blockNumber']];
+        } else {
+          // Otherwise, fetch the block and cache the timestamp
+          const block = await this.web3Provider.getBlock(event['blockNumber']);
+          const timestamp = block.timestamp; // Timestamp in seconds
+          timestampCache[event['blockNumber']] = timestamp;
+          event['timestamp'] = String(timestamp);
+        }
+
+        console.log('creating args');
+        if (event['args'][3] && Array.isArray(event['args'][3])) {
+          event['reward'] = event['args'][3].map((reward) =>
+            JSON.stringify(reward),
+          );
+        }
+
+        console.log('getting metadata');
+        const metadataData = await this.getApplicationDataFromIPFS(
+          String(event['args'][2]),
+        );
         finalEvents.push({
           taskId: String(id),
           applicationId: String(event['args'][1]),
@@ -753,6 +781,11 @@ export class TasksService {
           reward: event['reward'] || [],
           proposer: event['args'][4],
           applicant: event['args'][5],
+          metadataDescription: metadataData['description'],
+          metadataProposedBudget: String(
+            metadataData['budgetPercentageRequested'],
+          ),
+          metadataAdditionalLink: metadataData['additionalLink'],
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),
