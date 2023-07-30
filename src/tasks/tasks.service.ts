@@ -512,7 +512,7 @@ export class TasksService {
             decimals: true,
           },
         },
-        applications: true,
+        Application: true,
       },
       where: {
         taskId: data.id,
