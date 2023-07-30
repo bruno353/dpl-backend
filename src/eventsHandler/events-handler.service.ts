@@ -383,18 +383,17 @@ export class EventsHandlerService {
         applicant,
         event,
       ) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
         const finalData = {
-          taskId: String(taskId),
-          applicationId: String(applicationId),
-          proposer: proposer,
-          msgSender: applicant,
-          metadata: metadata,
-          reward: JSON.stringify(reward),
-          blockNumber: String(event.blockNumber),
-          blockHash: String(event.blockHash),
-          timestamp: String(Date.now()),
-          event: event.event,
-          transactionHash: event.transactionHash,
+          event: event,
           contractAddress: event.address,
         };
         console.log(finalData);
@@ -402,19 +401,24 @@ export class EventsHandlerService {
           data: {
             name: 'ApplicationCreated',
             data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: applicant,
+            timestamp: timestamp,
           },
         });
 
+        //application special data treating
         const applicationExists = await this.prisma.application.findFirst({
           where: {
             taskId: String(taskId),
             applicationId: String(applicationId),
           },
         });
-        if (!applicationExists) {
-          const block = await this.web3Provider.getBlock(event['blockNumber']);
-          const timestamp = String(block.timestamp); // Timestamp in seconds
 
+        if (!applicationExists) {
           if (reward && Array.isArray(reward)) {
             reward = reward.map((singleReward) => JSON.stringify(singleReward));
           }
@@ -444,6 +448,220 @@ export class EventsHandlerService {
             },
           });
         }
+      },
+    );
+
+    // //event TaskCreated(uint256 taskId, string metadata, uint64 deadline, ERC20Transfer[] budget, address manager, PreapprovedApplication[] preapproved);
+    this.newcontract.on(
+      'TaskCreated',
+      async (
+        taskId,
+        metadata,
+        deadline,
+        budget,
+        manager,
+        preapproved,
+        event,
+      ) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'TaskCreated',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: manager,
+            timestamp: timestamp,
+          },
+        });
+      },
+    );
+
+    // event ApplicationAccepted(uint256 taskId, uint16 application, address proposer, address applicant);
+    this.newcontract.on(
+      'ApplicationAccepted',
+      async (taskId, application, proposer, applicant, event) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'ApplicationAccepted',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: applicant,
+            timestamp: timestamp,
+          },
+        });
+      },
+    );
+
+    // event TaskTaken(uint256 taskId, uint16 applicationId, address proposer, address executor);
+    this.newcontract.on(
+      'TaskTaken',
+      async (taskId, application, proposer, executor, event) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'TaskTaken',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+      },
+    );
+
+    //event SubmissionCreated(uint256 taskId, uint8 submissionId, string metadata, address proposer, address executor);
+    this.newcontract.on(
+      'SubmissionCreated',
+      async (taskId, submissionId, metadata, proposer, executor, event) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'SubmissionCreated',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+      },
+    );
+
+    //event SubmissionReviewed(uint256 taskId, uint8 submissionId, SubmissionJudgement judgement, string feedback, address proposer, address executor);
+    this.newcontract.on(
+      'SubmissionReviewed',
+      async (
+        taskId,
+        submissionId,
+        judgement,
+        feedback,
+        proposer,
+        executor,
+        event,
+      ) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'SubmissionReviewed',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+      },
+    );
+
+    //event TaskCompleted(uint256 taskId, address proposer, address executor);
+    this.newcontract.on(
+      'TaskCompleted',
+      async (taskId, proposer, executor, event) => {
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'TaskCompleted',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
       },
     );
   }

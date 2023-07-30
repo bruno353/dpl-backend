@@ -103,8 +103,19 @@ model Event {
   name String  //The event name
   data String  //The event data
 
+  eventIndex String? //The logIndex
+  transactionHash String? //The transaction hash
+  blockNumber     String @default("0")
+
+  taskId String? //If the event is related to a task
+
+  address String? //Address related to the event (msg.sender / application sender etc)
+
+  timestamp String? //Timestamp Unix global in seconds of when the event was emitted;
+
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
+  @@unique([eventIndex, transactionHash]) //cannot exist event with same event info and transactionHash
   @@map("event")
 }
