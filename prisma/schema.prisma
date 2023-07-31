@@ -119,3 +119,22 @@ model Event {
   @@unique([eventIndex, transactionHash, blockNumber]) //cannot exist event with same event info and transactionHash
   @@map("event")
 }
+
+//events emitted by the smart-contracts
+model User {
+  id String @id @default(uuid())
+
+  name String?   //The user display name
+  address String? //The user address
+
+  profilePictureHash String? //The user profile picture - ipfs hash
+  tags  String[] @default([]) //The user tags - "Data managment"; "Frontend"... etc
+  links String [] @default([]) //The user links
+
+  updatesNonce String @default("0") //Nonce that managens everytime a profile update is done, to control the message signing.
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("user")
+}
