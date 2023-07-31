@@ -23,3 +23,66 @@ export class GetUserDTO {
   @IsNotEmpty()
   address: string;
 }
+
+export class EditUserDTO {
+  @IsString()
+  @ApiProperty({
+    description: 'The user address',
+    example: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
+  })
+  @IsNotEmpty()
+  address: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The user display name',
+    example: 'Fabio',
+  })
+  @IsOptional()
+  name: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The user profile picture hash',
+    example: 'Fabio',
+  })
+  @IsOptional()
+  profilePictureHash: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiProperty({
+    description: 'The user tags',
+    example: ['Frontend', 'Marketing'],
+  })
+  tags: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiProperty({
+    description: 'The user links',
+    example: ['www.github.com/bruno'],
+  })
+  links: string[];
+
+  @IsString()
+  @ApiProperty({
+    description:
+      'The update a profile, you need to provide a signature of the hash data to assure you are the profile owner',
+    example:
+      '0x921934902149120490123580392875903428590438590843905849035809438509438095',
+  })
+  @IsNotEmpty()
+  signature: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Used to verifies the signature validate',
+    example: '0',
+    default: '0',
+  })
+  @IsNotEmpty()
+  nonce: string;
+}

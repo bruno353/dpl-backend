@@ -14,6 +14,7 @@ import { TasksService } from '../tasks/tasks.service';
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class EventsHandlerService {
@@ -34,6 +35,7 @@ export class EventsHandlerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly usersService: UsersService,
   ) {
     // //event TaskCreated(uint256 taskId, string metadata, uint64 deadline, ERC20Transfer[] budget, address manager, PreapprovedApplication[] preapproved);
     // this.newcontract.on(
@@ -447,6 +449,7 @@ export class EventsHandlerService {
               blockNumber: String(event.blockNumber),
             },
           });
+          this.usersService.checkIfUserExistsOnTheChain(applicant);
         }
       },
     );
@@ -489,6 +492,7 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.usersService.checkIfUserExistsOnTheChain(manager);
       },
     );
 
@@ -522,6 +526,7 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.usersService.checkIfUserExistsOnTheChain(applicant);
       },
     );
 
@@ -555,6 +560,7 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
 
@@ -588,6 +594,7 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
 
@@ -629,6 +636,7 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
 
@@ -662,6 +670,7 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
   }

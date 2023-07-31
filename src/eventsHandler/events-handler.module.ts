@@ -6,11 +6,13 @@ import { PrismaService } from 'src/database/prisma.service';
 import { EventsHandlerController } from './events-handler.controller';
 import { EventsHandlerService } from './events-handler.service';
 import { TasksModule } from '../tasks/tasks.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PassportModule,
+    UsersModule,
     TasksModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
