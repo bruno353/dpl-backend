@@ -116,6 +116,6 @@ model Event {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
-  @@unique([eventIndex, transactionHash]) //cannot exist event with same event info and transactionHash
+  @@unique([eventIndex, transactionHash, blockNumber]) //cannot exist event with same event info and transactionHash
   @@map("event")
 }
