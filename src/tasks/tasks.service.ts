@@ -579,6 +579,15 @@ export class TasksService {
     };
   }
 
+  async getTaskEvents(data: GetTaskDto) {
+    const events = await this.prisma.event.findMany({
+      where: {
+        taskId: data.id,
+      },
+    });
+    return events;
+  }
+
   // FUNCTIONS
   //get the task metadata
   //example metadata: QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv

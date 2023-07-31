@@ -35,6 +35,7 @@ import {
   UploadIPFSMetadataTaskApplicationDTO,
   UploadIPFSMetadataTaskCreationDTO,
 } from './dto/metadata.dto';
+import { GetTaskEventsResponseDto } from './dto/event.dto';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
 @Controller('functions')
@@ -98,6 +99,22 @@ export class TasksController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.getTask(data);
+  }
+
+  // Returns a specific task events - updates:
+  @ApiOperation({
+    summary: "Returns a specific task's events - updates",
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: GetTaskEventsResponseDto, isArray: true })
+  @Post('getTaskEvents')
+  getTaskEvents(@Body() data: GetTaskDto, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.getTaskEvents(data);
   }
 
   // Uploads the task's ipfs metadata for task create:
