@@ -91,8 +91,38 @@ export class UsersService {
         orderBy,
       });
 
+      const finalTasks = tasks.map((task) => {
+        const { taskId, status, deadline, ...rest } = task;
+
+        //here do the "days left" flow:
+        let daysLeft;
+        const now = Date.now();
+        const deadlineDay = Number(task.deadline) * 1000;
+        const distance = deadlineDay - now;
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+
+        if (days < 0) {
+          daysLeft = 'ended';
+        } else {
+          if (days <= 1) {
+            daysLeft = `${days} day left`;
+          } else {
+            daysLeft = `${days} days left`;
+          }
+        }
+
+        return {
+          id: Number(taskId),
+          status: this.statusOptions[status],
+          deadline,
+          daysLeft,
+          ...rest,
+        };
+      });
+
       // Incorporate the tasks into the response if needed
-      userExists['tasks'] = tasks;
+      userExists['tasks'] = finalTasks;
 
       return userExists;
     }
