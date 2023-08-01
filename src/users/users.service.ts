@@ -160,6 +160,7 @@ export class UsersService {
   //To edit a user profile, its mandatory to check if the data to change the profile was signed by the user (message signing) to assure that its the user who wants to change its profile.
   //We create a hash with the data the user sent, the updatesNonce from the user and verifies if the signed messages matches the hash (with the address of the signer)
   async editUser(data: EditUserDTO) {
+    console.log('editing user');
     const userExists = await this.prisma.user.findFirst({
       where: {
         address: data.address,
@@ -168,6 +169,7 @@ export class UsersService {
 
     const { signature, ...verifyData } = data;
     if (!userExists) {
+      console.log('user not found');
       const hash = this.hashObject(verifyData);
       const isVerified = this.verifiesSignedMessage(
         hash,
@@ -180,12 +182,15 @@ export class UsersService {
           description: 'Invalid signature',
         });
       }
+      console.log('message validated');
       const { signature, nonce, ...finalData } = data;
       await this.prisma.user.create({
         data: finalData,
       });
     } else {
+      console.log('user found');
       if (data.nonce !== userExists.updatesNonce) {
+        console.log('invalid nonce');
         throw new BadRequestException('Invalid nonce', {
           cause: new Error(),
           description: 'Invalid nonce',
@@ -203,6 +208,7 @@ export class UsersService {
           description: 'Invalid signature',
         });
       }
+      console.log('message validated');
       const { signature, nonce, ...finalData } = data;
       finalData['updatesNonce'] = String(Number(userExists.updatesNonce) + 1);
       await this.prisma.user.create({
