@@ -597,7 +597,11 @@ export class TasksService {
     deadline: number,
     state: number,
   ) {
+    console.log('a task');
+    console.log(taskId);
     const url = `${this.ipfsBaseURL}/${hash}`;
+    console.log('a url');
+    console.log(url);
 
     let res;
     await axios
