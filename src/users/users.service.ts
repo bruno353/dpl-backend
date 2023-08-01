@@ -166,8 +166,9 @@ export class UsersService {
       },
     });
 
+    const { signature, ...verifyData } = data;
     if (!userExists) {
-      const hash = this.hashObject(data);
+      const hash = this.hashObject(verifyData);
       const isVerified = this.verifiesSignedMessage(
         hash,
         data.address,
