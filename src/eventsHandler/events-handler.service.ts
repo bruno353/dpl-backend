@@ -493,6 +493,7 @@ export class EventsHandlerService {
           },
         });
         this.usersService.checkIfUserExistsOnTheChain(manager);
+        this.tasksService.updateSingleTaskData(Number(taskId));
       },
     );
 
