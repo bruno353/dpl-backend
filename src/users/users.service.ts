@@ -7,6 +7,7 @@ import {
 
 // import { import_ } from '@brillout/import';
 import { ethers } from 'ethers';
+import { arrayify } from '@ethersproject/bytes';
 import * as taskContractABI from '../contracts/taskContractABI.json';
 import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 import { createHash } from 'crypto';
@@ -171,8 +172,8 @@ export class UsersService {
     if (!userExists) {
       console.log('user not found');
       const hash = this.hashObject(verifyData);
-      const isVerified = this.verifiesSignedMessage(
-        hash,
+      const isVerified = await this.verifiesSignedMessage(
+        arrayify(hash),
         data.address,
         data.signature,
       );
@@ -199,8 +200,8 @@ export class UsersService {
         });
       }
       const hash = this.hashObject(data);
-      const isVerified = this.verifiesSignedMessage(
-        hash,
+      const isVerified = await this.verifiesSignedMessage(
+        arrayify(hash),
         data.address,
         data.signature,
       );
@@ -221,11 +222,7 @@ export class UsersService {
     }
   }
 
-  async verifiesSignedMessage(
-    hash: string,
-    address: string,
-    signature: string,
-  ) {
+  async verifiesSignedMessage(hash: any, address: string, signature: string) {
     const signer = ethers.utils.recoverAddress(hash, signature);
     return signer === address;
   }
