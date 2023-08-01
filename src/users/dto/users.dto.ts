@@ -22,6 +22,24 @@ export class GetUserDTO {
   })
   @IsNotEmpty()
   address: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description:
+      'Returning tasks with a longer or a shorter deadline compared to the currently time',
+    enum: ['newest', 'oldest'],
+  })
+  deadlineSorting: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description:
+      'Returning tasks with a greater or lesser estimated budget - this sorting has priority over deadlineSorting',
+    enum: ['greater', 'lesser'],
+  })
+  estimatedBudgetSorting: string;
 }
 
 export class EditUserDTO {

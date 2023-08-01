@@ -42,6 +42,7 @@ export class UsersService {
 
   statusOptions = ['open', 'active', 'completed'];
 
+  //gets the user and also its tasks / applications
   async getUser(data: GetUserDTO) {
     const userExists = await this.prisma.user.findFirst({
       where: {
@@ -51,9 +52,50 @@ export class UsersService {
 
     if (!userExists) {
       this.checkIfUserExistsOnTheChain(data.address);
-    }
+      return userExists;
+    } else {
+      //if the user exists, searching for its applications tasks
+      const applications = await this.prisma.application.findMany({
+        where: {
+          applicant: data.address,
+        },
+      });
+      console.log('applica');
+      console.log(applications);
 
-    return userExists;
+      const taskIds = applications.map((application) => application.taskId);
+
+      //getting the tasks and sorted:
+      let orderBy = {};
+      if (data.deadlineSorting && !data.estimatedBudgetSorting) {
+        orderBy = {
+          deadline: data.deadlineSorting === 'newest' ? 'desc' : 'asc',
+        };
+      }
+
+      if (data.estimatedBudgetSorting) {
+        orderBy = {
+          estimatedBudget:
+            data.estimatedBudgetSorting === 'greater' ? 'desc' : 'asc',
+          ...orderBy, // Caso deadlineSorting também esteja definido, será de menor prioridade
+        };
+      }
+      console.log('tass');
+      console.log(taskIds);
+      const tasks = await this.prisma.task.findMany({
+        where: {
+          taskId: {
+            in: taskIds,
+          },
+        },
+        orderBy,
+      });
+
+      // Incorporate the tasks into the response if needed
+      userExists['tasks'] = tasks;
+
+      return userExists;
+    }
   }
 
   //Function for when the user is not registered yet on the database
