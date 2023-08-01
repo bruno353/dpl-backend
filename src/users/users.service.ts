@@ -184,6 +184,8 @@ export class UsersService {
       }
       console.log('message validated');
       const { signature, nonce, ...finalData } = data;
+      console.log('the data');
+      console.log(finalData);
       await this.prisma.user.create({
         data: finalData,
       });
@@ -211,6 +213,8 @@ export class UsersService {
       console.log('message validated');
       const { signature, nonce, ...finalData } = data;
       finalData['updatesNonce'] = String(Number(userExists.updatesNonce) + 1);
+      console.log('the data');
+      console.log(finalData);
       await this.prisma.user.create({
         data: finalData,
       });
