@@ -171,9 +171,9 @@ export class UsersService {
     const { signature, ...verifyData } = data;
     if (!userExists) {
       console.log('user not found');
-      const hash = this.hashObject(verifyData);
+      const hash = this.hashObject(data);
       const isVerified = await this.verifiesSignedMessage(
-        arrayify(hash),
+        hash,
         data.address,
         data.signature,
       );
@@ -201,7 +201,7 @@ export class UsersService {
       }
       const hash = this.hashObject(data);
       const isVerified = await this.verifiesSignedMessage(
-        arrayify(hash),
+        hash,
         data.address,
         data.signature,
       );
@@ -222,16 +222,23 @@ export class UsersService {
     }
   }
 
-  async verifiesSignedMessage(hash: any, address: string, signature: string) {
-    const signer = ethers.utils.recoverAddress(hash, signature);
+  async verifiesSignedMessage(
+    hash: Buffer,
+    address: string,
+    signature: string,
+  ) {
+    const signer = ethers.utils.recoverAddress(
+      `0x${hash.toString('hex')}`,
+      signature,
+    );
     return signer === address;
   }
 
   //returns a hash to be signed
-  hashObject(obj: any): string {
+  hashObject(obj: any): Buffer {
     const str = JSON.stringify(obj);
     const hash = createHash('sha256');
     hash.update(str);
-    return hash.digest('hex');
+    return hash.digest();
   }
 }
