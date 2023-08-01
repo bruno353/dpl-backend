@@ -172,8 +172,10 @@ export class UsersService {
     if (!userExists) {
       console.log('user not found');
       const hash = this.hashObject(verifyData);
+      console.log('the hash');
+      console.log(hash);
       const isVerified = await this.verifiesSignedMessage(
-        arrayify(hash),
+        Buffer.from(hash, 'hex'),
         data.address,
         data.signature,
       );
@@ -200,8 +202,10 @@ export class UsersService {
         });
       }
       const hash = this.hashObject(data);
+      console.log('the hash');
+      console.log(hash);
       const isVerified = await this.verifiesSignedMessage(
-        arrayify(hash),
+        Buffer.from(hash, 'hex'),
         data.address,
         data.signature,
       );
@@ -224,6 +228,8 @@ export class UsersService {
 
   async verifiesSignedMessage(hash: any, address: string, signature: string) {
     const signer = ethers.utils.verifyMessage(hash, signature);
+    console.log('the signer');
+    console.log(signer);
     return signer === address;
   }
 
