@@ -528,6 +528,16 @@ export class EventsHandlerService {
           },
         });
         this.usersService.checkIfUserExistsOnTheChain(applicant);
+
+        // //Updating application to accepted
+        // await this.prisma.application.updateMany({
+        //   where: {
+        //     taskId: String(taskId),
+        //     applicationId: String(applicationId),
+        //   }, data: {
+
+        //   }
+        // })
       },
     );
 

@@ -120,6 +120,13 @@ class ApplicationDto {
   })
   metadataProposedBudget: number;
 
+  @IsBoolean()
+  @ApiProperty({
+    description: 'If the application was accepted',
+    example: true,
+  })
+  accepted: boolean;
+
   @IsString()
   @ApiProperty({
     description: 'Any additional link',

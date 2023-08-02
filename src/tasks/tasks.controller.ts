@@ -69,6 +69,29 @@ export class TasksController {
     return this.tasksService.updateTasksData();
   }
 
+  @ApiOperation({
+    summary: 'Check-update through the on-chain and off-chain task data',
+  })
+  @ApiHeader({
+    name: 'x-deeeplink-team-signature',
+    description: 'Endpoint only available for deeplink team',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('updateSingleTaskData')
+  updateSingleTaskData(@Body() data: any, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
+      throw new UnauthorizedException();
+    return this.tasksService.updateSingleTaskData(data.id);
+  }
+
   // Returns all the tasks with its metadata:
   @ApiOperation({
     summary: 'Returns all the tasks with its metadata',

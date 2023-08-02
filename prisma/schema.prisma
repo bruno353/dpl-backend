@@ -76,6 +76,8 @@ model Application {
     proposer String //Proposer
     applicant String //Applicant
 
+    accepted Boolean @default(false) //If the application was accepted
+
     metadataDescription String? //Application description
     metadataProposedBudget String? //Percentage of how much of the budget the user is asking for
     metadataAdditionalLink String?

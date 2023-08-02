@@ -262,6 +262,9 @@ export class TasksService {
       tasks.push(taskMetadata);
     });
 
+    console.log('the response');
+    console.log(taskMetadata);
+
     const tasksWithMetadata = [];
 
     //getting the metadata from ipfs:
@@ -645,8 +648,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened');
-        console.log(err);
-        return null;
       });
     return res;
   }
@@ -797,10 +798,17 @@ export class TasksService {
           );
         }
 
-        console.log('getting metadata');
-        const metadataData = await this.getApplicationDataFromIPFS(
-          String(event['args'][2]),
-        );
+        console.log('getting metadata if its exists');
+        let metadataData;
+        try {
+          if (String(event['args'][2]).length > 0) {
+            metadataData = await this.getApplicationDataFromIPFS(
+              String(event['args'][2]),
+            );
+          }
+        } catch (err) {
+          console.log('not found metadata valid');
+        }
         finalEvents.push({
           taskId: String(id),
           applicationId: String(event['args'][1]),
@@ -808,12 +816,11 @@ export class TasksService {
           reward: event['reward'] || [],
           proposer: event['args'][4],
           applicant: event['args'][5],
-          metadataDescription: metadataData['description'],
-          metadataProposedBudget: String(
-            metadataData['budgetPercentageRequested'],
-          ),
-          metadataAdditionalLink: metadataData['additionalLink'],
-          metadataDisplayName: metadataData['displayName'],
+          metadataDescription: metadataData['description'] || '',
+          metadataProposedBudget:
+            String(metadataData['budgetPercentageRequested']) || '',
+          metadataAdditionalLink: metadataData['additionalLink'] || '',
+          metadataDisplayName: metadataData['displayName'] || '',
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),
