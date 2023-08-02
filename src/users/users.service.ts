@@ -175,10 +175,10 @@ export class UsersService {
       console.log(verifyData);
       console.log(JSON.stringify(verifyData));
       const hash = this.hashObject(verifyData);
-      console.log('the hash');
       console.log(hash);
+      const finalHash = `0x${hash}`;
       const isVerified = await this.verifiesSignedMessage(
-        Buffer.from(hash, 'hex'),
+        finalHash,
         data.address,
         data.signature,
       );
