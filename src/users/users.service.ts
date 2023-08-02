@@ -56,6 +56,9 @@ export class UsersService {
       where: {
         address: data.address,
       },
+      include: {
+        VerifiedContributorSubmission: true,
+      },
     });
 
     if (!userExists) {

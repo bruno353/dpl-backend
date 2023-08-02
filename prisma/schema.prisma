@@ -158,6 +158,8 @@ model VerifiedContributorSubmission {
   githubEmail String? //Ex: tibiapro58@gmail.com
   githubAccessToken String?
 
+  status String @default("pending") //the stauts of application - pending, approved, recused.
+
   userId String  
   user   User  @relation(fields: [userId], references: [id])
 
