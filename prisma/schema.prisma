@@ -120,7 +120,7 @@ model Event {
   @@map("event")
 }
 
-//events emitted by the smart-contracts
+//Users of the protocol
 model User {
   id String @id @default(uuid())
 
@@ -135,8 +135,33 @@ model User {
 
   updatesNonce String @default("0") //Nonce that managens everytime a profile update is done, to control the message signing.
 
+  VerifiedContributorSubmission VerifiedContributorSubmission[]
+
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
   @@map("user")
+}
+
+//To become a verified-contributor, an user can submit a request.
+model VerifiedContributorSubmission {
+  id String @id @default(uuid())
+
+  description String? //"Please give us some details about your qualifications to be a Verified Contributor"
+
+  links String [] @default([]) //The submission links
+
+  githubLogin String? //Ex: bruno353
+  githubHTMLUrl String? //Ex: https://github.com/bruno353
+  githubId String? //Ex: 82957886
+  githubName String? //Ex: Bruno Santos
+  githubEmail String? //Ex: tibiapro58@gmail.com
+
+  userId String  
+  user   User  @relation(fields: [userId], references: [id])
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("verifiedContributorSubmission")
 }

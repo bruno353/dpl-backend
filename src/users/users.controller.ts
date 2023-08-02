@@ -24,7 +24,13 @@ import {
 import { Request } from 'express';
 
 import { UsersService } from './users.service';
-import { EditUserDTO, GetUserDTO, GithubLoginDTO } from './dto/users.dto';
+import {
+  EditUserDTO,
+  GetUserDTO,
+  GetUserResponseDTO,
+  GithubLoginDTO,
+  VerifiedContributorSubmissionDTO,
+} from './dto/users.dto';
 
 @ApiTags('Users')
 @Controller('functions')
@@ -43,7 +49,7 @@ export class UsersController {
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
-  @ApiResponse({ status: 200, type: GetUserDTO })
+  @ApiResponse({ status: 200, type: GetUserResponseDTO })
   @Post('getUser')
   getUser(@Body() data: GetUserDTO, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
@@ -61,12 +67,32 @@ export class UsersController {
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
-  @ApiResponse({ status: 200, type: EditUserDTO })
+  @ApiResponse({ status: 200 })
   @Post('editUser')
   editUser(@Body() data: EditUserDTO, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.usersService.editUser(data);
+  }
+
+  @ApiOperation({
+    summary: 'Submission to become a verified contributor',
+    description:
+      'To submit, its mandatory to check if the data was signed by the user (message signing) to assure that its the user who wants to submit its application. We create a hash with the data the user sent, the updatesNonce from the user and verifies if the signed messages matches the hash (with the address of the signer). Also, is mandatory to have a github connection',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200 })
+  @Post('verifiedContributorSumission')
+  verifiedContributorSumission(
+    @Body() data: VerifiedContributorSubmissionDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.usersService.verifiedContributorSumission(data);
   }
 
   // Returns a specific task:

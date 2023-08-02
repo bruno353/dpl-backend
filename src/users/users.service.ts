@@ -19,7 +19,12 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { UtilsService } from '../utils/utils.service';
-import { EditUserDTO, GetUserDTO, GithubLoginDTO } from './dto/users.dto';
+import {
+  EditUserDTO,
+  GetUserDTO,
+  GithubLoginDTO,
+  VerifiedContributorSubmissionDTO,
+} from './dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -198,6 +203,87 @@ export class UsersService {
       await this.prisma.user.create({
         data: finalData,
       });
+    } else {
+      console.log('user found');
+      if (data.nonce !== userExists.updatesNonce) {
+        console.log('invalid nonce');
+        throw new BadRequestException('Invalid nonce', {
+          cause: new Error(),
+          description: 'Invalid nonce',
+        });
+      }
+      console.log('data to be hashed');
+      console.log(verifyData);
+      console.log(JSON.stringify(verifyData));
+      const hash = this.hashObject(verifyData);
+      console.log('the hash');
+      console.log(hash);
+      const finalHash = `0x${hash}`;
+      const isVerified = await this.verifiesSignedMessage(
+        finalHash,
+        data.address,
+        data.signature,
+      );
+      if (!isVerified) {
+        throw new BadRequestException('Invalid signature', {
+          cause: new Error(),
+          description: 'Invalid signature',
+        });
+      }
+      console.log('message validated');
+      const { signature, nonce, ...finalData } = data;
+      finalData['updatesNonce'] = String(Number(userExists.updatesNonce) + 1);
+      console.log('the data');
+      console.log(finalData);
+      await this.prisma.user.updateMany({
+        where: {
+          address: finalData.address,
+        },
+        data: finalData,
+      });
+    }
+  }
+
+  //Same logic as to edit a user profile
+  async verifiedContributorSumission(data: VerifiedContributorSubmissionDTO) {
+    console.log('editing user');
+    const userExists = await this.prisma.user.findFirst({
+      where: {
+        address: data.address,
+      },
+    });
+
+    const { signature, ...verifyData } = data;
+    if (!userExists) {
+      console.log('user not found');
+      console.log('data to be hashed');
+      console.log(verifyData);
+      console.log(JSON.stringify(verifyData));
+      const hash = this.hashObject(verifyData);
+      console.log(hash);
+      const finalHash = `0x${hash}`;
+      const isVerified = await this.verifiesSignedMessage(
+        finalHash,
+        data.address,
+        data.signature,
+      );
+      if (!isVerified) {
+        throw new BadRequestException('Invalid signature', {
+          cause: new Error(),
+          description: 'Invalid signature',
+        });
+      }
+      console.log('message validated');
+      const { signature, nonce, ...finalData } = data;
+      console.log('the data');
+      console.log(finalData);
+      await this.prisma.user.create({
+        data: {
+          address: finalData.address,
+          joinedSince: String(Math.floor(Date.now() / 1000)),
+        },
+      });
+      await this.prisma.user
     } else {
       console.log('user found');
       if (data.nonce !== userExists.updatesNonce) {
