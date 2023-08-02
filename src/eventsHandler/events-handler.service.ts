@@ -399,18 +399,22 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        await this.prisma.event.create({
-          data: {
-            name: 'ApplicationCreated',
-            data: JSON.stringify(finalData),
-            eventIndex: String(event.logIndex),
-            transactionHash: event.transactionHash,
-            blockNumber: String(event.blockNumber),
-            taskId: String(taskId),
-            address: applicant,
-            timestamp: timestamp,
-          },
-        });
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'ApplicationCreated',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              taskId: String(taskId),
+              address: applicant,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error submiting application');
+        }
 
         //application special data treating
         const applicationExists = await this.prisma.application.findFirst({
@@ -516,22 +520,29 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        await this.prisma.event.create({
-          data: {
-            name: 'ApplicationAccepted',
-            data: JSON.stringify(finalData),
-            eventIndex: String(event.logIndex),
-            transactionHash: event.transactionHash,
-            blockNumber: String(event.blockNumber),
-            taskId: String(taskId),
-            address: applicant,
-            timestamp: timestamp,
-          },
-        });
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'ApplicationAccepted',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              taskId: String(taskId),
+              address: applicant,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error saving event');
+        }
+
         this.usersService.checkIfUserExistsOnTheChain(applicant);
 
         //Updating application to accepted
-        this.prisma.application.updateMany({
+        console.log('updating the application');
+
+        await this.prisma.application.updateMany({
           where: {
             taskId: String(taskId),
             applicationId: String(applicationId),
