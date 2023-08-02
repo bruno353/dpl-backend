@@ -192,6 +192,7 @@ export class UsersService {
       const { signature, nonce, ...finalData } = data;
       console.log('the data');
       console.log(finalData);
+      finalData['joinedSince'] = String(Math.floor(Date.now() / 1000));
       await this.prisma.user.create({
         data: finalData,
       });
