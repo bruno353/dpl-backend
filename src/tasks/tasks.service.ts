@@ -83,7 +83,7 @@ export class TasksService {
         tasks[i][0],
         i,
         tasks[i][1],
-        tasks[i][4],
+        tasks[i][5],
       );
       console.log(ipfsRes);
       if (ipfsRes) {
@@ -273,7 +273,7 @@ export class TasksService {
         tasks[i][0],
         i,
         tasks[i][1],
-        tasks[i][4],
+        tasks[i][5],
       );
       console.log(ipfsRes);
       if (ipfsRes) {
@@ -668,7 +668,7 @@ export class TasksService {
           }
 
           const totalTokens = new Decimal(payments[i].amount).div(
-            new Decimal(payments[i].decimals),
+            new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
           );
           budget = new Decimal(budget)
             .plus(new Decimal(totalTokens).mul(new Decimal(valueToken)))
@@ -680,11 +680,14 @@ export class TasksService {
       }
     } else {
       try {
+        console.log('doing estimated budget here');
         //if its a dev environment, just consider every token to be a stablecoin 1:1
         for (let i = 0; i < payments.length; i++) {
           const totalTokens = new Decimal(payments[i].amount).div(
-            new Decimal(payments[i].decimals),
+            new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
           );
+          console.log('total tokens');
+          console.log(totalTokens);
           budget = new Decimal(budget)
             .plus(new Decimal(totalTokens))
             .toFixed(2);
@@ -694,6 +697,8 @@ export class TasksService {
         console.log(err);
       }
     }
+    console.log('budget to return');
+    console.log('budget');
     return budget;
   }
 
