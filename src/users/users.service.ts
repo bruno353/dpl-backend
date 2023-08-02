@@ -235,9 +235,9 @@ export class UsersService {
       finalData['updatesNonce'] = String(Number(userExists.updatesNonce) + 1);
       console.log('the data');
       console.log(finalData);
-      await this.prisma.user.updateMany({
+      await this.prisma.user.update({
         where: {
-          address: finalData.address,
+          id: userExists.id,
         },
         data: finalData,
       });
@@ -284,7 +284,7 @@ export class UsersService {
       console.log('verifying github data');
       const githubData = this.getGithubUserData(finalData.githubAccessToken);
 
-
+      //creating the user and its verified contributor submission.
       const user = await this.prisma.user.create({
         data: {
           address: finalData.address,
@@ -295,14 +295,15 @@ export class UsersService {
         data: {
           userId: user.id,
           description: finalData.description,
+          links: finalData.links,
           githubLogin: githubData['login'],
           githubHTMLUrl: githubData['html_url'],
           githubId: String(githubData['id']),
           githubName: githubData['name'],
           githubEmail: githubData['email'],
           githubAccessToken: finalData.githubAccessToken,
-        }
-      })
+        },
+      });
     } else {
       console.log('user found');
       if (data.nonce !== userExists.updatesNonce) {
@@ -312,11 +313,27 @@ export class UsersService {
           description: 'Invalid nonce',
         });
       }
+
+      //checking if submission already exists
+      const submission =
+        await this.prisma.verifiedContributorSubmission.findMany({
+          where: {
+            userId: userExists.id,
+          },
+        });
+      if (submission.length > 0) {
+        console.log('submission already exists');
+        throw new BadRequestException('submission already exists', {
+          cause: new Error(),
+          description: 'submission already exists',
+        });
+      }
+
       console.log('data to be hashed');
       console.log(verifyData);
       console.log(JSON.stringify(verifyData));
+      //verifying signature
       const hash = this.hashObject(verifyData);
-      console.log('the hash');
       console.log(hash);
       const finalHash = `0x${hash}`;
       const isVerified = await this.verifiesSignedMessage(
@@ -332,14 +349,38 @@ export class UsersService {
       }
       console.log('message validated');
       const { signature, nonce, ...finalData } = data;
-      finalData['updatesNonce'] = String(Number(userExists.updatesNonce) + 1);
       console.log('the data');
       console.log(finalData);
-      await this.prisma.user.updateMany({
+
+      //verifying github access token
+      console.log('verifying github data');
+      const githubData = this.getGithubUserData(finalData.githubAccessToken);
+
+      //creating its verified contributor submission.
+      const updatesNonce = String(Number(userExists.updatesNonce) + 1);
+      console.log('the data');
+      console.log(finalData);
+      await this.prisma.user.update({
         where: {
-          address: finalData.address,
+          id: userExists.id,
         },
-        data: finalData,
+        data: {
+          updatesNonce,
+        },
+      });
+
+      await this.prisma.verifiedContributorSubmission.create({
+        data: {
+          userId: userExists.id,
+          description: finalData.description,
+          links: finalData.links,
+          githubLogin: githubData['login'],
+          githubHTMLUrl: githubData['html_url'],
+          githubId: String(githubData['id']),
+          githubName: githubData['name'],
+          githubEmail: githubData['email'],
+          githubAccessToken: finalData.githubAccessToken,
+        },
       });
     }
   }
