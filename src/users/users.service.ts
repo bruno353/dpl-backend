@@ -171,6 +171,9 @@ export class UsersService {
     const { signature, ...verifyData } = data;
     if (!userExists) {
       console.log('user not found');
+      console.log('data to be hashed');
+      console.log(verifyData);
+      console.log(JSON.stringify(verifyData));
       const hash = this.hashObject(verifyData);
       console.log('the hash');
       console.log(hash);
