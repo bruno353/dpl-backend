@@ -285,7 +285,9 @@ export class UsersService {
 
       //verifying github access token
       console.log('verifying github data');
-      const githubData = this.getGithubUserData(finalData.githubAccessToken);
+      const githubData = await this.getGithubUserData(
+        finalData.githubAccessToken,
+      );
 
       //creating the user and its verified contributor submission.
       const user = await this.prisma.user.create({
@@ -357,7 +359,9 @@ export class UsersService {
 
       //verifying github access token
       console.log('verifying github data');
-      const githubData = this.getGithubUserData(finalData.githubAccessToken);
+      const githubData = await this.getGithubUserData(
+        finalData.githubAccessToken,
+      );
 
       //creating its verified contributor submission.
       const updatesNonce = String(Number(userExists.updatesNonce) + 1);
