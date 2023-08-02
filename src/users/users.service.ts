@@ -19,7 +19,7 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { UtilsService } from '../utils/utils.service';
-import { EditUserDTO, GetUserDTO } from './dto/users.dto';
+import { EditUserDTO, GetUserDTO, GithubLoginDTO } from './dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -40,6 +40,8 @@ export class UsersService {
   usdcTokenAddress = process.env.USDC_TOKEN_ADDRESS;
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
+  githubClientId = process.env.GITHUB_CLIENT_ID;
+  githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
 
   statusOptions = ['open', 'active', 'completed'];
 
@@ -250,5 +252,72 @@ export class UsersService {
     const hash = createHash('sha256');
     hash.update(str);
     return hash.digest('hex');
+  }
+
+  async githubLogin(data: GithubLoginDTO) {
+    const url = `https://github.com/login/oauth/access_token?client_id=${this.githubClientId}&client_secret=${this.githubClientSecret}&code=${data.code}`;
+
+    const config = {
+      method: 'post',
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        console.log('github access token');
+        console.log(dado);
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log('Error during Github connection');
+      console.log(err);
+      throw new BadRequestException('Error during Github connection', {
+        cause: new Error(),
+        description: 'Error during Github connection',
+      });
+    }
+
+    const userData = await this.getGithubUserData(dado.access_token);
+
+    userData['github_access_token'] = dado.access_token;
+
+    return userData;
+  }
+
+  async getGithubUserData(accessToken: string) {
+    const url = `https://api.github.com/user`;
+
+    const config = {
+      method: 'get',
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        console.log('github data');
+        console.log(dado);
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log('Error during Github fetch data');
+      console.log(err);
+      throw new BadRequestException('Error during Github fetch data', {
+        cause: new Error(),
+        description: 'Error during Github fetch data',
+      });
+    }
+
+    return dado;
   }
 }

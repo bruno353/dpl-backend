@@ -24,7 +24,7 @@ import {
 import { Request } from 'express';
 
 import { UsersService } from './users.service';
-import { EditUserDTO, GetUserDTO } from './dto/users.dto';
+import { EditUserDTO, GetUserDTO, GithubLoginDTO } from './dto/users.dto';
 
 @ApiTags('Users')
 @Controller('functions')
@@ -67,5 +67,22 @@ export class UsersController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.usersService.editUser(data);
+  }
+
+  // Returns a specific task:
+  @ApiOperation({
+    summary: 'Edits an user profile',
+    description:
+      'To get the user github login social info - returns the access token',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('githubLogin')
+  githubLogin(@Body() data: GithubLoginDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.usersService.githubLogin(data);
   }
 }

@@ -104,3 +104,14 @@ export class EditUserDTO {
   @IsNotEmpty()
   nonce: string;
 }
+
+export class GithubLoginDTO {
+  @IsString()
+  @ApiProperty({
+    description:
+      'The code returned on the frontend as soon as the user authorize the connection',
+    example: '32134521512',
+  })
+  @IsNotEmpty()
+  code: string;
+}
