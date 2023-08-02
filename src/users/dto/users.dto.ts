@@ -214,6 +214,16 @@ export class VerifiedContributorSubmissionDTO {
   links: string[];
 
   @IsString()
+  @MaxLength(5000)
+  @ApiProperty({
+    description:
+      'Please give us some details about your qualifications to be a Verified Contributor',
+    example: 'Lorem ipsum religaris',
+  })
+  @IsNotEmpty()
+  description: string;
+
+  @IsString()
   @ApiProperty({
     description:
       'The create the submission, you need to provide a signature of the hash data to assure you are the profile owner',
@@ -224,7 +234,6 @@ export class VerifiedContributorSubmissionDTO {
   signature: string;
 
   @IsString()
-  @MaxLength(5000)
   @ApiProperty({
     description:
       'The create the submission, you need to connect a github account, this is the access token returned by the backend when doing the /githubLogin',

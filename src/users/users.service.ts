@@ -259,6 +259,8 @@ export class UsersService {
       console.log('data to be hashed');
       console.log(verifyData);
       console.log(JSON.stringify(verifyData));
+
+      //verifying signature
       const hash = this.hashObject(verifyData);
       console.log(hash);
       const finalHash = `0x${hash}`;
@@ -277,13 +279,30 @@ export class UsersService {
       const { signature, nonce, ...finalData } = data;
       console.log('the data');
       console.log(finalData);
-      await this.prisma.user.create({
+
+      //verifying github access token
+      console.log('verifying github data');
+      const githubData = this.getGithubUserData(finalData.githubAccessToken);
+
+
+      const user = await this.prisma.user.create({
         data: {
           address: finalData.address,
           joinedSince: String(Math.floor(Date.now() / 1000)),
         },
       });
-      await this.prisma.user
+      await this.prisma.verifiedContributorSubmission.create({
+        data: {
+          userId: user.id,
+          description: finalData.description,
+          githubLogin: githubData['login'],
+          githubHTMLUrl: githubData['html_url'],
+          githubId: String(githubData['id']),
+          githubName: githubData['name'],
+          githubEmail: githubData['email'],
+          githubAccessToken: finalData.githubAccessToken,
+        }
+      })
     } else {
       console.log('user found');
       if (data.nonce !== userExists.updatesNonce) {
@@ -340,6 +359,7 @@ export class UsersService {
     return hash.digest('hex');
   }
 
+  //example of return: {	"login": "bruno353",	"id": 82957886,	"node_id": "MDQ6VXNlcjgyOTU3ODg2",	"avatar_url": "https://avatars.githubusercontent.com/u/82957886?v=4",	"gravatar_id": "",	"url": "https://api.github.com/users/bruno353",	"html_url": "https://github.com/bruno353",	"followers_url": "https://api.github.com/users/bruno353/followers",	"following_url": "https://api.github.com/users/bruno353/following{/other_user}",	"gists_url": "https://api.github.com/users/bruno353/gists{/gist_id}",	"starred_url": "https://api.github.com/users/bruno353/starred{/owner}{/repo}",	"subscriptions_url": "https://api.github.com/users/bruno353/subscriptions",	"organizations_url": "https://api.github.com/users/bruno353/orgs",	"repos_url": "https://api.github.com/users/bruno353/repos",	"events_url": "https://api.github.com/users/bruno353/events{/privacy}",	"received_events_url": "https://api.github.com/users/bruno353/received_events",	"type": "User",	"site_admin": false,	"name": "Bruno Santos",	"company": null,	"blog": "",	"location": "Brazil",	"email": "tibiapro58@gmail.com",	"hireable": true,	"bio": "Dev",	"twitter_username": null,	"public_repos": 44,	"public_gists": 1,	"followers": 6,	"following": 6,	"created_at": "2021-04-21T14:45:39Z",	"updated_at": "2023-07-25T00:35:06Z"}
   async githubLogin(data: GithubLoginDTO) {
     const url = `https://github.com/login/oauth/access_token?client_id=${this.githubClientId}&client_secret=${this.githubClientSecret}&code=${data.code}`;
 

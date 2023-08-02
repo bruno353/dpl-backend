@@ -156,6 +156,7 @@ model VerifiedContributorSubmission {
   githubId String? //Ex: 82957886
   githubName String? //Ex: Bruno Santos
   githubEmail String? //Ex: tibiapro58@gmail.com
+  githubAccessToken String?
 
   userId String  
   user   User  @relation(fields: [userId], references: [id])
