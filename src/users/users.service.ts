@@ -204,11 +204,15 @@ export class UsersService {
           description: 'Invalid nonce',
         });
       }
-      const hash = this.hashObject(data);
+      console.log('data to be hashed');
+      console.log(verifyData);
+      console.log(JSON.stringify(verifyData));
+      const hash = this.hashObject(verifyData);
       console.log('the hash');
       console.log(hash);
+      const finalHash = `0x${hash}`;
       const isVerified = await this.verifiesSignedMessage(
-        Buffer.from(hash, 'hex'),
+        finalHash,
         data.address,
         data.signature,
       );
@@ -223,7 +227,10 @@ export class UsersService {
       finalData['updatesNonce'] = String(Number(userExists.updatesNonce) + 1);
       console.log('the data');
       console.log(finalData);
-      await this.prisma.user.create({
+      await this.prisma.user.updateMany({
+        where: {
+          address: finalData.address,
+        },
         data: finalData,
       });
     }
