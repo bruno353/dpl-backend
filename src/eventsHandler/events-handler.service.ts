@@ -462,6 +462,7 @@ export class EventsHandlerService {
         metadata,
         deadline,
         budget,
+        creator,
         manager,
         preapproved,
         event,
@@ -500,7 +501,7 @@ export class EventsHandlerService {
     // event ApplicationAccepted(uint256 taskId, uint16 application, address proposer, address applicant);
     this.newcontract.on(
       'ApplicationAccepted',
-      async (taskId, application, proposer, applicant, event) => {
+      async (taskId, applicationId, proposer, applicant, event) => {
         console.log('new event');
         console.log(event);
         console.log('event event');
@@ -529,15 +530,15 @@ export class EventsHandlerService {
         });
         this.usersService.checkIfUserExistsOnTheChain(applicant);
 
-        // //Updating application to accepted
-        // await this.prisma.application.updateMany({
-        //   where: {
-        //     taskId: String(taskId),
-        //     applicationId: String(applicationId),
-        //   }, data: {
-
-        //   }
-        // })
+        //Updating application to accepted
+        await this.prisma.application.updateMany({
+          where: {
+            taskId: String(taskId),
+            applicationId: String(applicationId),
+          }, data: {
+            
+          }
+        })
       },
     );
 
