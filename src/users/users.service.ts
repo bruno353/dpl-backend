@@ -262,6 +262,7 @@ export class UsersService {
       url,
       headers: {
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
     };
 
@@ -270,12 +271,14 @@ export class UsersService {
     try {
       await axios(config).then(function (response) {
         console.log('github access token');
-        console.log(dado);
+
         dado = response.data;
+        console.log(dado);
       });
     } catch (err) {
       console.log('Error during Github connection');
       console.log(err);
+      console.log(url);
       throw new BadRequestException('Error during Github connection', {
         cause: new Error(),
         description: 'Error during Github connection',
@@ -303,15 +306,18 @@ export class UsersService {
 
     let dado;
 
+    console.log('a chamada');
+    console.log(config);
+
     try {
       await axios(config).then(function (response) {
         console.log('github data');
-        console.log(dado);
+        console.log('deu certo');
         dado = response.data;
       });
     } catch (err) {
       console.log('Error during Github fetch data');
-      console.log(err);
+      // console.log(err);
       throw new BadRequestException('Error during Github fetch data', {
         cause: new Error(),
         description: 'Error during Github fetch data',
