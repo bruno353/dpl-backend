@@ -14,6 +14,7 @@ import {
   IsArray,
   MaxLength,
 } from 'class-validator';
+import { CountingDto } from 'src/tasks/dto/tasks.dto';
 
 export class GetUserDTO {
   @IsString()
@@ -127,6 +128,18 @@ export class GetUserResponseDTO {
       ],
     },
   })
+  @ApiProperty({
+    type: CountingDto,
+    example: {
+      open: 1,
+      active: 2,
+      completed: 20,
+    },
+  })
+  @ValidateNested()
+  @Type(() => CountingDto)
+  counting: CountingDto;
+
   @IsNotEmpty()
   user: object;
 }

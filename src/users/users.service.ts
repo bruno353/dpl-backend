@@ -108,6 +108,19 @@ export class UsersService {
         where,
       });
 
+      // Function to obtain the counting of tasks
+      const getTaskCountForStatus = async (status: string) => {
+        return await this.prisma.task.count({
+          where: {
+            ...where,
+            status: status,
+          },
+        });
+      };
+      const openTaskCount = await getTaskCountForStatus('0');
+      const activeTaskCount = await getTaskCountForStatus('1');
+      const completedTaskCount = await getTaskCountForStatus('2');
+
       const finalTasks = tasks.map((task) => {
         const { taskId, status, deadline, ...rest } = task;
 
@@ -140,6 +153,13 @@ export class UsersService {
 
       // Incorporate the tasks into the response if needed
       userExists['tasks'] = finalTasks;
+
+      //Incorporate the counting:
+      userExists['counting'] = {
+        open: openTaskCount,
+        active: activeTaskCount,
+        completed: completedTaskCount,
+      };
 
       return userExists;
     }

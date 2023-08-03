@@ -290,7 +290,7 @@ class PaginationDto {
   limit: number;
 }
 
-class CountingDto {
+export class CountingDto {
   @ApiProperty({
     description: 'Of the total tasks after the filtering, how many are open',
     example: 1,
@@ -351,8 +351,8 @@ export class TasksResponseDto {
     },
   })
   @ValidateNested()
-  @Type(() => CountingDto)
-  counting: CountingDto;
+  @Type(() => PaginationDto)
+  counting: PaginationDto;
 
   @ApiProperty({
     type: PaginationDto,
