@@ -391,7 +391,7 @@ export class EventsHandlerService {
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {
@@ -477,7 +477,7 @@ export class EventsHandlerService {
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {
@@ -512,7 +512,7 @@ export class EventsHandlerService {
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {
@@ -557,14 +557,14 @@ export class EventsHandlerService {
     // event TaskTaken(uint256 taskId, uint16 applicationId, address proposer, address executor);
     this.newcontract.on(
       'TaskTaken',
-      async (taskId, application, proposer, executor, event) => {
+      async (taskId, applicationId, proposer, executor, event) => {
         console.log('new event');
         console.log(event);
         console.log('event event');
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {
@@ -585,6 +585,28 @@ export class EventsHandlerService {
           },
         });
         this.usersService.checkIfUserExistsOnTheChain(executor);
+        //setting the task as taken and the application as well
+        console.log('updating application');
+        await this.prisma.application.updateMany({
+          where: {
+            taskId: String(taskId),
+            applicationId: String(applicationId),
+          },
+          data: {
+            accepted: true,
+            taken: true,
+          },
+        });
+        console.log('updating task');
+        await this.prisma.task.update({
+          where: {
+            taskId: String(taskId),
+          },
+          data: {
+            status: String(1),
+          },
+        });
+        this.tasksService.updateSingleTaskData(Number(taskId));
       },
     );
 
@@ -598,7 +620,7 @@ export class EventsHandlerService {
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {
@@ -640,7 +662,7 @@ export class EventsHandlerService {
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {
@@ -674,7 +696,7 @@ export class EventsHandlerService {
         console.log(event.event);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
-        const timestamp = String(block.timestamp); // Timestamp in seconds
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
         //storing on the "events" table
         const finalData = {

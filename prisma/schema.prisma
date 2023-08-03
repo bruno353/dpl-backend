@@ -77,6 +77,7 @@ model Application {
     applicant String //Applicant
 
     accepted Boolean @default(false) //If the application was accepted
+    taken    Boolean @default(false) //After the application  is accepted, if the submitter took the task to work on it.
 
     metadataDescription String? //Application description
     metadataProposedBudget String? //Percentage of how much of the budget the user is asking for
