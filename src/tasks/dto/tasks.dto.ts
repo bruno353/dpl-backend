@@ -178,6 +178,14 @@ export class TaskDto {
   status: string;
 
   @ApiProperty({
+    description:
+      'If the task was taken (application accepted and etc), who is the address that is in charge of doing the task',
+    example: '0xas01298d02i2d2d1d121dd21',
+  })
+  @IsString()
+  executor: string;
+
+  @ApiProperty({
     description: 'How many events there are - updates',
     example: 2,
   })
