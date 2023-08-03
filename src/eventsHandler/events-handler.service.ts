@@ -428,7 +428,8 @@ export class EventsHandlerService {
           if (reward && Array.isArray(reward)) {
             reward = reward.map((singleReward) => JSON.stringify(singleReward));
           }
-
+          console.log('the arg you looking for');
+          console.log(event['args'][2]);
           const metadataData =
             await this.tasksService.getApplicationDataFromIPFS(
               String(event['args'][2]),
@@ -442,12 +443,11 @@ export class EventsHandlerService {
               reward: reward || [],
               proposer: proposer,
               applicant: applicant,
-              metadataDescription: metadataData['description'],
-              metadataProposedBudget: String(
-                metadataData['budgetPercentageRequested'],
-              ),
-              metadataAdditionalLink: metadataData['additionalLink'],
-              metadataDisplayName: metadataData['displayName'],
+              metadataDescription: metadataData['description'] || '',
+              // eslint-disable-next-line prettier/prettier
+              metadataProposedBudget: String(metadataData['budgetPercentageRequested']) || '',
+              metadataAdditionalLink: metadataData['additionalLink'] || '',
+              metadataDisplayName: metadataData['displayName'] || '',
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),

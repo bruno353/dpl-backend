@@ -635,7 +635,7 @@ export class TasksService {
   //get the application metadata
   async getApplicationDataFromIPFS(hash: string) {
     const url = `${this.ipfsBaseURL}/${hash}`;
-
+    console.log(url);
     let res;
     await axios
       .get(url)
@@ -646,6 +646,7 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened');
+        console.log('new error');
       });
     return res;
   }
