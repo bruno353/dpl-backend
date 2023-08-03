@@ -85,14 +85,15 @@ export class TasksService {
         tasks[i][1],
         tasks[i][5],
       );
+      console.log('ipfs respondido');
       console.log(ipfsRes);
       if (ipfsRes) {
         //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
-        ipfsRes['applications'] = JSON.stringify(tasks[i][7]);
+        ipfsRes['applications'] = JSON.stringify(tasks[i][8]);
         tasksWithMetadata.push(ipfsRes);
       }
     }
-
+    console.log('liks receveing');
     for (const task of tasksWithMetadata) {
       let finalLinkAsStrings = [];
       if (task['links'] && task['links'].length > 0) {
@@ -249,11 +250,6 @@ export class TasksService {
 
     const contractSigner = await newcontract.connect(connectedWallet);
 
-    let taskCount = 0;
-    await contractSigner.taskCount().then(function (response) {
-      taskCount = response;
-    });
-
     const tasks = [];
 
     let taskMetadata;
@@ -267,22 +263,24 @@ export class TasksService {
 
     const tasksWithMetadata = [];
 
-    //getting the metadata from ipfs:
-    for (let i = 0; i < taskCount; i++) {
-      const ipfsRes = await this.getDataFromIPFS(
-        tasks[i][0],
-        i,
-        tasks[i][1],
-        tasks[i][5],
-      );
-      console.log(ipfsRes);
-      if (ipfsRes) {
-        //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
-        ipfsRes['applications'] = JSON.stringify(tasks[i][7]);
-        tasksWithMetadata.push(ipfsRes);
-      }
+    const ipfsRes = await this.getDataFromIPFS(
+      tasks[0][0],
+      id,
+      tasks[0][1],
+      tasks[0][5],
+    );
+    console.log('ipfs respondido');
+    console.log(ipfsRes);
+    if (ipfsRes) {
+      //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
+      console.log('the task2');
+      console.log(tasks);
+      ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
+      console.log('pushing data');
+      tasksWithMetadata.push(ipfsRes);
+      console.log('pushed');
     }
-
+    console.log('receiving links');
     for (const task of tasksWithMetadata) {
       let finalLinkAsStrings = [];
       if (task['links'] && task['links'].length > 0) {
