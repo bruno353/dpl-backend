@@ -122,7 +122,7 @@ export class UsersService {
       const completedTaskCount = await getTaskCountForStatus('2');
 
       const finalTasks = tasks.map((task) => {
-        const { taskId, status, deadline, ...rest } = task;
+        const { taskId, status, deadline, id, ...rest } = task;
 
         //here do the "days left" flow:
         let daysLeft;
