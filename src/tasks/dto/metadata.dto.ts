@@ -408,3 +408,22 @@ export class IPFSUploadTaskCreationResponseDTO {
   @IsString()
   hash: string;
 }
+
+export class UploadIPFSMetadataTaskSubmissionDTO {
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Submission description',
+    example: 'Lorem ipsum religaris...',
+  })
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: "Submission's links",
+    example: ['www.github.com/repo', 'www.docs.google.com'],
+  })
+  @IsArray()
+  @IsString({ each: true })
+  skills: string[];
+}

@@ -34,6 +34,7 @@ import {
   IPFSUploadTaskCreationResponseDTO,
   UploadIPFSMetadataTaskApplicationDTO,
   UploadIPFSMetadataTaskCreationDTO,
+  UploadIPFSMetadataTaskSubmissionDTO,
 } from './dto/metadata.dto';
 import { GetTaskEventsResponseDto } from './dto/event.dto';
 
@@ -176,6 +177,25 @@ export class TasksController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.uploadIPFSMetadataTaskApplication(data);
+  }
+
+  // Uploads the task's ipfs metadata for task application:
+  @ApiOperation({
+    summary: "Uploads the task's ipfs metadata for task submission",
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
+  @Post('uploadIPFSMetadataTaskSubmission')
+  uploadIPFSMetadataTaskSubmission(
+    @Body() data: UploadIPFSMetadataTaskSubmissionDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.uploadIPFSMetadataTaskSubmission(data);
   }
 
   //Query to get all the applications from a task and store it on database
