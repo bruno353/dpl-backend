@@ -557,6 +557,7 @@ export class TasksService {
           },
         },
         Application: true,
+        Submission: true,
       },
       where: {
         taskId: data.id,
