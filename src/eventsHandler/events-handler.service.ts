@@ -399,22 +399,6 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        try {
-          await this.prisma.event.create({
-            data: {
-              name: 'ApplicationCreated',
-              data: JSON.stringify(finalData),
-              eventIndex: String(event.logIndex),
-              transactionHash: event.transactionHash,
-              blockNumber: String(event.blockNumber),
-              taskId: String(taskId),
-              address: applicant,
-              timestamp: timestamp,
-            },
-          });
-        } catch (err) {
-          console.log('error submiting application');
-        }
 
         //application special data treating
         const applicationExists = await this.prisma.application.findFirst({
@@ -453,6 +437,23 @@ export class EventsHandlerService {
               blockNumber: String(event.blockNumber),
             },
           });
+
+          try {
+            await this.prisma.event.create({
+              data: {
+                name: 'ApplicationCreated',
+                data: JSON.stringify(finalData),
+                eventIndex: String(event.logIndex),
+                transactionHash: event.transactionHash,
+                blockNumber: String(event.blockNumber),
+                taskId: String(taskId),
+                address: applicant,
+                timestamp: timestamp,
+              },
+            });
+          } catch (err) {
+            console.log('error submiting application');
+          }
           this.usersService.checkIfUserExistsOnTheChain(applicant);
         }
       },
@@ -629,61 +630,58 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        try {
-          await this.prisma.event.create({
-            data: {
-              name: 'SubmissionCreated',
-              data: JSON.stringify(finalData),
-              eventIndex: String(event.logIndex),
-              transactionHash: event.transactionHash,
-              blockNumber: String(event.blockNumber),
-              taskId: String(taskId),
-              address: executor,
-              timestamp: timestamp,
-            },
-          });
-        } catch (err) {
-          console.log('error submiting application');
-        }
 
         //application special data treating
-        const applicationExists = await this.prisma.application.findFirst({
+        const applicationExists = await this.prisma.submission.findFirst({
           where: {
             taskId: String(taskId),
-            applicationId: String(applicationId),
+            submissionId: String(submissionId),
           },
         });
 
         if (!applicationExists) {
-          if (reward && Array.isArray(reward)) {
-            reward = reward.map((singleReward) => JSON.stringify(singleReward));
-          }
+          console.log('getting submission metadata');
           console.log('the arg you looking for');
           console.log(event['args'][2]);
           const metadataData =
-            await this.tasksService.getApplicationDataFromIPFS(
+            await this.tasksService.getSubmissionDataFromIPFS(
               String(event['args'][2]),
             );
-
-          await this.prisma.application.create({
+          console.log('creating submission');
+          await this.prisma.submission.create({
             data: {
               taskId: String(taskId),
-              applicationId: String(applicationId),
+              submissionId: String(submissionId),
               metadata: metadata,
-              reward: reward || [],
               proposer: proposer,
-              applicant: applicant,
+              applicant: executor,
               metadataDescription: metadataData['description'] || '',
               // eslint-disable-next-line prettier/prettier
-                      metadataProposedBudget: String(metadataData['budgetPercentageRequested']) || '',
-              metadataAdditionalLink: metadataData['additionalLink'] || '',
-              metadataDisplayName: metadataData['displayName'] || '',
+              metadataAdditionalLinks: metadataData['links'] || [],
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),
             },
           });
-          this.usersService.checkIfUserExistsOnTheChain(applicant);
+          console.log('creating event');
+          try {
+            await this.prisma.event.create({
+              data: {
+                name: 'SubmissionCreated',
+                data: JSON.stringify(finalData),
+                eventIndex: String(event.logIndex),
+                transactionHash: event.transactionHash,
+                blockNumber: String(event.blockNumber),
+                taskId: String(taskId),
+                address: executor,
+                timestamp: timestamp,
+              },
+            });
+          } catch (err) {
+            console.log('error submiting application');
+          }
+          console.log('checking user');
+          this.usersService.checkIfUserExistsOnTheChain(executor);
         }
       },
     );

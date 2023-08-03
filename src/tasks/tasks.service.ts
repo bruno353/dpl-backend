@@ -688,6 +688,25 @@ export class TasksService {
     return res;
   }
 
+  //get the submission metadata
+  async getSubmissionDataFromIPFS(hash: string) {
+    const url = `${this.ipfsBaseURL}/${hash}`;
+    console.log(url);
+    let res;
+    await axios
+      .get(url)
+      .then(async (response) => {
+        console.log('the metadata submission:');
+        console.log(response.data);
+        res = response.data;
+      })
+      .catch(async (err) => {
+        console.log('erro happened on submission');
+        console.log('new error');
+      });
+    return res;
+  }
+
   //example of payment:   "payments": [    {      "tokenContract": "0x6eFbB027a552637492D827524242252733F06916",      "amount": "1000000000000000000",  "decimals": "18"    }  ],
   async getEstimateBudgetToken(payments) {
     let budget = '0';

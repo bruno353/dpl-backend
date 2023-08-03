@@ -425,5 +425,5 @@ export class UploadIPFSMetadataTaskSubmissionDTO {
   })
   @IsArray()
   @IsString({ each: true })
-  skills: string[];
+  links: string[];
 }
