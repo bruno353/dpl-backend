@@ -43,6 +43,8 @@ model Task {
 
   contributors String[] //["{"address": "0xa..."}"]
 
+  executor String? //If the task was taken (application accepted and etc), who is the address that is in charge of doing the task
+
   projectLength String @default("Less than 1 week") //How much time is estimated to complete the task 
 
   createdAt    DateTime  @default(now())
