@@ -629,19 +629,62 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        await this.prisma.event.create({
-          data: {
-            name: 'SubmissionCreated',
-            data: JSON.stringify(finalData),
-            eventIndex: String(event.logIndex),
-            transactionHash: event.transactionHash,
-            blockNumber: String(event.blockNumber),
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'SubmissionCreated',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              taskId: String(taskId),
+              address: executor,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error submiting application');
+        }
+
+        //application special data treating
+        const applicationExists = await this.prisma.application.findFirst({
+          where: {
             taskId: String(taskId),
-            address: executor,
-            timestamp: timestamp,
+            applicationId: String(applicationId),
           },
         });
-        this.usersService.checkIfUserExistsOnTheChain(executor);
+
+        if (!applicationExists) {
+          if (reward && Array.isArray(reward)) {
+            reward = reward.map((singleReward) => JSON.stringify(singleReward));
+          }
+          console.log('the arg you looking for');
+          console.log(event['args'][2]);
+          const metadataData =
+            await this.tasksService.getApplicationDataFromIPFS(
+              String(event['args'][2]),
+            );
+
+          await this.prisma.application.create({
+            data: {
+              taskId: String(taskId),
+              applicationId: String(applicationId),
+              metadata: metadata,
+              reward: reward || [],
+              proposer: proposer,
+              applicant: applicant,
+              metadataDescription: metadataData['description'] || '',
+              // eslint-disable-next-line prettier/prettier
+                      metadataProposedBudget: String(metadataData['budgetPercentageRequested']) || '',
+              metadataAdditionalLink: metadataData['additionalLink'] || '',
+              metadataDisplayName: metadataData['displayName'] || '',
+              timestamp: timestamp,
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+            },
+          });
+          this.usersService.checkIfUserExistsOnTheChain(applicant);
+        }
       },
     );
 

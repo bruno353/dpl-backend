@@ -36,6 +36,7 @@ model Task {
 
   payments Payment[]
   Application Application[]
+  Submission Submission[]
 
   estimatedBudget String @default("0") //getting the value from the tokens we return the estimated budget in USD.
 
@@ -99,6 +100,34 @@ model Application {
 
     @@unique([taskId, applicationId]) //cannot exist application with same taskId and applicationId
     @@map("application")
+}
+
+model Submission {
+    id String @id @default(uuid())
+
+    submissionId String //Submission id onchain
+    metadata String //The metadata hash
+    proposer String //Proposer
+    applicant String //Applicant
+
+    accepted Boolean @default(false) //If the application was accepted
+
+    metadataDescription String? //Application description
+    metadataAdditionalLinks String[] @default([])
+
+    timestamp String //Timestamp Unix global in seconds of when the event was emitted;
+
+    transactionHash String //The hash of the transaction that emitted the vent
+    blockNumber     String @default("0")
+
+    taskId String  
+    task   Task  @relation(fields: [taskId], references: [taskId])
+
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime? @updatedAt
+
+    @@unique([taskId, submissionId]) //cannot exist submission with same taskId and submissionId
+    @@map("submission")
 }
 
 //events emitted by the smart-contracts
