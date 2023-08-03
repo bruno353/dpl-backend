@@ -604,6 +604,7 @@ export class EventsHandlerService {
           },
           data: {
             status: String(1),
+            executor,
           },
         });
         this.tasksService.updateSingleTaskData(Number(taskId));
