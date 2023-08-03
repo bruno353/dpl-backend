@@ -27,6 +27,14 @@ export class GetUserDTO {
   @IsOptional()
   @IsString()
   @ApiProperty({
+    description: 'The task status 0 -> open; 1 -> active; 2 -> completed',
+    enum: ['0', '1', '2'],
+  })
+  status: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
     description:
       'Returning tasks with a longer or a shorter deadline compared to the currently time',
     enum: ['newest', 'oldest'],
@@ -62,6 +70,7 @@ export class GetUserResponseDTO {
           status: 'open',
           deadline: '1691118000',
           daysLeft: '2 days left',
+          executor: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
           type: 'Group',
           skills: ['Solidity', 'Web development'],
           skillsSearch: 'Solidity Web development',
@@ -89,6 +98,7 @@ export class GetUserResponseDTO {
           status: 'open',
           deadline: '1691118000',
           daysLeft: '2 days left',
+          executor: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
           type: 'Group',
           skills: ['Frontend', 'Solidity'],
           skillsSearch: 'Frontend Solidity',

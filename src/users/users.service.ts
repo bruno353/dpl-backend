@@ -91,15 +91,21 @@ export class UsersService {
           ...orderBy, // Caso deadlineSorting também esteja definido, será de menor prioridade
         };
       }
+
+      const where = {
+        taskId: {
+          in: taskIds,
+        },
+      };
+      if (data.status) {
+        where['status'] = data.status;
+      }
+
       console.log('tass');
       console.log(taskIds);
       const tasks = await this.prisma.task.findMany({
-        where: {
-          taskId: {
-            in: taskIds,
-          },
-        },
         orderBy,
+        where,
       });
 
       const finalTasks = tasks.map((task) => {
