@@ -16,7 +16,12 @@ Decimal.set({ precision: 60 });
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
-import { GetSubmissionDto, GetTaskDto, GetTasksDto } from './dto/tasks.dto';
+import {
+  GetSubmissionDto,
+  GetTaskDto,
+  GetTasksDto,
+  GetTokensNecessaryToFillRequestDTO,
+} from './dto/tasks.dto';
 import { UtilsService } from '../utils/utils.service';
 import {
   UploadIPFSMetadataTaskApplicationDTO,
@@ -711,16 +716,14 @@ export class TasksService {
   //example of payment:   "payments": [    {      "tokenContract": "0x6eFbB027a552637492D827524242252733F06916",      "amount": "1000000000000000000",  "decimals": "18"    }  ],
   async getEstimateBudgetToken(payments) {
     let budget = '0';
-
     if (this.environment === 'PROD') {
       try {
         for (let i = 0; i < payments.length; i++) {
           //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
           let valueToken = '1';
           if (payments[i].tokenContract === this.wEthTokenAddress) {
-            valueToken = await this.utilsService.getWETHPriceTokens(
-              this.wEthTokenAddress,
-            );
+            // eslint-disable-next-line prettier/prettier
+            valueToken = String(await this.utilsService.getWETHPriceTokens(this.wEthTokenAddress,));
           }
 
           const totalTokens = new Decimal(payments[i].amount).div(
@@ -995,5 +998,103 @@ export class TasksService {
       },
       submission,
     };
+  }
+
+  //Everytime an user submit an application, its necessary to calculate, based on the percentage of the estimated budget he is asking for, how many tokens this application will request.
+  async getTokensNecessaryToFillRequest(
+    data: GetTokensNecessaryToFillRequestDTO,
+  ) {
+    const task = await this.prisma.task.findUnique({
+      select: {
+        taskId: true,
+        payments: {
+          select: {
+            tokenContract: true,
+            amount: true,
+            decimals: true,
+          },
+        },
+      },
+      where: {
+        taskId: data.id,
+      },
+    });
+
+    if (!task) {
+      throw new BadRequestException('Task not found', {
+        cause: new Error(),
+        description: 'Task not found',
+      });
+    }
+
+    const budget = await this.getEstimateBudgetToken(task.payments);
+
+    //if its more than 100 percentage of the budget, calculate how many tokens need to be added
+    if (data.percentage > 100) {
+      const amountToBeIncreased =
+        ((data.percentage - 100) / 100) * Number(budget);
+      //now its necessary to equally distribute this amount within the tokens:
+      const amountToBeIncreasedPerToken =
+        amountToBeIncreased / task.payments.length;
+      for (let i = 0; i < task.payments.length; i++) {
+        const tokenValue = await this.getTokenValue(
+          task.payments[i].tokenContract,
+        );
+        const finalTokenQuantity =
+          (amountToBeIncreasedPerToken * Number(task.payments[i].decimals)) /
+          tokenValue;
+        task.payments[i].amount = String(
+          Number(task.payments[i].amount) + finalTokenQuantity,
+        );
+      }
+    } else if (data.percentage < 100) {
+      //if its less than 100 percentage of the budget, calculate how many tokens need to be removed
+      const amountToBeRemoved =
+        ((100 - data.percentage) / 100) * Number(budget);
+      //now its necessary to equally distribute this amount within the tokens:
+      const amountToBeRemovedPerToken =
+        amountToBeRemoved / task.payments.length;
+      for (let i = 0; i < task.payments.length; i++) {
+        const tokenValue = await this.getTokenValue(
+          task.payments[i].tokenContract,
+        );
+        const finalTokenQuantity =
+          (amountToBeRemovedPerToken * Number(task.payments[i].decimals)) /
+          tokenValue;
+        // eslint-disable-next-line prettier/prettier
+        task.payments[i].amount = String(Number(task.payments[i].amount) - finalTokenQuantity);
+      }
+    }
+
+    return {
+      payments: task.payments,
+    };
+  }
+
+  async getTokenValue(address: string): Promise<number> {
+    let budget = 0;
+    if (this.environment === 'PROD') {
+      try {
+        //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
+        if (address === this.wEthTokenAddress) {
+          budget = await this.utilsService.getWETHPriceTokens(
+            this.wEthTokenAddress,
+          );
+        }
+      } catch (err) {
+        console.log('error catching estimated budget value');
+        console.log(err);
+      }
+    } else {
+      try {
+        budget = 1;
+      } catch (err) {
+        console.log('error catching estimated budget value');
+        console.log(err);
+      }
+    }
+    console.log('budget to return');
+    console.log('budget');
+    return budget;
   }
 }

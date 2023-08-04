@@ -453,6 +453,25 @@ export class GetTaskDto {
   id: string;
 }
 
+export class GetTokensNecessaryToFillRequestDTO {
+  @IsString()
+  @ApiProperty({
+    description: 'The chain task id',
+    example: '2',
+  })
+  @IsNotEmpty()
+  id: string;
+
+  @IsNumber()
+  @ApiProperty({
+    description:
+      'The percentage the user is requesting from the total estimated budget',
+    example: 100,
+  })
+  @IsNotEmpty()
+  percentage: number;
+}
+
 export class GetSubmissionDto {
   @IsString()
   @ApiProperty({
