@@ -389,6 +389,8 @@ export class EventsHandlerService {
         console.log(event);
         console.log('event event');
         console.log(event.event);
+        console.log('event reward');
+        console.log(event['args'][3]);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
         const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
@@ -421,6 +423,41 @@ export class EventsHandlerService {
           console.log('the metadata app');
           console.log(metadataData);
 
+          let finalPercentageBudget;
+          try {
+            //getting the percentage of the budget estimation
+            //first - updating the estiamted budget of the task
+            const task = await this.prisma.task.findFirst({
+              where: {
+                taskId: String(taskId),
+              },
+              select: {
+                payments: true,
+              },
+            });
+            console.log('getting budget');
+            const budgetTask = await this.tasksService.getEstimateBudgetToken(
+              task.payments,
+            );
+            console.log(budgetTask);
+
+            //second, getting the budgetEstimation for the application:
+            for (let i = 0; i < task.payments.length; i++) {
+              task.payments[i].amount = String(reward[i]['amount']);
+            }
+            const budgetApplication =
+              await this.tasksService.getEstimateBudgetToken(task.payments);
+            console.log('budgetApplication');
+            console.log(budgetApplication);
+            finalPercentageBudget = (
+              (Number(budgetApplication) / Number(budgetTask)) *
+              100
+            ).toFixed(0);
+          } catch (err) {
+            console.log('error getting estimated budget');
+            console.log(err);
+          }
+
           await this.prisma.application.create({
             data: {
               taskId: String(taskId),
@@ -433,7 +470,7 @@ export class EventsHandlerService {
                 ? metadataData['description']
                 : '',
               // eslint-disable-next-line prettier/prettier
-              metadataProposedBudget: metadataData ? String(metadataData['budgetPercentageRequested']) : '',
+              metadataProposedBudget: finalPercentageBudget,
               metadataAdditionalLink: metadataData
                 ? metadataData['additionalLink']
                 : '',

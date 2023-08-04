@@ -1028,26 +1028,37 @@ export class TasksService {
     }
 
     const budget = await this.getEstimateBudgetToken(task.payments);
+    console.log('budget task');
+    console.log(budget);
 
     //if its more than 100 percentage of the budget, calculate how many tokens need to be added
     if (data.percentage > 100) {
+      console.log('sum');
       const amountToBeIncreased =
         ((data.percentage - 100) / 100) * Number(budget);
       //now its necessary to equally distribute this amount within the tokens:
       const amountToBeIncreasedPerToken =
         amountToBeIncreased / task.payments.length;
+      console.log('amount to be increased by token');
+      console.log(amountToBeIncreasedPerToken);
       for (let i = 0; i < task.payments.length; i++) {
         const tokenValue = await this.getTokenValue(
           task.payments[i].tokenContract,
         );
+        console.log('token value');
+        console.log(tokenValue);
         const finalTokenQuantity =
-          (amountToBeIncreasedPerToken * Number(task.payments[i].decimals)) /
+          (amountToBeIncreasedPerToken *
+            10 ** Number(task.payments[i].decimals)) /
           tokenValue;
+        console.log('finalTokenQuantity');
+        console.log(finalTokenQuantity);
         task.payments[i].amount = String(
           Number(task.payments[i].amount) + finalTokenQuantity,
         );
       }
     } else if (data.percentage < 100) {
+      console.log('decrease');
       //if its less than 100 percentage of the budget, calculate how many tokens need to be removed
       const amountToBeRemoved =
         ((100 - data.percentage) / 100) * Number(budget);
@@ -1059,7 +1070,8 @@ export class TasksService {
           task.payments[i].tokenContract,
         );
         const finalTokenQuantity =
-          (amountToBeRemovedPerToken * Number(task.payments[i].decimals)) /
+          (amountToBeRemovedPerToken *
+            10 ** Number(task.payments[i].decimals)) /
           tokenValue;
         // eslint-disable-next-line prettier/prettier
         task.payments[i].amount = String(Number(task.payments[i].amount) - finalTokenQuantity);
