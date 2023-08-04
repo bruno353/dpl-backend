@@ -16,7 +16,7 @@ Decimal.set({ precision: 60 });
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
-import { GetTaskDto, GetTasksDto } from './dto/tasks.dto';
+import { GetSubmissionDto, GetTaskDto, GetTasksDto } from './dto/tasks.dto';
 import { UtilsService } from '../utils/utils.service';
 import {
   UploadIPFSMetadataTaskApplicationDTO,
@@ -896,5 +896,104 @@ export class TasksService {
     });
 
     console.log(filteredEvents);
+  }
+
+  async getSubmission(data: GetSubmissionDto) {
+    const submission = await this.prisma.submission.findFirst({
+      where: {
+        id: data.id,
+      },
+    });
+    if (!submission) {
+      throw new BadRequestException('Submission not found', {
+        cause: new Error(),
+        description: 'Submission not found',
+      });
+    }
+    const task = await this.prisma.task.findUnique({
+      select: {
+        taskId: true,
+        status: true,
+        title: true,
+        description: true,
+        deadline: true,
+        departament: true,
+        contributorsNeeded: true,
+        executor: true,
+        projectLength: true,
+        links: true,
+        skills: true,
+        estimatedBudget: true,
+        contributors: true,
+        type: true,
+        payments: {
+          select: {
+            tokenContract: true,
+            amount: true,
+            decimals: true,
+          },
+        },
+        Application: true,
+      },
+      where: {
+        taskId: submission.taskId,
+      },
+    });
+
+    if (task && task.links && Array.isArray(task.links)) {
+      task.links = task.links.map((link) => JSON.parse(link));
+    }
+
+    if (task && task.contributors && Array.isArray(task.contributors)) {
+      task.contributors = task.contributors.map((contributor) =>
+        JSON.parse(contributor),
+      );
+    }
+
+    if (!task) {
+      throw new BadRequestException('Task not found', {
+        cause: new Error(),
+        description: 'Task not found',
+      });
+    }
+
+    const { taskId, status, deadline, ...rest } = task;
+
+    //here do the "days left" flow:
+    let daysLeft;
+    const now = Date.now();
+    const deadlineDay = Number(task.deadline) * 1000;
+    const distance = deadlineDay - now;
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+
+    if (days < 0) {
+      daysLeft = 'ended';
+    } else {
+      if (days <= 1) {
+        daysLeft = `${days} day left`;
+      } else {
+        daysLeft = `${days} days left`;
+      }
+    }
+
+    //getting events to know how many updates there are
+    const updatesCount = await this.prisma.event.findMany({
+      where: {
+        taskId: data.id,
+      },
+    });
+
+    return {
+      task: {
+        id: Number(taskId),
+        status: this.statusOptions[status],
+        updatesCount: updatesCount.length,
+        deadline,
+        daysLeft,
+        ...rest,
+      },
+      submission,
+    };
   }
 }

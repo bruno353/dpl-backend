@@ -703,6 +703,8 @@ export class EventsHandlerService {
         console.log('event event');
         console.log(event.event);
 
+        // const judmentsOptions = ['None', 'Accepted', 'Rejected'];
+
         const block = await this.web3Provider.getBlock(event['blockNumber']);
         const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
 
@@ -712,18 +714,43 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        await this.prisma.event.create({
-          data: {
-            name: 'SubmissionReviewed',
-            data: JSON.stringify(finalData),
-            eventIndex: String(event.logIndex),
-            transactionHash: event.transactionHash,
-            blockNumber: String(event.blockNumber),
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'SubmissionReviewed',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              taskId: String(taskId),
+              address: executor,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error in submission review');
+        }
+
+        const metadataData = await this.tasksService.getSubmissionDataFromIPFS(
+          String(event['args'][3]),
+        );
+        //setting the task as taken and the application as well
+        console.log('updating application');
+        await this.prisma.submission.updateMany({
+          where: {
             taskId: String(taskId),
-            address: executor,
-            timestamp: timestamp,
+            submissionId: String(submissionId),
+          },
+          data: {
+            accepted: true,
+            reviewed: true,
+            review: String(judgement),
+            metadataReview: feedback,
+            metadataReviewFeedback: metadataData['description'],
+            timestampReview: timestamp,
           },
         });
+
         this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );

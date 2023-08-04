@@ -111,9 +111,17 @@ model Submission {
     applicant String //Applicant
 
     accepted Boolean @default(false) //If the application was accepted
+    reviewed Boolean @default(false) //If the application was reviewed
+
+    review String? //The review outcome of this submission -> { None, Accepted, Rejected } -> 0, 1, 2
 
     metadataDescription String? //Application description
     metadataAdditionalLinks String[] @default([])
+
+    metadataReviewFeedback String? //If its submission was reviewed, what was the feedback?
+    metadataReview String? //If its submission was reviewed, what was the metadataHash
+    timestampReview String? //If its submission was reviewed, what was the timestamp
+    executorReview  String? //If its submission was reviewed, what was the executor
 
     timestamp String //Timestamp Unix global in seconds of when the event was emitted;
 

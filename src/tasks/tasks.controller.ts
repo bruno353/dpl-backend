@@ -25,6 +25,8 @@ import { Request } from 'express';
 
 import { TasksService } from './tasks.service';
 import {
+  GetSubmissionDto,
+  GetSubmissionResponseDto,
   GetTaskDto,
   GetTasksDto,
   TaskDto,
@@ -213,5 +215,21 @@ export class TasksController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.applicationsFromTask(data.id);
+  }
+
+  // Returns a specific task's submission:
+  @ApiOperation({
+    summary: "Returns a specific task's submission",
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: GetSubmissionResponseDto, isArray: true })
+  @Post('getSubmission')
+  getSubmission(@Body() data: GetSubmissionDto, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.getSubmission(data);
   }
 }

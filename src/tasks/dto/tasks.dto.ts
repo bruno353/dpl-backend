@@ -150,6 +150,81 @@ class ApplicationDto {
   timestamp: string;
 }
 
+class SubmissionDto {
+  @IsString()
+  @ApiProperty({
+    description: 'Submission id',
+    example: '2',
+  })
+  id: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Submission id onchain',
+    example: '2',
+  })
+  submissionId: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Submission proposer',
+    example: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
+  })
+  proposer: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Submission applicant',
+    example: '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',
+  })
+  applicant: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Submission description',
+    example: 'Lorem ipsum...',
+  })
+  metadataDescription: string;
+
+  @IsBoolean()
+  @ApiProperty({
+    description: 'If the Submission was accepted',
+    example: true,
+  })
+  accepted: boolean;
+
+  @IsBoolean()
+  @ApiProperty({
+    description: 'If the Submission was reviewed',
+    example: true,
+  })
+  reviewed: boolean;
+
+  @ApiProperty({
+    description: 'Any additional link',
+    example: 'www.mysite.com.br',
+  })
+  @IsArray()
+  @IsString({ each: true })
+  metadataAdditionalLink: string[];
+
+  @IsString()
+  @ApiProperty({
+    description: 'The review outcome of this submission',
+    example: 'Rejected',
+    enum: ['Accepted', 'Rejected'],
+  })
+  review: string;
+
+  @IsString()
+  @ApiProperty({
+    description:
+      'Timestamp Unix global in seconds of when the event was emitted',
+    example: '16904383',
+  })
+  timestamp: string;
+}
+
 class PaymentDto {
   @ApiProperty({ example: '0x6eFbB027a552637492D827524242252733F06916' })
   @IsString()
@@ -378,6 +453,16 @@ export class GetTaskDto {
   id: string;
 }
 
+export class GetSubmissionDto {
+  @IsString()
+  @ApiProperty({
+    description: 'The submission id on the backend',
+    example: '1b7183d6-5e63-426d-9ceb-59818289a3fa',
+  })
+  @IsNotEmpty()
+  id: string;
+}
+
 class RewardDto {
   @IsBoolean()
   @ApiProperty({
@@ -399,4 +484,55 @@ class RewardDto {
     example: 10000,
   })
   amount: number;
+}
+
+export class GetSubmissionResponseDto {
+  @ApiProperty({
+    type: TaskDto,
+    example: {
+      id: 1,
+      status: 'open',
+      skills: ['Frontend', 'Web development', 'Backend'],
+      departament: 'Frontend',
+      type: 'Individual',
+      deadline: '1689811200',
+      daysLeft: '0 day left',
+      description: 'Lorem ipsum relgiar',
+      title: 'My Task',
+      payments: [
+        {
+          tokenContract: '0x6eFbB027a552637492D827524242252733F06916',
+          amount: '10000000000000000000',
+          decimals: '18',
+        },
+      ],
+    },
+  })
+  @ValidateNested({ each: true })
+  @Type(() => TaskDto)
+  task: TaskDto;
+
+  @ApiProperty({
+    type: TaskDto,
+    example: {
+      id: '6f7f3ba1-e61e-4088-8884-12b843e32933',
+      submissionId: '0',
+      metadata: 'QmcaXGVw5TsHR3v9xymqjCUN5Nox3LRru7EtEwRaAxVDKi',
+      proposer: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',
+      applicant: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',
+      accepted: false,
+      metadataDescription: 'I worked hard on this submission',
+      metadataAdditionalLinks: ['www.github.com/my-repo'],
+      timestamp: '1691096446',
+      transactionHash:
+        '0x9ab4c6d1e65d9d8e0edcd389d585f8d4a10080cf85706d7edba7d48ccbe064fa',
+      blockNumber: '38607613',
+      taskId: '1',
+      createdAt: '2023-08-03T21:00:55.691Z',
+      updatedAt: '2023-08-03T21:00:55.691Z',
+    },
+  })
+  @ValidateNested({ each: true })
+  @Type(() => SubmissionDto)
+  submission: SubmissionDto;
 }
