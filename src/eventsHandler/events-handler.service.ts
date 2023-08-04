@@ -418,6 +418,8 @@ export class EventsHandlerService {
             await this.tasksService.getApplicationDataFromIPFS(
               String(event['args'][2]),
             );
+          console.log('the metadata app');
+          console.log(metadataData);
 
           await this.prisma.application.create({
             data: {
@@ -427,11 +429,17 @@ export class EventsHandlerService {
               reward: reward || [],
               proposer: proposer,
               applicant: applicant,
-              metadataDescription: metadataData['description'] || '',
+              metadataDescription: metadataData
+                ? metadataData['description']
+                : '',
               // eslint-disable-next-line prettier/prettier
-              metadataProposedBudget: String(metadataData['budgetPercentageRequested']) || '',
-              metadataAdditionalLink: metadataData['additionalLink'] || '',
-              metadataDisplayName: metadataData['displayName'] || '',
+              metadataProposedBudget: metadataData ? String(metadataData['budgetPercentageRequested']) : '',
+              metadataAdditionalLink: metadataData
+                ? metadataData['additionalLink']
+                : '',
+              metadataDisplayName: metadataData
+                ? metadataData['displayName']
+                : '',
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),
@@ -486,16 +494,26 @@ export class EventsHandlerService {
           contractAddress: event.address,
         };
         console.log(finalData);
-        await this.prisma.event.create({
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'TaskCreated',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              taskId: String(taskId),
+              address: manager,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('wasnt eable to created the task');
+        }
+        await this.prisma.task.create({
           data: {
-            name: 'TaskCreated',
-            data: JSON.stringify(finalData),
-            eventIndex: String(event.logIndex),
-            transactionHash: event.transactionHash,
-            blockNumber: String(event.blockNumber),
             taskId: String(taskId),
-            address: manager,
-            timestamp: timestamp,
+            executor: manager,
           },
         });
         this.usersService.checkIfUserExistsOnTheChain(manager);
@@ -655,9 +673,11 @@ export class EventsHandlerService {
               metadata: metadata,
               proposer: proposer,
               applicant: executor,
-              metadataDescription: metadataData['description'] || '',
+              metadataDescription: metadataData
+                ? metadataData['description']
+                : '',
               // eslint-disable-next-line prettier/prettier
-              metadataAdditionalLinks: metadataData['links'] || [],
+              metadataAdditionalLinks: metadataData ? metadataData['links'] : [],
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),
@@ -746,7 +766,9 @@ export class EventsHandlerService {
             reviewed: true,
             review: String(judgement),
             metadataReview: feedback,
-            metadataReviewFeedback: metadataData['description'],
+            metadataReviewFeedback: metadataData
+              ? metadataData['description']
+              : '',
             timestampReview: timestamp,
           },
         });
