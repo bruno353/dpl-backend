@@ -871,7 +871,7 @@ export class EventsHandlerService {
             taskId: String(taskId),
           },
           data: {
-            status: '3',
+            status: '2',
           },
         });
         this.usersService.checkIfUserExistsOnTheChain(executor);
