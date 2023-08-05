@@ -427,3 +427,22 @@ export class UploadIPFSMetadataTaskSubmissionDTO {
   @IsString({ each: true })
   links: string[];
 }
+
+export class UploadIPFSMetadataTaskSubmissionRevisionDTO {
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Review feedback',
+    example: 'Lorem ipsum religaris...',
+  })
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Review outcome',
+    example: 'Accept',
+    enum: ['Accept', 'Reject'],
+  })
+  @IsString()
+  judgment: string;
+}
