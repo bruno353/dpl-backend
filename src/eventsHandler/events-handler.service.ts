@@ -391,6 +391,10 @@ export class EventsHandlerService {
         console.log(event.event);
         console.log('event reward');
         console.log(event['args'][3]);
+        console.log('event reward specific');
+        console.log(event['args'][3]['amount']);
+        console.log('next reward');
+        console.log(event['args'][3][0]['amount']);
 
         const block = await this.web3Provider.getBlock(event['blockNumber']);
         const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
