@@ -435,26 +435,29 @@ export class EventsHandlerService {
                 payments: true,
               },
             });
-            console.log('getting budget');
+            console.log('getting budget fort budgetTask');
+            console.log(task.payments);
             const budgetTask = await this.tasksService.getEstimateBudgetToken(
               task.payments,
             );
             console.log(budgetTask);
-
+            console.log('looping');
             //second, getting the budgetEstimation for the application:
             for (let i = 0; i < task.payments.length; i++) {
               task.payments[i].amount = String(reward[i]['amount']);
             }
+            console.log('budget for budgetApplication');
+            console.log(task.payments);
             const budgetApplication =
               await this.tasksService.getEstimateBudgetToken(task.payments);
-            console.log('budgetApplication');
+            console.log('budgetApplication2');
             console.log(budgetApplication);
             finalPercentageBudget = (
               (Number(budgetApplication) / Number(budgetTask)) *
               100
             ).toFixed(0);
           } catch (err) {
-            console.log('error getting estimated budget');
+            console.log('error getting estimated budget3');
             console.log(err);
           }
 

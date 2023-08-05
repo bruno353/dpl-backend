@@ -752,7 +752,7 @@ export class TasksService {
             .toFixed(2);
         }
       } catch (err) {
-        console.log('error catching estimated budget value');
+        console.log('error catching estimated budget value here');
         console.log(err);
       }
     }
