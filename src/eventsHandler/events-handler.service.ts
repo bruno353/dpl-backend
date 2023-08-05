@@ -452,9 +452,10 @@ export class EventsHandlerService {
             );
             console.log(budgetTask);
             console.log('looping');
+            console.log(event['args'][3][0]['amount']);
             //second, getting the budgetEstimation for the application:
             for (let i = 0; i < task.payments.length; i++) {
-              task.payments[i].amount = String(reward[i]['amount']);
+              task.payments[i].amount = String(event['args'][3][i]['amount']);
             }
             console.log('budget for budgetApplication');
             console.log(task.payments);
