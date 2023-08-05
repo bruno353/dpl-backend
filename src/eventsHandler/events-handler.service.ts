@@ -866,6 +866,14 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        this.prisma.task.update({
+          where: {
+            taskId: String(taskId),
+          },
+          data: {
+            status: '3',
+          },
+        });
         this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
