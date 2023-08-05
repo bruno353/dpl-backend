@@ -386,6 +386,8 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
         console.log('event event');
         console.log(event.event);
@@ -532,6 +534,8 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
         console.log('event event');
         console.log(event.event);
@@ -686,6 +690,8 @@ export class EventsHandlerService {
       'SubmissionCreated',
       async (taskId, submissionId, metadata, proposer, executor, event) => {
         console.log('new event');
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
         console.log('event event');
         console.log(event.event);
@@ -770,6 +776,8 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
         console.log('event event');
         console.log(event.event);

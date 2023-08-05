@@ -690,6 +690,7 @@ export class TasksService {
       .catch(async (err) => {
         console.log('erro happened');
         console.log('new error');
+        console.log(err);
       });
     return res;
   }
