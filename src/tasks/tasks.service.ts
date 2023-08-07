@@ -43,6 +43,7 @@ export class TasksService {
   viewPrivateKey = process.env.VIEW_PRIVATE_KEY;
   taskContractAddress = process.env.TASK_CONTRACT_ADDRESS;
   ipfsBaseURL = process.env.IPFS_BASE_URL;
+  recallIpfsBaseURL = process.env.RECALL_IPFS_BASE_URL;
   pinataApiKey = process.env.PINATA_API_KEY;
   pinataSecretApiKey = process.env.PINATA_SECRET_API_KEY;
   environment = process.env.ENVIRONMENT;
@@ -706,7 +707,22 @@ export class TasksService {
       .catch(async (err) => {
         console.log('erro ocorreu');
         console.log(err);
-        return null;
+        const response = await this.recallGetDataFromIPFS(hash);
+        console.log('the metadata:');
+        console.log(response);
+        const payments = await this.getDecimalsFromPaymentsToken(
+          response.payments,
+        );
+        response.payments = payments;
+        response['estimatedBudget'] = await this.getEstimateBudgetToken(
+          payments,
+        );
+        response.id = String(taskId);
+        response.deadline = String(deadline);
+        response.status = String(state);
+        console.log(`the metadata data`);
+        console.log(response);
+        res = response;
       });
     return res;
   }
@@ -725,8 +741,8 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened');
-        console.log('new error');
         console.log(err);
+        res = await this.recallGetDataFromIPFS(hash);
       });
     return res;
   }
@@ -745,7 +761,28 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened on submission');
-        console.log('new error');
+        console.log(err);
+        res = await this.recallGetDataFromIPFS(hash);
+      });
+    return res;
+  }
+
+  //function to recall if first IPFS provider is down
+  async recallGetDataFromIPFS(hash: string) {
+    console.log('recall IPFS called');
+    const url = `${this.recallIpfsBaseURL}/${hash}`;
+    console.log(url);
+    let res;
+    await axios
+      .get(url)
+      .then(async (response) => {
+        console.log('the metadata:');
+        console.log(response.data);
+        res = response.data;
+      })
+      .catch(async (err) => {
+        console.log('erro happened on recall ipfs get data');
+        console.log(err);
       });
     return res;
   }
