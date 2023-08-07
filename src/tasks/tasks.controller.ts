@@ -193,7 +193,7 @@ export class TasksController {
     description: 'Token mandatory to connect with the app',
   })
   @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
-  @Post('uploadIPFSMetadataTaskCreation')
+  @Post('uploadIPFSMetadataTaskDraftCreation')
   uploadIPFSMetadataTaskDraftCreation(
     @Body() data: UploadIPFSMetadataTaskDraftCreationDTO,
     @Req() req: Request,
