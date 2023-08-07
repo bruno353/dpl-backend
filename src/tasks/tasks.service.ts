@@ -212,9 +212,7 @@ export class TasksService {
     return ipfsHash;
   }
 
-  async uploadIPFSMetadataTaskDraftCreation(
-    data: UploadIPFSMetadataTaskDraftCreationDTO,
-  ) {
+  async uploadIPFSMetadataTaskDraftCreation(data: any) {
     const config = {
       method: 'post',
       url: `https://api.pinata.cloud/pinning/pinJSONToIPFS`,

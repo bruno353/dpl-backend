@@ -468,13 +468,4 @@ export class UploadIPFSMetadataTaskDraftCreationDTO {
   })
   @IsString()
   body: string;
-
-  @IsOptional()
-  @ApiProperty({
-    example: {
-      name: 'metadata',
-      url: 'QmYs9HmWyuw32RyA7SiGknEfR2KAZEq6eFXcbBXuMpaTcK',
-    },
-  })
-  resources: any;
 }

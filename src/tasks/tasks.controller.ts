@@ -194,10 +194,7 @@ export class TasksController {
   })
   @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
   @Post('uploadIPFSMetadataTaskDraftCreation')
-  uploadIPFSMetadataTaskDraftCreation(
-    @Body() data: UploadIPFSMetadataTaskDraftCreationDTO,
-    @Req() req: Request,
-  ) {
+  uploadIPFSMetadataTaskDraftCreation(@Body() data: any, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.uploadIPFSMetadataTaskDraftCreation(data);
