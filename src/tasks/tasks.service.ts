@@ -705,7 +705,7 @@ export class TasksService {
         res = response.data;
       })
       .catch(async (err) => {
-        console.log('erro ocorreu');
+        console.log('erro ocorreu get ipfs');
         console.log(err);
         const response = await this.recallGetDataFromIPFS(hash);
         console.log('the metadata:');
