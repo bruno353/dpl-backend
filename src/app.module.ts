@@ -5,10 +5,12 @@ import { MulterModule } from '@nestjs/platform-express';
 import { EventsHandlerModule } from './eventsHandler/events-handler.module';
 import { UtilsModule } from './utils/utils.module';
 import { UsersModule } from './users/users.module';
+import { DepartamentsModule } from './departaments/departaments.module';
 
 @Module({
   imports: [
     TasksModule,
+    DepartamentsModule,
     UsersModule,
     UtilsModule,
     EventsHandlerModule,
