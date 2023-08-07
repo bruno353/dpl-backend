@@ -167,7 +167,7 @@ model Departament {
   id String @id @default(uuid())
 
   name String  //The departament name
-  description String 
+  description String?
 
   addressTaskDraft String? //Address related to the departament's task draft contract
   addressDAO String? //Address related to the departament's DAO governance contract

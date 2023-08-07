@@ -27,4 +27,10 @@ export class DepartamentsService {
 
   //setting variables:
   web3UrlProvider = process.env.WEB3_URL_PROVIDER;
+
+  async getDepartaments() {
+    const departaments = await this.prisma.departament.findMany();
+
+    return { departaments };
+  }
 }

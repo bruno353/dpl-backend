@@ -37,6 +37,7 @@ import {
   IPFSUploadTaskCreationResponseDTO,
   UploadIPFSMetadataTaskApplicationDTO,
   UploadIPFSMetadataTaskCreationDTO,
+  UploadIPFSMetadataTaskDraftCreationDTO,
   UploadIPFSMetadataTaskSubmissionDTO,
   UploadIPFSMetadataTaskSubmissionRevisionDTO,
 } from './dto/metadata.dto';
@@ -182,6 +183,24 @@ export class TasksController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.uploadIPFSMetadataTaskCreation(data);
+  }
+
+  @ApiOperation({
+    summary: "Uploads the task's ipfs metadata for task draft creation",
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
+  @Post('uploadIPFSMetadataTaskCreation')
+  uploadIPFSMetadataTaskDraftCreation(
+    @Body() data: UploadIPFSMetadataTaskDraftCreationDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.uploadIPFSMetadataTaskDraftCreation(data);
   }
 
   // Uploads the task's ipfs metadata for task application:

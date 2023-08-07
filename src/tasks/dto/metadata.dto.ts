@@ -446,3 +446,36 @@ export class UploadIPFSMetadataTaskSubmissionRevisionDTO {
   @IsString()
   judgment: string;
 }
+
+export class UploadIPFSMetadataTaskDraftCreationDTO {
+  @IsOptional()
+  @ApiProperty({
+    example: 'Lorem ipsum religaris...',
+  })
+  @IsString()
+  title: string;
+
+  @IsOptional()
+  @ApiProperty({
+    example: 'Lorem ipsum religaris...',
+  })
+  @IsString()
+  description: string;
+
+  @IsOptional()
+  @ApiProperty({
+    example: 'Lorem ipsum religaris...',
+  })
+  @IsString()
+  body: string;
+
+  @IsNotEmpty()
+  @ApiProperty({
+    example: {
+      name: 'metadata',
+      url: 'QmYs9HmWyuw32RyA7SiGknEfR2KAZEq6eFXcbBXuMpaTcK',
+    },
+  })
+  @IsString()
+  resources: Record<string, string>;
+}

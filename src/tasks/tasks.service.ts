@@ -26,6 +26,7 @@ import { UtilsService } from '../utils/utils.service';
 import {
   UploadIPFSMetadataTaskApplicationDTO,
   UploadIPFSMetadataTaskCreationDTO,
+  UploadIPFSMetadataTaskDraftCreationDTO,
   UploadIPFSMetadataTaskSubmissionDTO,
   UploadIPFSMetadataTaskSubmissionRevisionDTO,
 } from './dto/metadata.dto';
@@ -179,6 +180,41 @@ export class TasksService {
       data['type'] = 'Group';
     }
 
+    const config = {
+      method: 'post',
+      url: `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
+      headers: {
+        pinata_api_key: this.pinataApiKey,
+        pinata_secret_api_key: this.pinataSecretApiKey,
+        'Content-Type': 'application/json',
+      },
+      data,
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('Error during IPFS upload', {
+        cause: new Error(),
+        description: 'Error during IPFS upload',
+      });
+    }
+
+    const ipfsHash = dado.IpfsHash;
+
+    console.log('JSON uploaded to IPFS with hash', ipfsHash);
+
+    return ipfsHash;
+  }
+
+  async uploadIPFSMetadataTaskDraftCreation(
+    data: UploadIPFSMetadataTaskDraftCreationDTO,
+  ) {
     const config = {
       method: 'post',
       url: `https://api.pinata.cloud/pinning/pinJSONToIPFS`,
