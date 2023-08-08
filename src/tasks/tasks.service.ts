@@ -650,6 +650,23 @@ export class TasksService {
       );
     }
 
+    //fazer aqui o tratamento do applications:
+    if (task && task.Application && Array.isArray(task.Application)) {
+      task.Application = task.Application.map((application) => {
+        if (application.reward && Array.isArray(application.reward)) {
+          application.reward = application.reward.map((rewardString) => {
+            try {
+              return JSON.parse(rewardString);
+            } catch (error) {
+              console.error('Erro ao fazer o parse de reward:', error);
+              return rewardString; // Retorna o original se houver erro no parse
+            }
+          });
+        }
+        return application;
+      });
+    }
+
     if (!task) {
       throw new BadRequestException('Task not found', {
         cause: new Error(),

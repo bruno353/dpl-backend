@@ -12,7 +12,7 @@ model Task {
 
   taskId String  @unique //The id of the task onchain
 
-  status String? //The task status -> 0, 1 or 2 - ['open', 'active', 'completed']
+  status String? //The task status -> 0, 1, 2 - ['open', 'active', 'completed']
 
   type String? @default("Individual") //the type of the task -> individual or group
 
@@ -52,6 +52,65 @@ model Task {
   updatedAt    DateTime? @updatedAt
 
   @@map("task")
+}
+
+model TaskDraft {
+  id String @id @default(uuid())
+
+  taskId String  @unique //The id of the task draft onchain
+
+  status String? //The task status -> 0, 1 - ['open', 'closed']
+
+  type String? @default("Individual") //the type of the task -> individual or group
+
+  skills String[] @default([]) //the skills of this task. ex: Frontend, Backend, Solidity
+
+  skillsSearch String? //parameter mandatory to execute case insensitive searchs on the database - additional paramater to facilitate the searchs on database
+
+  departament String?   //the departament of the task
+
+  deadline String? //the task deadline in Unix timestamp
+
+  description String? //task desc
+
+  title String? //task title
+
+  file String? //The file hash on ipfs (if its got any file linked to the task)
+
+  links String[] //["{"title": "My video","url": "https://www.youtube.com/watch?v=zizonToFXDs"}"]
+
+  payments PaymentTaskDraft[]
+
+  estimatedBudget String @default("0") //getting the value from the tokens we return the estimated budget in USD.
+
+  contributorsNeeded String @default("1") //number of contributors need
+
+  contributors String[] //["{"address": "0xa..."}"]
+
+  executor String? //If the task was taken (application accepted and etc), who is the address that is in charge of doing the task
+
+  projectLength String @default("Less than 1 week") //How much time is estimated to complete the task 
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("taskDraft")
+}
+
+model PaymentTaskDraft {
+    id String @id @default(uuid())
+
+    tokenContract String //the token contract of the payment task
+    amount String //The amount
+    decimals String //Decimals of the smart-contract token
+
+    taskId String  
+    task   TaskDraft  @relation(fields: [taskId], references: [id])
+
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime? @updatedAt
+
+    @@map("paymentTaskDraft")
 }
 
 model Payment {
