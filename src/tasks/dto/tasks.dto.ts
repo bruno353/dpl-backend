@@ -240,6 +240,13 @@ class PaymentDto {
 }
 
 export class TaskDto {
+  @ApiProperty({
+    description: 'Id used to, if its a task draft, get its id',
+    example: '21321321-312312312-3213123-213123213',
+  })
+  @IsString()
+  internalId: string;
+
   @ApiProperty({ description: 'The task id onchain', example: 0 })
   @IsNumber()
   id: number;
@@ -394,6 +401,7 @@ export class TasksResponseDto {
     type: [TaskDto],
     example: [
       {
+        internalId: '20310213-213213213-21312321321-321313213123',
         id: 1,
         status: 'open',
         skills: ['Frontend', 'Web development', 'Backend'],

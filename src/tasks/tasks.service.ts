@@ -605,6 +605,7 @@ export class TasksService {
 
     const tasks = await this.prisma.task.findMany({
       select: {
+        id: true,
         taskId: true,
         proposalId: true,
         isDraft: true,
@@ -653,7 +654,7 @@ export class TasksService {
     const totalPages = Math.ceil(totalTasks / limit);
 
     const finalTasks = tasks.map((task) => {
-      const { taskId, status, deadline, ...rest } = task;
+      const { id, taskId, status, deadline, ...rest } = task;
 
       //here do the "days left" flow:
       let daysLeft;
@@ -674,6 +675,7 @@ export class TasksService {
       }
 
       return {
+        internalId: id,
         id: Number(taskId),
         status: this.statusOptions[status],
         deadline,
