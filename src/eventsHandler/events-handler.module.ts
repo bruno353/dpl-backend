@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'src/database/prisma.service';
 import { EventsHandlerController } from './events-handler.controller';
 import { EventsHandlerService } from './events-handler.service';
+import { EventsGovernanceHandlerService } from './events-governance-handler.service';
 import { TasksModule } from '../tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
 
@@ -26,7 +27,11 @@ import { UsersModule } from 'src/users/users.module';
     }),
   ],
   controllers: [EventsHandlerController],
-  providers: [EventsHandlerService, PrismaService],
-  exports: [EventsHandlerService],
+  providers: [
+    EventsHandlerService,
+    EventsGovernanceHandlerService,
+    PrismaService,
+  ],
+  exports: [EventsHandlerService, EventsGovernanceHandlerService],
 })
 export class EventsHandlerModule {}

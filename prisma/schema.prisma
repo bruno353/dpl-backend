@@ -97,6 +97,24 @@ model TaskDraft {
   @@map("taskDraft")
 }
 
+model Departament {
+  id String @id @default(uuid())
+
+  name String?  @unique //The name of the departament
+
+  addressTaskDrafts String? //The address of the task draft contract -> TaskDrafts.sol
+
+  addressDAO String? //The address of the DAO contract -> IDAO.sol
+
+  addressTokenListGovernance String? //The address of the tokenListGovernance contract -> TokenListGovernance.sol
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("departament")
+}
+
+
 model PaymentTaskDraft {
     id String @id @default(uuid())
 
@@ -221,24 +239,6 @@ model Event {
   @@map("event")
 }
 
-//departaments of the plataform - each departament ahs its own funds and governance to create and fund tasks
-model Departament {
-  id String @id @default(uuid())
-
-  name String  //The departament name
-  description String?
-
-  addressTaskDraft String? //Address related to the departament's task draft contract
-  addressDAO String? //Address related to the departament's DAO governance contract
-  addressTokenList String? //Address related to the departament's token list governance contract
-
-  timestamp String? //Timestamp Unix global in seconds of when the departament was created;
-
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
-
-  @@map("departament")
-}
 
 //Users of the protocol
 model User {

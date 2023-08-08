@@ -16,6 +16,9 @@ import { Request, response } from 'express';
 import axios from 'axios';
 import { UsersService } from 'src/users/users.service';
 
+//This is the service to handle the contracts related to the task managment:
+// Task.sol
+
 @Injectable()
 export class EventsHandlerService {
   //setting variables:
