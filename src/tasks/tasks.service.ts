@@ -52,7 +52,7 @@ export class TasksService {
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
 
-  statusOptions = ['open', 'active', 'completed'];
+  statusOptions = ['open', 'active', 'completed', 'draft'];
 
   //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   async updateTasksData() {
@@ -510,7 +510,7 @@ export class TasksService {
         projectLength: ipfsRes['projectLength'],
         skills: ipfsRes['skills'],
         skillsSearch,
-        status: String(ipfsRes['status']),
+        status: '3',
         title: ipfsRes['title'],
         departament: ipfsRes['departament'],
         type: ipfsRes['type'],
@@ -534,7 +534,7 @@ export class TasksService {
         projectLength: ipfsRes['projectLength'],
         skills: ipfsRes['skills'],
         skillsSearch,
-        status: String(ipfsRes['status']),
+        status: '3',
         title: ipfsRes['title'],
         departament: ipfsRes['departament'],
         type: ipfsRes['type'],
