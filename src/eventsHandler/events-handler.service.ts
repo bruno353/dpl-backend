@@ -616,7 +616,8 @@ export class EventsHandlerService {
         );
         console.log(budgetTask);
         console.log('task');
-        this.prisma.task.update({
+        console.log('final budget: ' + budgetTask);
+        const update = await this.prisma.task.update({
           where: {
             taskId: String(taskId),
           },
@@ -624,7 +625,9 @@ export class EventsHandlerService {
             estimatedBudget: budgetTask,
           },
         });
-        this.usersService.checkIfUserExistsOnTheChain(executor);
+        console.log(update);
+        console.log('next');
+        await this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
   }
