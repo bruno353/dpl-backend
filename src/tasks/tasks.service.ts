@@ -514,6 +514,7 @@ export class TasksService {
         title: ipfsRes['title'],
         departament: ipfsRes['departament'],
         type: ipfsRes['type'],
+        isDraft: true,
         aragonMetadata: aragonMetadata,
         startDate,
         endDate,
@@ -537,6 +538,7 @@ export class TasksService {
         title: ipfsRes['title'],
         departament: ipfsRes['departament'],
         type: ipfsRes['type'],
+        isDraft: true,
         aragonMetadata: aragonMetadata,
         startDate,
         endDate,
@@ -797,7 +799,7 @@ export class TasksService {
   }
 
   async getDraftTask(data: GetTaskDto) {
-    const task = await this.prisma.taskDraft.findUnique({
+    const task = await this.prisma.task.findUnique({
       select: {
         proposalId: true,
         status: true,
@@ -816,6 +818,7 @@ export class TasksService {
         startDate: true,
         endDate: true,
         aragonMetadata: true,
+        isDraft: true,
         payments: {
           select: {
             tokenContract: true,
@@ -825,7 +828,7 @@ export class TasksService {
         },
       },
       where: {
-        proposalId: data.id,
+        id: data.id,
       },
     });
 
@@ -840,6 +843,13 @@ export class TasksService {
     }
 
     if (!task) {
+      throw new BadRequestException('Task not found', {
+        cause: new Error(),
+        description: 'Task not found',
+      });
+    }
+
+    if (!task.isDraft) {
       throw new BadRequestException('Task not found', {
         cause: new Error(),
         description: 'Task not found',
