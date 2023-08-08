@@ -606,6 +606,8 @@ export class TasksService {
     const tasks = await this.prisma.task.findMany({
       select: {
         taskId: true,
+        proposalId: true,
+        isDraft: true,
         status: true,
         title: true,
         description: true,
@@ -642,6 +644,7 @@ export class TasksService {
     const openTaskCount = await getTaskCountForStatus('0');
     const activeTaskCount = await getTaskCountForStatus('1');
     const completedTaskCount = await getTaskCountForStatus('2');
+    const draftTaskCount = await getTaskCountForStatus('3');
 
     const totalTasks = await this.prisma.task.count({
       where,
@@ -685,6 +688,7 @@ export class TasksService {
         open: openTaskCount,
         active: activeTaskCount,
         completed: completedTaskCount,
+        draft: draftTaskCount,
       },
       pagination: {
         currentPage: page,
