@@ -470,6 +470,7 @@ export class TasksService {
     endDate: string,
     taskInfo: any,
     executor: string,
+    departamentName: string,
   ) {
     const ipfsRes = await this.getDataFromIPFS(
       taskInfo['metadata'],
@@ -489,8 +490,13 @@ export class TasksService {
 
     const skillsSearch = ipfsRes['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
 
-    await this.prisma.taskDraft.upsert({
-      where: { proposalId: String(ipfsRes['id']) },
+    await this.prisma.task.upsert({
+      where: {
+        proposalId_departament: {
+          proposalId: String(ipfsRes['id']),
+          departament: departamentName,
+        },
+      },
       update: {
         deadline: ipfsRes['deadline'],
         description: ipfsRes['description'],
@@ -782,6 +788,93 @@ export class TasksService {
 
     return {
       id: Number(taskId),
+      status: this.statusOptions[status],
+      updatesCount: updatesCount.length,
+      deadline,
+      daysLeft,
+      ...rest,
+    };
+  }
+
+  async getDraftTask(data: GetTaskDto) {
+    const task = await this.prisma.taskDraft.findUnique({
+      select: {
+        proposalId: true,
+        status: true,
+        title: true,
+        description: true,
+        deadline: true,
+        departament: true,
+        contributorsNeeded: true,
+        executor: true,
+        projectLength: true,
+        links: true,
+        skills: true,
+        estimatedBudget: true,
+        contributors: true,
+        type: true,
+        startDate: true,
+        endDate: true,
+        aragonMetadata: true,
+        payments: {
+          select: {
+            tokenContract: true,
+            amount: true,
+            decimals: true,
+          },
+        },
+      },
+      where: {
+        proposalId: data.id,
+      },
+    });
+
+    if (task && task.links && Array.isArray(task.links)) {
+      task.links = task.links.map((link) => JSON.parse(link));
+    }
+
+    if (task && task.contributors && Array.isArray(task.contributors)) {
+      task.contributors = task.contributors.map((contributor) =>
+        JSON.parse(contributor),
+      );
+    }
+
+    if (!task) {
+      throw new BadRequestException('Task not found', {
+        cause: new Error(),
+        description: 'Task not found',
+      });
+    }
+
+    const { proposalId, status, deadline, ...rest } = task;
+
+    //here do the "days left" flow:
+    let daysLeft;
+    const now = Date.now();
+    const deadlineDay = Number(task.endDate) * 1000;
+    const distance = deadlineDay - now;
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+
+    if (days < 0) {
+      daysLeft = 'ended';
+    } else {
+      if (days <= 1) {
+        daysLeft = `${days} day left`;
+      } else {
+        daysLeft = `${days} days left`;
+      }
+    }
+
+    //getting events to know how many updates there are
+    const updatesCount = await this.prisma.event.findMany({
+      where: {
+        taskId: data.id,
+      },
+    });
+
+    return {
+      id: Number(proposalId),
       status: this.statusOptions[status],
       updatesCount: updatesCount.length,
       deadline,

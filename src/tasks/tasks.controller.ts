@@ -159,6 +159,22 @@ export class TasksController {
 
   // Returns a specific task:
   @ApiOperation({
+    summary: 'Returns a specific drafted task with its metadata',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: TaskDto })
+  @Post('getDraftTask')
+  getDraftTask(@Body() data: GetTaskDto, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.getDraftTask(data);
+  }
+
+  // Returns a specific task:
+  @ApiOperation({
     summary:
       'Everytime an user submit an application, its necessary to calculate, based on the percentage of the estimated budget he is asking for, how many tokens this application will request.',
   })

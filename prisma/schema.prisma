@@ -10,7 +10,11 @@ datasource db {
 model Task {
   id String @id @default(uuid())
 
-  taskId String  @unique //The id of the task onchain
+  taskId String?  @unique //The id of the task onchain
+
+  proposalId String?  //If this task is a draft task, so its not still a task, but has its own proposal Id
+
+  isDraft  Boolean @default(false) //If this task is a draft task, so its not still a task, but has its own proposal Id
 
   status String? //The task status -> 0, 1, 2 - ['open', 'active', 'completed']
 
@@ -50,6 +54,12 @@ model Task {
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
+
+  startDate String? //the task draft start date of voting in Unix timestamp
+  endDate String? //the task draft  end date of voting in Unix timestamp
+  aragonMetadata String?
+
+  @@unique([proposalId, departament])
 
   @@map("task")
 }

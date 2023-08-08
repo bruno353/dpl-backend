@@ -97,6 +97,13 @@ export class EventsGovernanceHandlerService {
           } catch (err) {
             console.log('error saving event');
           }
+          const departament = await this.prisma.departament.findFirst({
+            where: {
+              addressTaskDrafts: event.address,
+            },
+          });
+          console.log('the departament');
+          console.log(departament);
           console.log('receveid from taskInfo');
           console.log(taskInfo);
           await this.tasksService.updateSingleTaskDraftData(
@@ -106,6 +113,7 @@ export class EventsGovernanceHandlerService {
             String(endDate),
             taskInfo,
             senderAddress,
+            departament.name,
           );
         },
       );
