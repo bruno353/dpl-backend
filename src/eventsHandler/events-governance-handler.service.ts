@@ -47,16 +47,69 @@ export class EventsGovernanceHandlerService {
       (departament) => departament.addressTaskDrafts,
     );
 
-    contractAddresses.forEach((address) => {
+    contractAddresses.forEach((address, i) => {
       const contract = new ethers.Contract(
         address,
         taskContractABI,
         this.web3Provider,
       );
-      
-      contract.on('ApplicationCreated', async (taskId, applicationId, metadata, reward, proposer, applicant, event) => {
-        // Código para lidar com o evento
-      });
+
+      // event TaskDraftCreated(        uint256 proposalId,        bytes metadata,        uint64 startDate,        uint64 endDate,        CreateTaskInfo taskInfo    );
+      contract.on(
+        'TaskDraftCreated',
+        async (proposalId, metadata, startDate, endDate, taskInfo, event) => {
+          console.log('new event');
+          console.log(event);
+          console.log('event event');
+          console.log(event.event);
+          //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+          await new Promise((resolve) => setTimeout(resolve, 4500));
+          const block = await this.web3Provider.getBlock(event['blockNumber']);
+          const timestamp =
+            String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+          // Fetch the transaction using the transaction hash from the event
+          const transaction = await this.web3Provider.getTransaction(
+            event.transactionHash,
+          );
+
+          // The address that submitted the transaction
+          const senderAddress = transaction.from;
+
+          //storing on the "events" table
+          const finalData = {
+            event: event,
+            contractAddress: event.address,
+          };
+          console.log(finalData);
+          try {
+            await this.prisma.event.create({
+              data: {
+                name: 'TaskDraftCreated',
+                data: JSON.stringify(finalData),
+                eventIndex: String(event.logIndex),
+                transactionHash: event.transactionHash,
+                blockNumber: String(event.blockNumber),
+                taskId: String(proposalId),
+                address: senderAddress,
+                timestamp: timestamp,
+              },
+            });
+          } catch (err) {
+            console.log('error saving event');
+          }
+          console.log('receveid from taskInfo');
+          console.log(taskInfo);
+          await this.tasksService.updateSingleTaskDraftData(
+            String(proposalId),
+            metadata,
+            String(startDate),
+            String(endDate),
+            taskInfo,
+            senderAddress,
+          );
+        },
+      );
     });
   }
 }

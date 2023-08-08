@@ -57,7 +57,7 @@ model Task {
 model TaskDraft {
   id String @id @default(uuid())
 
-  taskId String  @unique //The id of the task draft onchain
+  proposalId String  @unique //The id of the task draft onchain
 
   status String? //The task status -> 0, 1 - ['open', 'closed']
 
@@ -91,6 +91,10 @@ model TaskDraft {
 
   projectLength String @default("Less than 1 week") //How much time is estimated to complete the task 
 
+  startDate String? //the task draft start date of voting in Unix timestamp
+  endDate String? //the task draft  end date of voting in Unix timestamp
+  aragonMetadata String?
+
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
@@ -122,8 +126,8 @@ model PaymentTaskDraft {
     amount String //The amount
     decimals String //Decimals of the smart-contract token
 
-    taskId String  
-    task   TaskDraft  @relation(fields: [taskId], references: [id])
+    proposalId String  
+    task   TaskDraft  @relation(fields: [proposalId], references: [id])
 
     createdAt    DateTime  @default(now())
     updatedAt    DateTime? @updatedAt

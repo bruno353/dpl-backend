@@ -462,6 +462,85 @@ export class TasksService {
     return tasksWithMetadata;
   }
 
+  //updates a single task
+  async updateSingleTaskDraftData(
+    proposalId: string,
+    aragonMetadata: string,
+    startDate: string,
+    endDate: string,
+    taskInfo: any,
+    executor: string,
+  ) {
+    const ipfsRes = await this.getDataFromIPFS(
+      taskInfo['metadata'],
+      Number(proposalId),
+      taskInfo['deadline'],
+      0,
+    );
+    console.log('ipfs respondido');
+    console.log(ipfsRes);
+
+    let finalLinkAsStrings = [];
+    if (ipfsRes['links'] && ipfsRes['links'].length > 0) {
+      finalLinkAsStrings = ipfsRes['links'].map((dataItem) =>
+        JSON.stringify(dataItem),
+      );
+    }
+
+    const skillsSearch = ipfsRes['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
+
+    await this.prisma.taskDraft.upsert({
+      where: { proposalId: String(ipfsRes['id']) },
+      update: {
+        deadline: ipfsRes['deadline'],
+        description: ipfsRes['description'],
+        file: ipfsRes['file'],
+        links: finalLinkAsStrings,
+        payments: {
+          create: ipfsRes['payments'],
+        },
+        estimatedBudget: ipfsRes['estimatedBudget'],
+        contributorsNeeded: ipfsRes['numberOfApplicants'],
+        projectLength: ipfsRes['projectLength'],
+        skills: ipfsRes['skills'],
+        skillsSearch,
+        status: String(ipfsRes['status']),
+        title: ipfsRes['title'],
+        departament: ipfsRes['departament'],
+        type: ipfsRes['type'],
+        aragonMetadata: aragonMetadata,
+        startDate,
+        endDate,
+        executor,
+      },
+      create: {
+        proposalId: String(ipfsRes['id']),
+        deadline: ipfsRes['deadline'],
+        description: ipfsRes['description'],
+        file: ipfsRes['file'],
+        links: finalLinkAsStrings,
+        payments: {
+          create: ipfsRes['payments'],
+        },
+        estimatedBudget: ipfsRes['estimatedBudget'],
+        contributorsNeeded: ipfsRes['numberOfApplicants'],
+        projectLength: ipfsRes['projectLength'],
+        skills: ipfsRes['skills'],
+        skillsSearch,
+        status: String(ipfsRes['status']),
+        title: ipfsRes['title'],
+        departament: ipfsRes['departament'],
+        type: ipfsRes['type'],
+        aragonMetadata: aragonMetadata,
+        startDate,
+        endDate,
+        executor,
+      },
+    });
+
+    return;
+  }
+
   async getTasks(data: GetTasksDto) {
     const {
       departament,
