@@ -7,7 +7,6 @@ import {
 
 // import { import_ } from '@brillout/import';
 import { ethers } from 'ethers';
-import * as taskContractABI from '../contracts/taskContractABI.json';
 import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 import * as tasksDraftContractABI from '../contracts/tasksDraftContractABI.json';
 import { TasksService } from '../tasks/tasks.service';
@@ -50,7 +49,7 @@ export class EventsGovernanceHandlerService {
     contractAddresses.forEach((address, i) => {
       const contract = new ethers.Contract(
         address,
-        taskContractABI,
+        tasksDraftContractABI,
         this.web3Provider,
       );
 
