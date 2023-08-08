@@ -572,16 +572,23 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
+        const getTask = await this.prisma.task.findFirst({
+          where: {
+            taskId: String(taskId),
+          },
+        });
         //getting all the payments from the task and then checking if its increased something:
         const payments = await this.prisma.payment.findMany({
           where: {
-            taskId: String(taskId),
+            taskId: getTask.id,
           },
         });
         console.log('os payments');
         console.log(payments);
         console.log('os incrementes');
         console.log(increase);
+        console.log('trying to number increase');
+        console.log(Number(increase[0]));
         for (let i = 0; i < payments.length; i++) {
           if (Number(increase[i]) > 0) {
             console.log('increase');
@@ -600,13 +607,14 @@ export class EventsHandlerService {
         console.log('final payment');
         const finalPayments = await this.prisma.payment.findMany({
           where: {
-            taskId: String(taskId),
+            taskId: getTask.id,
           },
         });
         console.log('budgetTask');
         const budgetTask = await this.tasksService.getEstimateBudgetToken(
           finalPayments,
         );
+        console.log(budgetTask);
         console.log('task');
         this.prisma.task.update({
           where: {
