@@ -1234,4 +1234,64 @@ export class TasksService {
     console.log('budget');
     return budget;
   }
+
+  //runs a check to update the estiamted budget of a task and its applications
+  async updateEstimationBudgetTaskAndApplications(taskId: string) {
+    console.log('updateEstimationBudgetTaskAndApplications');
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId: String(taskId),
+      },
+      select: {
+        payments: true,
+      },
+    });
+    console.log('getting budget fort budgetTask');
+    console.log(task.payments);
+    const budgetTask = await this.getEstimateBudgetToken(task.payments);
+    console.log(budgetTask);
+    console.log('looping');
+    await this.prisma.task.update({
+      where: {
+        taskId: String(taskId),
+      },
+      data: {
+        estimatedBudget: budgetTask,
+      },
+    });
+    console.log('getting budget of applications');
+    const applications = await this.prisma.application.findMany({
+      where: {
+        taskId,
+      },
+    });
+    console.log('going to applications reward loop');
+    for (let i = 0; i < applications.length; i++) {
+      for (let j = 0; j < applications[i].reward.length; j++) {
+        task.payments[j].amount = String(
+          JSON.parse(applications[i].reward[j])[2]['hex'],
+        );
+        console.log('the reward here');
+        console.log(
+          String(Number(JSON.parse(applications[i].reward[j])[2]['hex'])),
+        );
+        console.log('loop its over');
+      }
+      const budgetApplication = await this.getEstimateBudgetToken(
+        task.payments,
+      );
+      const finalPercentageBudget = (
+        (Number(budgetApplication) / Number(budgetTask)) *
+        100
+      ).toFixed(0);
+      await this.prisma.application.update({
+        where: {
+          id: applications[i].id,
+        },
+        data: {
+          metadataProposedBudget: finalPercentageBudget,
+        },
+      });
+    }
+  }
 }

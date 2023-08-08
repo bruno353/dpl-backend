@@ -98,6 +98,33 @@ export class TasksController {
     return this.tasksService.updateSingleTaskData(data.id);
   }
 
+  @ApiOperation({
+    summary:
+      'Runs a check to update the estiamted budget of a task and its applications',
+  })
+  @ApiHeader({
+    name: 'x-deeeplink-team-signature',
+    description: 'Endpoint only available for deeplink team',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('updateEstimationBudgetTaskAndApplications')
+  updateEstimationBudgetTaskAndApplications(
+    @Body() data: any,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
+      throw new UnauthorizedException();
+    return this.tasksService.updateEstimationBudgetTaskAndApplications(data.id);
+  }
+
   // Returns all the tasks with its metadata:
   @ApiOperation({
     summary: 'Returns all the tasks with its metadata',
