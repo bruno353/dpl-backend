@@ -41,6 +41,7 @@ model Task {
   payments Payment[]
   Application Application[]
   Submission Submission[]
+  DraftVote DraftVote[]
 
   estimatedBudget String @default("0") //getting the value from the tokens we return the estimated budget in USD.
 
@@ -62,6 +63,27 @@ model Task {
   @@unique([proposalId, departament])
 
   @@map("task")
+}
+
+//Used to control the workflow of voting for draft tasks
+model DraftVote {
+  id String @id @default(uuid())
+
+  address String? //The user address that voted
+
+  votingPower String @default("1")
+
+  voteOption String? //{        None,        Abstain,        Yes,        No    }  -> 0, 1, 2 or 3
+
+  taskId String  
+  task   Task  @relation(fields: [taskId], references: [id])
+
+  @@unique([taskId, address])
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("draftVote")
 }
 
 model TaskDraft {
@@ -260,6 +282,8 @@ model User {
 
   name String?   //The user display name
   address String? @unique //The user address
+
+  verifiedContributorToken String? //Each verified contributor receives a NFT that is related to its voting power on the DAO departaments decisions, this parameter indicates what is (if the user is a verified contributor) tokenId of the nft
 
   profilePictureHash String? //The user profile picture - ipfs hash
   tags  String[] @default([]) //The user tags - "Data managment"; "Frontend"... etc
