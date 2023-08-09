@@ -805,6 +805,7 @@ export class TasksService {
   }
 
   async getDraftTask(data: GetTaskDto) {
+    console.log('fue hamado');
     const task = await this.prisma.task.findUnique({
       select: {
         proposalId: true,
@@ -890,7 +891,7 @@ export class TasksService {
     });
 
     return {
-      id: Number(proposalId),
+      proposalId: proposalId,
       status: this.statusOptions[status],
       updatesCount: updatesCount.length,
       deadline,
