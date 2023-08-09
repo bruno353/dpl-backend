@@ -64,6 +64,7 @@ export class EventsGovernanceHandlerService {
         'TaskDraftCreated',
         async (proposalId, metadata, startDate, endDate, taskInfo, event) => {
           console.log('new event');
+          console.log('TaskDraftCreated');
           console.log(event);
           console.log('event event');
           console.log(event.event);
@@ -144,6 +145,7 @@ export class EventsGovernanceHandlerService {
         'VoteCast',
         async (proposalId, voter, voteOption, votingPower, event) => {
           console.log('new event');
+          console.log('vote cast');
           console.log(event);
           console.log('event event');
           console.log(event.event);
@@ -183,26 +185,91 @@ export class EventsGovernanceHandlerService {
           } catch (err) {
             console.log('error saving event');
           }
-          const draftExists = await this.prisma.dra.findFirst({
+          const departament = await this.prisma.departament.findFirst({
             where: {
-              addressTaskDrafts: event.address,
+              addressTokenListGovernance: event.address,
             },
           });
-          console.log('the departament');
-          console.log(departament);
-          console.log('receveid from taskInfo');
-          console.log(taskInfo);
-          await this.tasksService.updateSingleTaskDraftData(
-            String(proposalId),
-            metadata,
-            String(startDate),
-            String(endDate),
-            taskInfo,
-            senderAddress,
-            departament.name,
-          );
+          const task = await this.prisma.task.findFirst({
+            where: {
+              departament: departament.name,
+              proposalId: String(proposalId),
+            },
+          });
+          const draftExists = await this.prisma.draftVote.findFirst({
+            where: {
+              address: senderAddress,
+              id_task: task.id,
+            },
+          });
+          if (!draftExists) {
+            await this.prisma.draftVote.create({
+              data: {
+                address: senderAddress,
+                voteOption: String(voteOption),
+                id_task: task.id,
+              },
+            });
+          }
         },
       );
+
+      contract.on('ProposalExecuted', async (proposalId, event) => {
+        console.log('new event');
+        console.log('proposal executed');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        // Fetch the transaction using the transaction hash from the event
+        const transaction = await this.web3Provider.getTransaction(
+          event.transactionHash,
+        );
+
+        // The address that submitted the transaction
+        const senderAddress = transaction.from;
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'ProposalExecuted',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              taskId: String(proposalId),
+              address: senderAddress,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error saving event');
+        }
+        const departament = await this.prisma.departament.findFirst({
+          where: {
+            addressTokenListGovernance: event.address,
+          },
+        });
+        await this.prisma.task.updateMany({
+          where: {
+            departament: departament.name,
+            proposalId: String(proposalId),
+          },
+          data: {
+            isDraftCompleted: true,
+          },
+        });
+      });
     });
   }
 
@@ -216,6 +283,7 @@ export class EventsGovernanceHandlerService {
     // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     contract.on('Transfer', async (from, to, tokenId, event) => {
       console.log('new event');
+      console.log('nft mint');
       console.log(event);
       console.log('event event');
       console.log(event.event);

@@ -15,6 +15,7 @@ model Task {
   proposalId String?  //If this task is a draft task, so its not still a task, but has its own proposal Id
 
   isDraft  Boolean @default(false) //If this task is a draft task, so its not still a task, but has its own proposal Id
+  isDraftCompleted  Boolean @default(false) //If this task is a draft task and it went through the voting and was approved
 
   status String? //The task status -> 0, 1, 2 - ['open', 'active', 'completed']
 
@@ -75,10 +76,10 @@ model DraftVote {
 
   voteOption String? //{        None,        Abstain,        Yes,        No    }  -> 0, 1, 2 or 3
 
-  taskId String  
-  task   Task  @relation(fields: [taskId], references: [id])
+  id_task String  
+  task   Task  @relation(fields: [id_task], references: [id])
 
-  @@unique([taskId, address])
+  @@unique([id_task, address])
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
