@@ -21,6 +21,7 @@ import {
   GetTaskDto,
   GetTasksDto,
   GetTokensNecessaryToFillRequestDTO,
+  GetUserToDraftTaskDto,
 } from './dto/tasks.dto';
 import { UtilsService } from '../utils/utils.service';
 import {
@@ -897,6 +898,37 @@ export class TasksService {
       deadline,
       daysLeft,
       ...rest,
+    };
+  }
+
+  //returns if the user is allowed to vote and if its already voted for the task etc.
+  async getUserToDraftTask(data: GetUserToDraftTaskDto) {
+    const draftVotingExists = await this.prisma.draftVote.findFirst({
+      where: {
+        address: data.address,
+        id_task: data.id,
+      },
+    });
+
+    const userExists = await this.prisma.user.findFirst({
+      where: {
+        address: data.address,
+      },
+      include: {
+        VerifiedContributorSubmission: true,
+      },
+    });
+    let isVerifiedContributor = false;
+    if (
+      userExists.VerifiedContributorSubmission[0]?.status === 'approved' ||
+      userExists.verifiedContributorToken
+    ) {
+      isVerifiedContributor = true;
+    }
+    return {
+      isVerifiedContributor,
+      alreadyVoted: draftVotingExists ? true : false,
+      voteOption: draftVotingExists?.voteOption,
     };
   }
 

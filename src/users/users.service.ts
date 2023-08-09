@@ -154,6 +154,15 @@ export class UsersService {
       // Incorporate the tasks into the response if needed
       userExists['tasks'] = finalTasks;
 
+      let isVerifiedContributor = false;
+      if (
+        userExists.VerifiedContributorSubmission[0]?.status === 'approved' ||
+        userExists.verifiedContributorToken
+      ) {
+        isVerifiedContributor = true;
+      }
+      userExists['isVerifiedContributor'] = isVerifiedContributor;
+
       //Incorporate the counting:
       userExists['counting'] = {
         open: openTaskCount,

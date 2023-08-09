@@ -30,6 +30,7 @@ import {
   GetTaskDto,
   GetTasksDto,
   GetTokensNecessaryToFillRequestDTO,
+  GetUserToDraftTaskDto,
   TaskDto,
   TasksResponseDto,
 } from './dto/tasks.dto';
@@ -171,6 +172,23 @@ export class TasksController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.getDraftTask(data);
+  }
+
+  // Returns a specific task:
+  @ApiOperation({
+    summary:
+      'returns if the user is allowed to vote and if its already voted for the task etc.',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  // @ApiResponse({ status: 200, exa: TaskDto })
+  @Post('getUserToDraftTask')
+  getUserToDraftTask(@Body() data: GetUserToDraftTaskDto, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.getUserToDraftTask(data);
   }
 
   // Returns a specific task:

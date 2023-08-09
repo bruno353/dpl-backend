@@ -461,6 +461,24 @@ export class GetTaskDto {
   id: string;
 }
 
+export class GetUserToDraftTaskDto {
+  @IsString()
+  @ApiProperty({
+    description: 'The chain task id',
+    example: '2',
+  })
+  @IsNotEmpty()
+  id: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The user address',
+    example: '0xasdadd12231dwqwddwqsad2141dwwq',
+  })
+  @IsNotEmpty()
+  address: string;
+}
+
 export class GetTokensNecessaryToFillRequestDTO {
   @IsString()
   @ApiProperty({
