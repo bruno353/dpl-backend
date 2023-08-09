@@ -929,6 +929,9 @@ export class TasksService {
       isVerifiedContributor,
       alreadyVoted: draftVotingExists ? true : false,
       voteOption: draftVotingExists?.voteOption,
+      verifiedContributorToken: isVerifiedContributor
+        ? userExists.verifiedContributorToken
+        : undefined,
     };
   }
 
