@@ -910,29 +910,53 @@ export class TasksService {
       },
     });
 
+    const task = await this.prisma.task.findFirst({
+      where: {
+        id: data.id,
+      },
+    });
+
+    //getting the departament of the task:
+    const departament = await this.prisma.departament.findFirst({
+      where: {
+        name: task.departament,
+      },
+    });
+
     const userExists = await this.prisma.user.findFirst({
       where: {
         address: data.address,
       },
       include: {
         VerifiedContributorSubmission: true,
+        VerifiedContributorToken: true,
       },
     });
     if (userExists) {
       let isVerifiedContributor = false;
-      if (
-        userExists.VerifiedContributorSubmission[0]?.status === 'approved' ||
-        userExists.verifiedContributorToken
-      ) {
+      let verifiedContributorTokenId = null;
+
+      // Encontre o primeiro VerifiedContributorToken que contém o endereço desejado em departamentList
+      const verifiedContributorToken =
+        await this.prisma.verifiedContributorToken.findFirst({
+          where: {
+            departamentList: {
+              has: departament.addressTokenListGovernance,
+            },
+            userId: userExists.id,
+          },
+        });
+
+      if (verifiedContributorToken) {
         isVerifiedContributor = true;
+        verifiedContributorTokenId = verifiedContributorToken.tokenId;
       }
+
       return {
         isVerifiedContributor,
         alreadyVoted: draftVotingExists ? true : false,
         voteOption: draftVotingExists?.voteOption,
-        verifiedContributorToken: isVerifiedContributor
-          ? userExists.verifiedContributorToken
-          : undefined,
+        verifiedContributorToken: verifiedContributorTokenId, // Retorna o tokenId aqui
       };
     } else {
       return {
