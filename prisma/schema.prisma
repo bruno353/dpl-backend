@@ -151,6 +151,22 @@ model Departament {
   @@map("departament")
 }
 
+//Each verified contributor receives a NFT that is related to its voting power on the DAO departaments decisions, this parameter indicates what is (if the user is a verified contributor) tokenId of the nft
+model VerifiedContributorToken {
+  id String @id @default(uuid())
+
+  tokenId String?  @unique //The tokenId
+  departamentList String[] //List of addresses of the departaments TokenListGovernance.sol that this tokenId is member of
+
+  userId String  
+  user   User  @relation(fields: [userId], references: [id])
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("verifiedContributorToken")
+}
+
 
 model PaymentTaskDraft {
     id String @id @default(uuid())
@@ -295,6 +311,7 @@ model User {
   updatesNonce String @default("0") //Nonce that managens everytime a profile update is done, to control the message signing.
 
   VerifiedContributorSubmission VerifiedContributorSubmission[]
+  VerifiedContributorToken VerifiedContributorToken[]
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt

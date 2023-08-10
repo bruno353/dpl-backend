@@ -270,6 +270,153 @@ export class EventsGovernanceHandlerService {
           },
         });
       });
+
+      //     event TokensAdded(uint256[] tokens);
+      contract.on('TokensAdded', async (tokens, event) => {
+        console.log('new event');
+        console.log('token added');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+        console.log('the tokens');
+        console.log(tokens);
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        // Fetch the transaction using the transaction hash from the event
+        const transaction = await this.web3Provider.getTransaction(
+          event.transactionHash,
+        );
+
+        // The address that submitted the transaction
+        const senderAddress = transaction.from;
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'TokensAdded',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              address: senderAddress,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error saving event');
+        }
+
+        //updating the verifiedcontributorToken with the new departament
+        for (let i = 0; i < tokens.length; i++) {
+          const contributorToken =
+            await this.prisma.verifiedContributorToken.findFirst({
+              where: {
+                tokenId: String(tokens[i]),
+              },
+            });
+
+          // Verifique se o endereço já está na lista
+          if (
+            contributorToken &&
+            !contributorToken.departamentList.includes(event.address)
+          ) {
+            await this.prisma.verifiedContributorToken.update({
+              where: {
+                tokenId: String(tokens[i]),
+              },
+              data: {
+                departamentList: {
+                  // Adicione o novo endereço à lista existente
+                  push: event.address,
+                },
+              },
+            });
+          }
+        }
+      });
+
+      contract.on('TokensRemoved', async (tokens, event) => {
+        console.log('new event');
+        console.log('token removed');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+        console.log('the tokens');
+        console.log(tokens);
+        //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        // Fetch the transaction using the transaction hash from the event
+        const transaction = await this.web3Provider.getTransaction(
+          event.transactionHash,
+        );
+
+        // The address that submitted the transaction
+        const senderAddress = transaction.from;
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        try {
+          await this.prisma.event.create({
+            data: {
+              name: 'TokensRemoved',
+              data: JSON.stringify(finalData),
+              eventIndex: String(event.logIndex),
+              transactionHash: event.transactionHash,
+              blockNumber: String(event.blockNumber),
+              address: senderAddress,
+              timestamp: timestamp,
+            },
+          });
+        } catch (err) {
+          console.log('error saving event');
+        }
+
+        //updating the verifiedcontributorToken with the new departament
+        for (let i = 0; i < tokens.length; i++) {
+          const contributorToken =
+            await this.prisma.verifiedContributorToken.findFirst({
+              where: {
+                tokenId: String(tokens[i]),
+              },
+            });
+
+          // Verifique se o endereço já está na lista
+          if (
+            contributorToken &&
+            contributorToken.departamentList.includes(event.address)
+          ) {
+            // Crie uma nova lista sem o endereço
+            const newDepartamentList = contributorToken.departamentList.filter(
+              (address) => address !== event.address,
+            );
+
+            await this.prisma.verifiedContributorToken.update({
+              where: {
+                tokenId: String(tokens[i]),
+              },
+              data: {
+                departamentList: newDepartamentList,
+              },
+            });
+          }
+        }
+      });
     });
   }
 
@@ -314,28 +461,37 @@ export class EventsGovernanceHandlerService {
         console.log('error saving event');
       }
       await this.usersService.checkIfUserExistsOnTheChain(to);
-      await this.prisma.user.update({
+
+      //seeing if the token already exists on the db:
+      const tokenExists = await this.prisma.verifiedContributorToken.findFirst({
+        where: {
+          tokenId: String(tokenId),
+        },
+      });
+
+      const user = await this.prisma.user.findFirst({
         where: {
           address: to,
         },
-        data: {
-          verifiedContributorToken: String(tokenId),
-        },
       });
-      //removing the tokenId from the wallet that transfered (ifts a valid wallet)
-      const userFromExists = await this.prisma.user.findFirst({
-        where: {
-          address: String(from),
-        },
-      });
-      console.log('saved with success');
-      if (userFromExists) {
-        await this.prisma.user.update({
+      console.log('the user');
+      console.log(user);
+
+      if (!tokenExists) {
+        await this.prisma.verifiedContributorToken.create({
+          data: {
+            tokenId: String(tokenId),
+            userId: user.id,
+          },
+        });
+      } else {
+        //if the token exists, changing its owner
+        await this.prisma.verifiedContributorToken.update({
           where: {
-            address: String(from),
+            id: tokenExists.id,
           },
           data: {
-            verifiedContributorToken: null,
+            userId: user.id,
           },
         });
       }
