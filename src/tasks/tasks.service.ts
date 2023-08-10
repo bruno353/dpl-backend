@@ -918,21 +918,28 @@ export class TasksService {
         VerifiedContributorSubmission: true,
       },
     });
-    let isVerifiedContributor = false;
-    if (
-      userExists.VerifiedContributorSubmission[0]?.status === 'approved' ||
-      userExists.verifiedContributorToken
-    ) {
-      isVerifiedContributor = true;
+    if (userExists) {
+      let isVerifiedContributor = false;
+      if (
+        userExists.VerifiedContributorSubmission[0]?.status === 'approved' ||
+        userExists.verifiedContributorToken
+      ) {
+        isVerifiedContributor = true;
+      }
+      return {
+        isVerifiedContributor,
+        alreadyVoted: draftVotingExists ? true : false,
+        voteOption: draftVotingExists?.voteOption,
+        verifiedContributorToken: isVerifiedContributor
+          ? userExists.verifiedContributorToken
+          : undefined,
+      };
+    } else {
+      return {
+        isVerifiedContributor: false,
+        alreadyVoted: false,
+      };
     }
-    return {
-      isVerifiedContributor,
-      alreadyVoted: draftVotingExists ? true : false,
-      voteOption: draftVotingExists?.voteOption,
-      verifiedContributorToken: isVerifiedContributor
-        ? userExists.verifiedContributorToken
-        : undefined,
-    };
   }
 
   async getTaskEvents(data: GetTaskDto) {
