@@ -41,6 +41,7 @@ export class EventsHandlerService {
     private readonly usersService: UsersService,
   ) {
     console.log('constructor being called');
+    console.log(this.taskContractAddress);
     //event ApplicationCreated(uint256 taskId, uint16 applicationId, string metadata, Reward[] reward, address proposer, address applicant);
     this.newcontract.on(
       'ApplicationCreated',
@@ -188,19 +189,10 @@ export class EventsHandlerService {
       },
     );
 
-    // //event TaskCreated(uint256 taskId, string metadata, uint64 deadline, ERC20Transfer[] budget, address manager, PreapprovedApplication[] preapproved);
+    // emit TaskCreated(            taskId,            _metadata,            _deadline,            _budget,            _msgSender(),            _manager        );
     this.newcontract.on(
       'TaskCreated',
-      async (
-        taskId,
-        metadata,
-        deadline,
-        budget,
-        creator,
-        manager,
-        preapproved,
-        event,
-      ) => {
+      async (taskId, metadata, deadline, budget, creator, manager, event) => {
         console.log('new event');
         //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
         await new Promise((resolve) => setTimeout(resolve, 4500));
