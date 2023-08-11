@@ -499,7 +499,7 @@ export class EventsHandlerService {
     //event TaskCompleted(uint256 taskId, address proposer, address executor);
     this.newcontract.on(
       'TaskCompleted',
-      async (taskId, proposer, executor, event) => {
+      async (taskId, executor, proposer, event) => {
         console.log('new event');
         console.log(event);
         console.log('event event');
@@ -526,7 +526,8 @@ export class EventsHandlerService {
             timestamp: timestamp,
           },
         });
-        this.prisma.task.update({
+        console.log('setting task as completed');
+        await this.prisma.task.updateMany({
           where: {
             taskId: String(taskId),
           },
