@@ -128,20 +128,8 @@ export class GetUserResponseDTO {
       ],
     },
   })
-  @ApiProperty({
-    type: CountingDto,
-    example: {
-      open: 1,
-      active: 2,
-      completed: 20,
-    },
-  })
-  @ValidateNested()
-  @Type(() => CountingDto)
-  counting: CountingDto;
-
   @IsNotEmpty()
-  user: object;
+  object;
 }
 
 export class EditUserDTO {
