@@ -40,6 +40,7 @@ export class EventsHandlerService {
     private readonly tasksService: TasksService,
     private readonly usersService: UsersService,
   ) {
+    console.log('constructor being called');
     //event ApplicationCreated(uint256 taskId, uint16 applicationId, string metadata, Reward[] reward, address proposer, address applicant);
     this.newcontract.on(
       'ApplicationCreated',
