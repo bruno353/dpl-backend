@@ -771,6 +771,24 @@ export class TasksService {
       );
     }
 
+    //fazer aqui o tratamento dos submissions:
+    if (task && task.Submission && Array.isArray(task.Submission)) {
+      task.Submission = await Promise.all(
+        task.Submission.map(async (submission) => {
+          //getting the user name and image profile
+          const userProfile = await this.prisma.user.findFirst({
+            where: { address: submission.applicant },
+          });
+          if (userProfile) {
+            submission['profileImage'] = userProfile.profilePictureHash;
+            submission['profileName'] = userProfile.name;
+          }
+
+          return submission;
+        }),
+      );
+    }
+
     if (!task) {
       throw new BadRequestException('Task not found', {
         cause: new Error(),
