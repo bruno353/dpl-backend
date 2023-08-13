@@ -12,6 +12,7 @@ model Task {
 
   taskId String?  @unique //The id of the task onchain
 
+  metadataHash String? //the metadata ipfs hash
   proposalId String?  //If this task is a draft task, so its not still a task, but has its own proposal Id
 
   isDraft  Boolean @default(false) //If this task is a draft task, so its not still a task, but has its own proposal Id

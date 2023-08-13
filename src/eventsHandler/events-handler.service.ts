@@ -629,5 +629,103 @@ export class EventsHandlerService {
         await this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
+
+    // event MetadataEditted(uint256 indexed taskId, string newMetadata, address manager);
+    this.newcontract.on(
+      'MetadataEditted',
+      async (taskId, metadata, executor, event) => {
+        console.log('Metadata editted');
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'MetadataEditted',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
+        console.log('updating application');
+        console.log('updating task');
+        await this.prisma.task.update({
+          where: {
+            taskId: String(taskId),
+          },
+          data: {
+            metadataHash: metadata,
+          },
+        });
+        this.tasksService.updateSingleTaskData(Number(taskId));
+      },
+    );
+
+    // event DeadlineExtended(uint256 indexed taskId, uint64 extension, address manager, address executor);
+    this.newcontract.on(
+      'DeadlineExtended',
+      async (taskId, extension, metadata, executor, event) => {
+        console.log('deadline extended');
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'DeadlineExtended',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
+
+        const taskExist = await this.prisma.task.findFirst({
+          where: {
+            taskId: String(taskId),
+          },
+        });
+
+        console.log('updating task');
+        await this.prisma.task.update({
+          where: {
+            taskId: String(taskId),
+          },
+          data: {
+            deadline: String(Number(taskExist.deadline) + Number(extension)),
+          },
+        });
+        await this.tasksService.updateSingleTaskData(Number(taskId));
+      },
+    );
   }
 }
