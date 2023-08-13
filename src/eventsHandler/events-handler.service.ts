@@ -619,6 +619,7 @@ export class EventsHandlerService {
           },
           data: {
             estimatedBudget: budgetTask,
+            budgetIncreased: true,
           },
         });
         console.log(update);
@@ -670,6 +671,7 @@ export class EventsHandlerService {
           },
           data: {
             metadataHash: metadata,
+            metadataEdited: true,
           },
         });
         this.tasksService.updateSingleTaskData(Number(taskId));
@@ -722,6 +724,7 @@ export class EventsHandlerService {
           },
           data: {
             deadline: String(Number(taskExist.deadline) + Number(extension)),
+            deadlineIncreased: true,
           },
         });
         await this.tasksService.updateSingleTaskData(Number(taskId));

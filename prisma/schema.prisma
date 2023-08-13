@@ -55,6 +55,10 @@ model Task {
 
   projectLength String @default("Less than 1 week") //How much time is estimated to complete the task 
 
+  metadataEdited Boolean @default(false) //When the metadata for this task is eddited, set this parameter as true
+  budgetIncreased Boolean @default(false) //When the budget for this task is eddited, set this parameter as true
+  deadlineIncreased Boolean @default(false) //When the deadline for this task is eddited, set this parameter as true
+
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
