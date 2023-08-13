@@ -718,6 +718,9 @@ export class TasksService {
         skills: true,
         estimatedBudget: true,
         contributors: true,
+        metadataEdited: true,
+        budgetIncreased: true,
+        deadlineIncreased: true,
         type: true,
         payments: {
           select: {

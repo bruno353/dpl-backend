@@ -252,6 +252,30 @@ export class TaskDto {
   id: number;
 
   @ApiProperty({
+    description:
+      'When the metadata for this task is eddited, set this parameter as true',
+    example: true,
+  })
+  @IsBoolean()
+  metadataEdited: boolean;
+
+  @ApiProperty({
+    description:
+      'When the budgetIncreased for this task is eddited, set this parameter as true',
+    example: true,
+  })
+  @IsBoolean()
+  budgetIncreased: boolean;
+
+  @ApiProperty({
+    description:
+      'When the deadlineIncreased for this task is eddited, set this parameter as true',
+    example: true,
+  })
+  @IsBoolean()
+  deadlineIncreased: boolean;
+
+  @ApiProperty({
     description: 'The task status',
     example: 'open',
     enum: ['open', 'active', 'completed'],
