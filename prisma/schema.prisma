@@ -349,3 +349,23 @@ model VerifiedContributorSubmission {
 
   @@map("verifiedContributorSubmission")
 }
+
+//Table utilized to store info about the speakers that are going to register on the calendly of the conference/hackathon 2023 - each registration is a "event"
+model SpeakersRegistrationCalendly {
+  id String @id @default(uuid())
+
+  uri String? //Unique identifier that links with the event
+  userName String? //The speaker name
+  userEmail String? //The speaker email
+  additionalInfo String? //Additional info like questions responses, descriptions etc
+  eventAt DateTime? //When the event is ocurring
+
+  active Boolean @default(true) //if the event is active, if it was canceled or reschedule this will be false
+  reschedule Boolean @default(false)
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("speakersRegistrationCalendly")
+}
+

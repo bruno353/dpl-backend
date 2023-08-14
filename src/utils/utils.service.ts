@@ -48,12 +48,12 @@ export class UtilsService {
     return response;
   }
 
+  //example of dataBody: {﻿created_at: '2023-08-14T16:37:00.000000Z',﻿created_by: 'https://api.calendly.com/users/bb4efcfa-56d4-4751-acfd-644af5f372d7';,﻿event: 'invitee.created',﻿payload: {﻿cancel_url: 'https://calendly.com/cancellations/30429fd6-dcc5-4b15-aa65-d9f658df7c21';,﻿created_at: '2023-08-14T16:37:00.264437Z',﻿email: 'brunolsantos152@gmail.com',﻿event: 'https://api.calendly.com/scheduled_events/aa3f7446-d8b6-422c-8414-cada16e33158';,﻿first_name: null,﻿last_name: null,﻿name: 'BRUNO LAUREANO DOS SANTOS',﻿new_invitee: null,﻿no_show: null,﻿old_invitee: null,﻿payment: null,﻿questions_and_answers: [ [Object] ],﻿reconfirmation: null,﻿reschedule_url: 'https://calendly.com/reschedulings/30429fd6-dcc5-4b15-aa65-d9f658df7c21';,﻿rescheduled: false,﻿routing_form_submission: null,﻿scheduled_event: {﻿created_at: '2023-08-14T16:37:00.249519Z',﻿end_time: '2023-08-30T14:00:00.000000Z',﻿event_guests: [],﻿event_memberships: [Array],﻿event_type: 'https://api.calendly.com/event_types/e153a182-7013-4e45-8ddc-430089ba3381';,﻿invitees_counter: [Object],﻿location: [Object],﻿name: 'Test event type',﻿start_time: '2023-08-30T13:30:00.000000Z',﻿status: 'active',﻿updated_at: '2023-08-14T16:37:00.249519Z',﻿uri: 'https://api.calendly.com/scheduled_events/aa3f7446-d8b6-422c-8414-cada16e33158';﻿},﻿status: 'active',﻿text_reminder_number: null,﻿timezone: 'America/Sao_Paulo',﻿tracking: {﻿utm_campaign: null,﻿utm_source: null,﻿utm_medium: null,﻿utm_content: null,﻿utm_term: null,﻿salesforce_uuid: null﻿},﻿updated_at: '2023-08-14T16:37:00.264437Z',﻿uri: 'https://api.calendly.com/scheduled_events/aa3f7446-d8b6-422c-8414-cada16e33158/invitees/30429fd6-dcc5-4b15-aa65-d9f658df7c21';﻿}﻿}
   async calendlyWebhook(dataBody: any, req: Request) {
     console.log('chamado');
     console.log(dataBody);
     const keySignature = String(req.headers['calendly-webhook-signature']);
-    console.log('the signature key');
-    console.log(keySignature);
+
     const { t, signature } = keySignature.split(',').reduce(
       (acc, currentValue) => {
         const [key, value] = currentValue.split('=');
@@ -76,10 +76,6 @@ export class UtilsService {
     );
 
     if (!t || !signature) throw new Error('Invalid Signature');
-    console.log(t);
-    console.log(signature);
-
-    console.log('checking signature');
 
     const data = t + '.' + JSON.stringify(req.body);
 
@@ -89,14 +85,30 @@ export class UtilsService {
 
     // Determine the expected signature by computing an HMAC with the SHA256 hash function.
 
-    console.log('expected hash');
-    console.log(expectedSignature);
-    console.log('signature');
-    console.log(signature);
-
     if (expectedSignature !== signature) {
       // Signature is invalid!
+      console.log('invalid signature');
       throw new Error('Invalid Signature');
+    }
+
+    //checking to see if the event already exists:
+    const eventExists =
+      await this.prisma.speakersRegistrationCalendly.findFirst({
+        where: {
+          uri: dataBody['payload']['uri'],
+        },
+      });
+    if (eventExists) {
+      if (dataBody['event'] === 'invitee.created') {
+        //the event already exists, does need to be created again
+        return;
+      } else if (dataBody['event'] === 'invitee.created') {
+        if (dataBody['payload']['rescheduled'] === true) {
+          await this.prisma.speakersRegistrationCalendly.
+        } else {
+
+        }
+      }
     }
     // chamando a api:
     //   const configAPI = {
