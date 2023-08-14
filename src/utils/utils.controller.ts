@@ -27,7 +27,7 @@ import { UtilsService } from './utils.service';
 @ApiTags('Utils')
 @Controller('functions')
 export class UsersController {
-  constructor(private readonly usersService: UtilsService) {}
+  constructor(private readonly utilsService: UtilsService) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
@@ -46,6 +46,6 @@ export class UsersController {
     // if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     console.log('os headers');
     console.log(req.headers);
-    return this.usersService.calendlyWebhook(data);
+    return this.utilsService.calendlyWebhook(data);
   }
 }
