@@ -132,15 +132,23 @@ export class UtilsService {
     } else {
       console.log('new event');
       console.log(dataBody['payload']['questions_and_answers']);
+      console.log('the payload');
+      console.log(dataBody['payload']);
       console.log('the start time');
-      console.log(dataBody['payload']['start_time']);
-      console.log(new Date(dataBody['payload']['start_time']));
+      console.log(dataBody['payload']['scheduled_event']['start_time']);
+      console.log(
+        new Date(dataBody['payload']['scheduled_event']['start_time']),
+      );
       await this.prisma.speakersRegistrationCalendly.create({
         data: {
           uri: dataBody['payload']['uri'],
           userName: dataBody['payload']['name'],
           userEmail: dataBody['payload']['email'],
-          eventAt: new Date(dataBody['payload']['start_time']),
+          eventAt: new Date(
+            dataBody['payload']['scheduled_event']['start_time'],
+          ),
+          timezone: dataBody['payload']['timezone'],
+          eventName: dataBody['payload']['scheduled_event']['name'],
           additionalInfo: JSON.stringify(
             dataBody['payload']['questions_and_answers'],
           ),

@@ -358,7 +358,10 @@ model SpeakersRegistrationCalendly {
   userName String? //The speaker name
   userEmail String? //The speaker email
   additionalInfo String? //Additional info like questions responses, descriptions etc
+  eventName String? //The event name
+
   eventAt DateTime? //When the event is ocurring
+  timezone String? //The event timezone time
 
   active Boolean @default(true) //if the event is active, if it was canceled or reschedule this will be false
   reschedule Boolean @default(false)
