@@ -98,17 +98,51 @@ export class UtilsService {
           uri: dataBody['payload']['uri'],
         },
       });
+    console.log('event exists?');
+    console.log(eventExists);
     if (eventExists) {
       if (dataBody['event'] === 'invitee.created') {
+        console.log('event already created');
         //the event already exists, does need to be created again
         return;
-      } else if (dataBody['event'] === 'invitee.created') {
+      } else if (dataBody['event'] !== 'invitee.created') {
         if (dataBody['payload']['rescheduled'] === true) {
-          await this.prisma.speakersRegistrationCalendly.
+          console.log('rescheduled');
+          await this.prisma.speakersRegistrationCalendly.updateMany({
+            where: {
+              uri: dataBody['payload']['uri'],
+            },
+            data: {
+              reschedule: true,
+              active: false,
+            },
+          });
         } else {
-
+          console.log('canceled');
+          await this.prisma.speakersRegistrationCalendly.updateMany({
+            where: {
+              uri: dataBody['payload']['uri'],
+            },
+            data: {
+              active: false,
+            },
+          });
         }
       }
+    } else {
+      console.log('new event');
+      console.log(dataBody['payload']['questions_and_answers']);
+      await this.prisma.speakersRegistrationCalendly.create({
+        data: {
+          uri: dataBody['payload']['uri'],
+          userName: dataBody['payload']['name'],
+          userEmail: dataBody['payload']['email'],
+          eventAt: dataBody['payload']['start_time'],
+          additionalInfo: JSON.stringify(
+            dataBody['payload']['questions_and_answers'],
+          ),
+        },
+      });
     }
     // chamando a api:
     //   const configAPI = {
