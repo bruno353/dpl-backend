@@ -44,4 +44,30 @@ export class UtilsService {
     }
     return response;
   }
+
+  async calendlyWebhook(data: any) {
+    console.log('chamado');
+    console.log(data);
+
+    // chamando a api:
+    //   const configAPI = {
+    //     method: 'post',
+    //     url: 'https://api.calendly.com/scheduling_links',
+    //     headers: {
+    //       accept: 'application/json',
+    //       client_id: this.clientIdSRMAPI,
+    //       access_token: accessTokenSRM,
+    //     },
+    //   };
+
+    //   let operacaoSigma;
+    //   try {
+    //     await axios(configAPI).then(function (response) {
+    //       operacaoSigma = response.data;
+    //     });
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }
+  }
 }
