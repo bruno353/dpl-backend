@@ -15,6 +15,7 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { UsersService } from 'src/users/users.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 //This is the service to handle the contracts related to the task managment:
 // Task.sol
@@ -38,6 +39,7 @@ export class EventsHandlerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly utilsService: UtilsService,
     private readonly usersService: UsersService,
   ) {
     console.log('constructor being called');
@@ -340,7 +342,9 @@ export class EventsHandlerService {
             status: String(1),
           },
         });
-        this.tasksService.updateSingleTaskData(Number(taskId));
+        console.log('updating job success');
+        await this.tasksService.updateSingleTaskData(Number(taskId));
+        await this.utilsService.updatesJobSuccess(executor);
       },
     );
 
@@ -491,7 +495,8 @@ export class EventsHandlerService {
           },
         });
 
-        this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.utilsService.updatesJobSuccess(executor);
       },
     );
 
@@ -534,7 +539,7 @@ export class EventsHandlerService {
             status: '2',
           },
         });
-        this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.usersService.checkIfUserExistsOnTheChain(executor);
       },
     );
 
@@ -674,7 +679,7 @@ export class EventsHandlerService {
             metadataEdited: true,
           },
         });
-        this.tasksService.updateSingleTaskData(Number(taskId));
+        await this.tasksService.updateSingleTaskData(Number(taskId));
       },
     );
 
