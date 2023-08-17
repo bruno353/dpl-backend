@@ -186,7 +186,8 @@ export class EventsHandlerService {
           } catch (err) {
             console.log('error submiting application');
           }
-          this.usersService.checkIfUserExistsOnTheChain(applicant);
+          await this.usersService.checkIfUserExistsOnTheChain(applicant);
+          await this.utilsService.updatesTotalEarned(applicant);
         }
       },
     );
@@ -540,6 +541,8 @@ export class EventsHandlerService {
           },
         });
         await this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.utilsService.updatesJobSuccess(executor);
+        await this.utilsService.updatesTotalEarned(executor);
       },
     );
 
