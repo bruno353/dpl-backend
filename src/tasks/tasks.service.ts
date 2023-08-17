@@ -354,6 +354,7 @@ export class TasksService {
 
   //updates a single task
   async updateSingleTaskData(id: number) {
+    console.log('getting a updated task');
     const walletEther = new ethers.Wallet(this.viewPrivateKey);
     const connectedWallet = walletEther.connect(this.web3Provider);
     const newcontract = new ethers.Contract(
@@ -403,7 +404,6 @@ export class TasksService {
           JSON.stringify(dataItem),
         );
       }
-
       const existingTask = await this.prisma.task.findUnique({
         where: { taskId: String(task['id']) },
         include: { payments: true },
@@ -456,7 +456,7 @@ export class TasksService {
 
       await this.updatePreapprovedApplicationsFromTask(
         task['id'],
-        ipfsRes['applications'],
+        JSON.parse(ipfsRes['applications']),
       );
       // await this.applicationsFromTask(task['id']);
     }
@@ -480,6 +480,8 @@ export class TasksService {
         executor: true,
       },
     });
+    console.log('what I received from applications');
+    console.log(typeof applications);
     applications.forEach(async (application, index) => {
       const applicationExists = await this.prisma.application.findFirst({
         where: {
@@ -508,6 +510,7 @@ export class TasksService {
             metadataProposedBudget: finalPercentageBudget,
             applicant: application[0],
             proposer: task.executor,
+            accepted: application[2],
           },
         });
       }
@@ -1228,7 +1231,8 @@ export class TasksService {
   async getDecimalsFromPaymentsToken(payments) {
     console.log('getting decimals');
     console.log(payments);
-    const newPayments = [...payments]; // creating a copy of the payments
+    const newPayments = payments.map((payment) => ({ ...payment })); // creating a deep copy of the payments
+    const finalPayments = [];
 
     const walletEther = new ethers.Wallet(this.viewPrivateKey);
     const connectedWallet = walletEther.connect(this.web3Provider);
@@ -1241,18 +1245,25 @@ export class TasksService {
       );
       const contractSigner = await newcontract.connect(connectedWallet);
 
-      let decimals = null;
+      let decimals = 18;
       await contractSigner.decimals().then(function (response) {
         decimals = response;
       });
       console.log('the decimal from token:');
       console.log(decimals);
       if (decimals) {
-        newPayments[i].decimals = String(Number(decimals)); // modifying the copy
+        newPayments[i].decimals = String(Number(decimals)); // modifying the deep copy
+        console.log('look here the payments');
+        console.log(newPayments[i]);
+        finalPayments.push({
+          tokenContract: newPayments[i].tokenContract,
+          amount: String(Number(newPayments[i].amount)),
+          decimals: newPayments[i].decimals,
+        });
       }
     }
-    // returning the state with the correctly decimals
-    return newPayments;
+    // returning the newPayments with the correctly decimals
+    return finalPayments;
   }
 
   //Query the events log to get all the applications from a task and store it on database
