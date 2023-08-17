@@ -316,6 +316,7 @@ model User {
   updatesNonce String @default("0") //Nonce that managens everytime a profile update is done, to control the message signing.
 
   jobSuccess String?   //Variable (0 - 100) that says the percentage of job success of the user - everytime a job he is in charge of is completed, it counts as a success
+  totalEarned String? //Variable that says the total amount that the user earned based on the tasks that he completed (the estimated amount in USD)
 
   VerifiedContributorSubmission VerifiedContributorSubmission[]
   VerifiedContributorToken VerifiedContributorToken[]
