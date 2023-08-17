@@ -212,12 +212,11 @@ class ContributorsDTO {
   @IsString()
   walletAddress: string;
 
+  @IsOptional()
   @ApiProperty({
     description: "The contributors's budget percentage",
     example: 2,
   })
-  @Max(100)
-  @Min(0.01)
   @IsNumber()
   budgetPercentage: number;
 }
