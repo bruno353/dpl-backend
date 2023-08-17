@@ -342,8 +342,8 @@ export class EventsHandlerService {
             status: String(1),
           },
         });
-        console.log('updating job success');
         await this.tasksService.updateSingleTaskData(Number(taskId));
+        console.log('updating job success');
         await this.utilsService.updatesJobSuccess(executor);
       },
     );

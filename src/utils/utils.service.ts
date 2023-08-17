@@ -50,6 +50,7 @@ export class UtilsService {
 
   //function used to update the job success rating of a user
   public async updatesJobSuccess(userAddress: string): Promise<any> {
+    console.log('updating job success');
     //getting all the tasks that the user has taken:
     const taskTotal = await this.prisma.task.findMany({
       where: {
@@ -61,6 +62,8 @@ export class UtilsService {
         },
       },
     });
+    console.log('task total');
+    console.log(taskTotal);
 
     //getting all the tasks that the user has completed succesfully:
     const taskCompleted = await this.prisma.task.findMany({
@@ -79,10 +82,14 @@ export class UtilsService {
         },
       },
     });
+    console.log('task completed');
+    console.log(taskCompleted);
 
     const jobSuccess = (taskCompleted.length * 100) / taskTotal.length;
 
-    if (jobSuccess) {
+    console.log('the job success');
+    console.log(jobSuccess);
+    if (jobSuccess !== null) {
       return await this.prisma.user.update({
         where: {
           address: userAddress,
