@@ -93,6 +93,7 @@ export class TasksService {
         tasks[i][0],
         i,
         tasks[i][1],
+        tasks[0][7],
         tasks[i][5],
       );
       console.log('ipfs respondido');
@@ -380,6 +381,7 @@ export class TasksService {
       tasks[0][0],
       id,
       tasks[0][1],
+      tasks[0][7],
       tasks[0][5],
     );
     console.log('ipfs respondido');
@@ -477,6 +479,7 @@ export class TasksService {
       taskInfo['metadata'],
       Number(proposalId),
       taskInfo['deadline'],
+      taskInfo['budget'],
       0,
     );
     console.log('ipfs respondido');
@@ -1013,6 +1016,7 @@ export class TasksService {
     hash: string,
     taskId: number,
     deadline: number,
+    paymentsInfo: any,
     state: number,
   ) {
     console.log('a task');
@@ -1021,15 +1025,17 @@ export class TasksService {
     console.log('a url');
     console.log(url);
 
+    //getting payment info directly from blockchain
+    console.log('getting payment info directly from blockchain');
+    console.log(paymentsInfo);
+
     let res;
     await axios
       .get(url)
       .then(async (response) => {
         console.log('the metadata:');
         console.log(response.data);
-        const payments = await this.getDecimalsFromPaymentsToken(
-          response.data.payments,
-        );
+        const payments = await this.getDecimalsFromPaymentsToken(paymentsInfo);
         response.data.payments = payments;
         response.data['estimatedBudget'] = await this.getEstimateBudgetToken(
           payments,
@@ -1047,9 +1053,7 @@ export class TasksService {
         const response = await this.recallGetDataFromIPFS(hash);
         console.log('the metadata:');
         console.log(response);
-        const payments = await this.getDecimalsFromPaymentsToken(
-          response.payments,
-        );
+        const payments = await this.getDecimalsFromPaymentsToken(paymentsInfo);
         response.payments = payments;
         response['estimatedBudget'] = await this.getEstimateBudgetToken(
           payments,

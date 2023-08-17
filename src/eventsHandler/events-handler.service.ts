@@ -440,6 +440,7 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        console.log('submission reviewed');
         //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
         await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
@@ -477,15 +478,17 @@ export class EventsHandlerService {
         const metadataData = await this.tasksService.getSubmissionDataFromIPFS(
           String(event['args'][3]),
         );
-        //setting the task as taken and the application as well
-        console.log('updating application');
+
+        console.log('the judgment');
+        console.log(judgement); // 1-> accepted; 2 -> rejected
+        console.log('updating submission');
         await this.prisma.submission.updateMany({
           where: {
             taskId: String(taskId),
             submissionId: String(submissionId),
           },
           data: {
-            accepted: true,
+            accepted: judgement && Number(judgement) === 1 ? true : false,
             reviewed: true,
             review: String(judgement),
             metadataReview: feedback,
