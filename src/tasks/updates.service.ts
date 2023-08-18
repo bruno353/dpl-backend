@@ -1,0 +1,527 @@
+import {
+  ConflictException,
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
+
+// import { import_ } from '@brillout/import';
+import { ethers } from 'ethers';
+import * as taskContractABI from '../contracts/taskContractABI.json';
+import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
+
+import Decimal from 'decimal.js';
+Decimal.set({ precision: 60 });
+
+import { PrismaService } from '../database/prisma.service';
+import { Request, response } from 'express';
+import axios from 'axios';
+import {
+  GetSubmissionDto,
+  GetTaskDto,
+  GetTasksDto,
+  GetTokensNecessaryToFillRequestDTO,
+  GetUserToDraftTaskDto,
+} from './dto/tasks.dto';
+import { UtilsService } from '../utils/utils.service';
+import {
+  UploadIPFSMetadataTaskApplicationDTO,
+  UploadIPFSMetadataTaskCreationDTO,
+  UploadIPFSMetadataTaskDraftCreationDTO,
+  UploadIPFSMetadataTaskSubmissionDTO,
+  UploadIPFSMetadataTaskSubmissionRevisionDTO,
+} from './dto/metadata.dto';
+import { TasksService } from '../tasks/tasks.service';
+
+//This service is utilized to update some task - it runs a query trhough all the events from a determined task to update it (its util to some cases in which the backend may have losed some events caused by a downtime or something similar)
+@Injectable()
+export class UpdatesService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utilsService: UtilsService,
+    private readonly tasksService: TasksService,
+  ) {}
+
+  //setting variables:
+  web3UrlProvider = process.env.WEB3_URL_PROVIDER;
+  web3Provider = new ethers.providers.JsonRpcProvider(this.web3UrlProvider);
+  viewPrivateKey = process.env.VIEW_PRIVATE_KEY;
+  taskContractAddress = process.env.TASK_CONTRACT_ADDRESS;
+  ipfsBaseURL = process.env.IPFS_BASE_URL;
+  recallIpfsBaseURL = process.env.RECALL_IPFS_BASE_URL;
+  pinataApiKey = process.env.PINATA_API_KEY;
+  pinataSecretApiKey = process.env.PINATA_SECRET_API_KEY;
+  environment = process.env.ENVIRONMENT;
+  usdcTokenAddress = process.env.USDC_TOKEN_ADDRESS;
+  usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
+  wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
+
+  statusOptions = ['open', 'active', 'completed', 'draft'];
+
+  //updates a single task
+  async updateSingleTaskData(id: number) {
+    console.log('getting a updated task');
+    const walletEther = new ethers.Wallet(this.viewPrivateKey);
+    const connectedWallet = walletEther.connect(this.web3Provider);
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    const contractSigner = await newcontract.connect(connectedWallet);
+
+    const tasks = [];
+
+    let taskMetadata;
+    await contractSigner.getTask(id).then(function (response) {
+      taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
+      tasks.push(taskMetadata);
+    });
+
+    console.log('the response');
+    console.log(taskMetadata);
+
+    const tasksWithMetadata = [];
+
+    const ipfsRes = await this.tasksService.getDataFromIPFS(
+      tasks[0][0],
+      id,
+      tasks[0][1],
+      tasks[0][7],
+      tasks[0][5],
+    );
+    console.log('ipfs respondido');
+    console.log(ipfsRes);
+    if (ipfsRes) {
+      //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
+      console.log('the task2');
+      console.log(tasks);
+      ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
+      console.log('pushing data');
+      tasksWithMetadata.push(ipfsRes);
+      console.log('pushed');
+    }
+    console.log('receiving links');
+    for (const task of tasksWithMetadata) {
+      let finalLinkAsStrings = [];
+      if (task['links'] && task['links'].length > 0) {
+        finalLinkAsStrings = task['links'].map((dataItem) =>
+          JSON.stringify(dataItem),
+        );
+      }
+      const existingTask = await this.prisma.task.findUnique({
+        where: { taskId: String(task['id']) },
+        include: { payments: true },
+      });
+
+      const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
+
+      await this.prisma.task.upsert({
+        where: { taskId: String(task['id']) },
+        update: {
+          deadline: task['deadline'],
+          description: task['description'],
+          file: task['file'],
+          links: finalLinkAsStrings,
+          payments: {
+            create: task['payments'],
+          },
+          estimatedBudget: task['estimatedBudget'],
+          contributorsNeeded: task['numberOfApplicants'],
+          projectLength: task['projectLength'],
+          skills: task['skills'],
+          applications: task['applications'],
+          skillsSearch,
+          status: String(task['status']),
+          title: task['title'],
+          departament: task['departament'],
+          type: task['type'],
+        },
+        create: {
+          taskId: String(task['id']),
+          deadline: task['deadline'],
+          description: task['description'],
+          file: task['file'],
+          links: finalLinkAsStrings,
+          payments: {
+            create: task['payments'],
+          },
+          estimatedBudget: task['estimatedBudget'],
+          contributorsNeeded: task['numberOfApplicants'],
+          projectLength: task['projectLength'],
+          skills: task['skills'],
+          applications: task['applications'],
+          skillsSearch,
+          status: String(task['status']),
+          title: task['title'],
+          departament: task['departament'],
+          type: task['type'],
+        },
+      });
+
+      await this.updatePreapprovedApplicationsFromTask(
+        task['id'],
+        JSON.parse(ipfsRes['applications']),
+      );
+      await this.updateApplicationsFromTask(Number(task['id']));
+      // await this.applicationsFromTask(task['id']);
+    }
+    return tasksWithMetadata;
+  }
+
+  async updatePreapprovedApplicationsFromTask(
+    taskId: string,
+    applications: any,
+  ) {
+    console.log(
+      'searching for the applications (preapproved - they are the first ones), if not exist yet, just creat it',
+    );
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId,
+      },
+      select: {
+        payments: true,
+        estimatedBudget: true,
+        executor: true,
+      },
+    });
+    console.log('what I received from applications');
+    console.log(typeof applications);
+    applications.forEach(async (application, index) => {
+      const applicationExists = await this.prisma.application.findFirst({
+        where: {
+          taskId,
+          applicationId: String(index),
+        },
+      });
+      if (!applicationExists) {
+        console.log('getting the estimated budget of payments');
+        for (let i = 0; i < task.payments.length; i++) {
+          task.payments[i].amount = String(application[1][i]['amount']);
+        }
+        console.log('budget for budgetApplication');
+        console.log(task.payments);
+        const budgetApplication =
+          await this.tasksService.getEstimateBudgetToken(task.payments);
+        const finalPercentageBudget = (
+          (Number(budgetApplication) / Number(task.estimatedBudget)) *
+          100
+        ).toFixed(0);
+        await this.prisma.application.create({
+          data: {
+            taskId,
+            applicationId: String(index),
+            metadataProposedBudget: finalPercentageBudget,
+            applicant: application[0],
+            proposer: task.executor,
+            accepted: application[2],
+          },
+        });
+      }
+    });
+  }
+
+  //Query the events log to get all the applications from a task and store it on database
+  async updateApplicationsFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.ApplicationCreated(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // const filteredEvents = events.filter((event) => event.args.taskId.eq(id)); //[  {    name: 'ApplicationCreated',    args: [      [BigNumber],      0,      'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      [Array],      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      taskId: [BigNumber],      applicationId: 0,      metadata: 'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      reward: [Array],      proposer: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      applicant: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170'    ],    signature: 'ApplicationCreated(uint256,uint16,string,(bool,address,uint88)[],address,address)',    topic: '0x7dea79221549b396f31442a220505470acfcfd38f772b6b3faa676d25df5998d',    blockNumber: 38426300,    timestamp: 1690664419  }]
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting the task and its budget
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId: String(taskId),
+      },
+      select: {
+        payments: true,
+      },
+    });
+    console.log('getting budget fort budgetTask');
+    console.log(task.payments);
+    const budgetTask = await this.tasksService.getEstimateBudgetToken(
+      task.payments,
+    );
+    console.log(budgetTask);
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      console.log('creating args');
+      if (event['args'][3] && Array.isArray(event['args'][3])) {
+        event['reward'] = event['args'][3].map((reward) =>
+          JSON.stringify(reward),
+        );
+      }
+
+      console.log('getting metadata if its exists');
+      let metadataData;
+      try {
+        if (String(event['args'][2]).length > 0) {
+          metadataData = await this.tasksService.getApplicationDataFromIPFS(
+            String(event['args'][2]),
+          );
+        }
+      } catch (err) {
+        console.log('not found metadata valid');
+      }
+
+      let finalPercentageBudget = '0';
+      try {
+        //getting estimated budget
+        for (let i = 0; i < task.payments.length; i++) {
+          task.payments[i].amount = String(event['args'][3][i]['amount']);
+        }
+        console.log('budget for budgetApplication');
+        console.log(task.payments);
+        const budgetApplication =
+          await this.tasksService.getEstimateBudgetToken(task.payments);
+        console.log('budgetApplication2');
+        console.log(budgetApplication);
+        finalPercentageBudget = (
+          (Number(budgetApplication) / Number(budgetTask)) *
+          100
+        ).toFixed(0);
+      } catch (err) {
+        console.log('error getting estimated budget3');
+        console.log(err);
+      }
+
+      await this.prisma.application.upsert({
+        where: {
+          taskId_applicationId: {
+            taskId: String(taskId),
+            applicationId: String(event['args'][1]),
+          },
+        },
+        update: {
+          metadata: String(event['args'][2]),
+          reward: event['reward'] || [],
+          proposer: event['args'][4],
+          applicant: event['args'][5],
+          metadataDescription: metadataData['description'] || '',
+          metadataProposedBudget: finalPercentageBudget,
+          metadataDisplayName: metadataData['displayName'] || '',
+          timestamp: event['timestamp'],
+          transactionHash: event['transactionHash'],
+          blockNumber: String(event['blockNumber']),
+        },
+        create: {
+          taskId: String(taskId),
+          applicationId: String(event['args'][1]),
+          metadata: String(event['args'][2]),
+          reward: event['reward'] || [],
+          proposer: event['args'][4],
+          applicant: event['args'][5],
+          metadataDescription: metadataData['description'] || '',
+          metadataProposedBudget: finalPercentageBudget,
+          metadataDisplayName: metadataData['displayName'] || '',
+          timestamp: event['timestamp'],
+          transactionHash: event['transactionHash'],
+          blockNumber: String(event['blockNumber']),
+        },
+      });
+    }
+  }
+
+  //updates a single task
+  async updateSingleTaskDraftData(
+    proposalId: string,
+    aragonMetadata: string,
+    startDate: string,
+    endDate: string,
+    taskInfo: any,
+    executor: string,
+    departamentName: string,
+  ) {
+    const ipfsRes = await this.tasksService.getDataFromIPFS(
+      taskInfo['metadata'],
+      Number(proposalId),
+      taskInfo['deadline'],
+      taskInfo['budget'],
+      0,
+    );
+    console.log('ipfs respondido');
+    console.log(ipfsRes);
+
+    let finalLinkAsStrings = [];
+    if (ipfsRes['links'] && ipfsRes['links'].length > 0) {
+      finalLinkAsStrings = ipfsRes['links'].map((dataItem) =>
+        JSON.stringify(dataItem),
+      );
+    }
+
+    const skillsSearch = ipfsRes['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
+
+    await this.prisma.task.upsert({
+      where: {
+        proposalId_departament: {
+          proposalId: String(ipfsRes['id']),
+          departament: departamentName,
+        },
+      },
+      update: {
+        deadline: ipfsRes['deadline'],
+        description: ipfsRes['description'],
+        file: ipfsRes['file'],
+        links: finalLinkAsStrings,
+        payments: {
+          create: ipfsRes['payments'],
+        },
+        estimatedBudget: ipfsRes['estimatedBudget'],
+        contributorsNeeded: ipfsRes['numberOfApplicants'],
+        projectLength: ipfsRes['projectLength'],
+        skills: ipfsRes['skills'],
+        skillsSearch,
+        status: '3',
+        title: ipfsRes['title'],
+        departament: ipfsRes['departament'],
+        type: ipfsRes['type'],
+        isDraft: true,
+        aragonMetadata: aragonMetadata,
+        startDate,
+        endDate,
+        executor,
+      },
+      create: {
+        proposalId: String(ipfsRes['id']),
+        deadline: ipfsRes['deadline'],
+        description: ipfsRes['description'],
+        file: ipfsRes['file'],
+        links: finalLinkAsStrings,
+        payments: {
+          create: ipfsRes['payments'],
+        },
+        estimatedBudget: ipfsRes['estimatedBudget'],
+        contributorsNeeded: ipfsRes['numberOfApplicants'],
+        projectLength: ipfsRes['projectLength'],
+        skills: ipfsRes['skills'],
+        skillsSearch,
+        status: '3',
+        title: ipfsRes['title'],
+        departament: ipfsRes['departament'],
+        type: ipfsRes['type'],
+        isDraft: true,
+        aragonMetadata: aragonMetadata,
+        startDate,
+        endDate,
+        executor,
+      },
+    });
+
+    return;
+  }
+
+  // FUNCTIONS
+
+  //runs a check to update the estiamted budget of a task and its applications
+  async updateEstimationBudgetTaskAndApplications(taskId: string) {
+    console.log('updateEstimationBudgetTaskAndApplications');
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId: String(taskId),
+      },
+      select: {
+        payments: true,
+      },
+    });
+    console.log('getting budget fort budgetTask');
+    console.log(task.payments);
+    const budgetTask = await this.tasksService.getEstimateBudgetToken(
+      task.payments,
+    );
+    console.log(budgetTask);
+    console.log('looping');
+    await this.prisma.task.update({
+      where: {
+        taskId: String(taskId),
+      },
+      data: {
+        estimatedBudget: budgetTask,
+      },
+    });
+    console.log('getting budget of applications');
+    const applications = await this.prisma.application.findMany({
+      where: {
+        taskId,
+      },
+    });
+    console.log('going to applications reward loop');
+    for (let i = 0; i < applications.length; i++) {
+      for (let j = 0; j < applications[i].reward.length; j++) {
+        task.payments[j].amount = String(
+          JSON.parse(applications[i].reward[j])[2]['hex'],
+        );
+        console.log('the reward here');
+        console.log(
+          String(Number(JSON.parse(applications[i].reward[j])[2]['hex'])),
+        );
+        console.log('loop its over');
+      }
+      const budgetApplication = await this.tasksService.getEstimateBudgetToken(
+        task.payments,
+      );
+      const finalPercentageBudget = (
+        (Number(budgetApplication) / Number(budgetTask)) *
+        100
+      ).toFixed(0);
+      await this.prisma.application.update({
+        where: {
+          id: applications[i].id,
+        },
+        data: {
+          metadataProposedBudget: finalPercentageBudget,
+        },
+      });
+    }
+  }
+}

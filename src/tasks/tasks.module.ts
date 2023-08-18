@@ -6,6 +6,7 @@ import { PrismaService } from 'src/database/prisma.service';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { UtilsModule } from 'src/utils/utils.module';
+import { UpdatesService } from './updates.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { UtilsModule } from 'src/utils/utils.module';
     }),
   ],
   controllers: [TasksController],
-  providers: [TasksService, PrismaService],
+  providers: [TasksService, UpdatesService, PrismaService],
   exports: [TasksService],
 })
 export class TasksModule {}
