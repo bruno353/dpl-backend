@@ -43,11 +43,15 @@ import {
   UploadIPFSMetadataTaskSubmissionRevisionDTO,
 } from './dto/metadata.dto';
 import { GetTaskEventsResponseDto } from './dto/event.dto';
+import { UpdatesService } from './updates.service';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
 @Controller('functions')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly updatesService: UpdatesService,
+  ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
@@ -96,7 +100,7 @@ export class TasksController {
       this.deeplinkSignature
     )
       throw new UnauthorizedException();
-    return this.tasksService.updateSingleTaskData(data.id);
+    return this.updatesService.updateSingleTaskData(data.id);
   }
 
   @ApiOperation({
