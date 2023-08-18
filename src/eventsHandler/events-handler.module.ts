@@ -18,7 +18,6 @@ import { UpdatesService } from 'src/tasks/updates.service';
     UsersModule,
     UtilsModule,
     TasksModule,
-    UpdatesService,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
