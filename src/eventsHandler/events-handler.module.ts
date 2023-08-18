@@ -9,6 +9,7 @@ import { EventsGovernanceHandlerService } from './events-governance-handler.serv
 import { TasksModule } from '../tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
 import { UtilsModule } from 'src/utils/utils.module';
+import { UpdatesService } from 'src/tasks/updates.service';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UtilsModule } from 'src/utils/utils.module';
     UsersModule,
     UtilsModule,
     TasksModule,
+    UpdatesService,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {

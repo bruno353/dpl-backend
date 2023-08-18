@@ -16,6 +16,7 @@ import { Request, response } from 'express';
 import axios from 'axios';
 import { UsersService } from 'src/users/users.service';
 import { UtilsService } from 'src/utils/utils.service';
+import { UpdatesService } from 'src/tasks/updates.service';
 
 //This is the service to handle the contracts related to the task managment:
 // Task.sol
@@ -41,6 +42,7 @@ export class EventsHandlerService {
     private readonly tasksService: TasksService,
     private readonly utilsService: UtilsService,
     private readonly usersService: UsersService,
+    private readonly updatesService: UpdatesService,
   ) {
     console.log('constructor being called');
     console.log(this.taskContractAddress);
@@ -235,7 +237,7 @@ export class EventsHandlerService {
           },
         });
         this.usersService.checkIfUserExistsOnTheChain(manager);
-        this.tasksService.updateSingleTaskData(Number(taskId));
+        this.updatesService.updateSingleTaskData(Number(taskId));
       },
     );
 
@@ -343,7 +345,7 @@ export class EventsHandlerService {
             status: String(1),
           },
         });
-        await this.tasksService.updateSingleTaskData(Number(taskId));
+        await this.updatesService.updateSingleTaskData(Number(taskId));
         console.log('updating job success');
         await this.utilsService.updatesJobSuccess(executor);
       },
@@ -398,7 +400,9 @@ export class EventsHandlerService {
                 ? metadataData['description']
                 : '',
               // eslint-disable-next-line prettier/prettier
-              metadataAdditionalLinks: metadataData ? metadataData['links'] : [],
+              metadataAdditionalLinks: metadataData
+                ? metadataData['links']
+                : [],
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),
@@ -685,7 +689,7 @@ export class EventsHandlerService {
             metadataEdited: true,
           },
         });
-        await this.tasksService.updateSingleTaskData(Number(taskId));
+        await this.updatesService.updateSingleTaskData(Number(taskId));
       },
     );
 
@@ -738,7 +742,7 @@ export class EventsHandlerService {
             deadlineIncreased: true,
           },
         });
-        await this.tasksService.updateSingleTaskData(Number(taskId));
+        await this.updatesService.updateSingleTaskData(Number(taskId));
       },
     );
   }

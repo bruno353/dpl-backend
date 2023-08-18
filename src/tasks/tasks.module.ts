@@ -26,6 +26,6 @@ import { UpdatesService } from './updates.service';
   ],
   controllers: [TasksController],
   providers: [TasksService, UpdatesService, PrismaService],
-  exports: [TasksService],
+  exports: [TasksService, UpdatesService],
 })
 export class TasksModule {}

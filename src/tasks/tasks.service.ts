@@ -353,115 +353,115 @@ export class TasksService {
   }
 
   //updates a single task
-  async updateSingleTaskData(id: number) {
-    console.log('getting a updated task');
-    const walletEther = new ethers.Wallet(this.viewPrivateKey);
-    const connectedWallet = walletEther.connect(this.web3Provider);
-    const newcontract = new ethers.Contract(
-      this.taskContractAddress,
-      taskContractABI,
-      this.web3Provider,
-    );
+  // async updateSingleTaskData(id: number) {
+  //   console.log('getting a updated task');
+  //   const walletEther = new ethers.Wallet(this.viewPrivateKey);
+  //   const connectedWallet = walletEther.connect(this.web3Provider);
+  //   const newcontract = new ethers.Contract(
+  //     this.taskContractAddress,
+  //     taskContractABI,
+  //     this.web3Provider,
+  //   );
 
-    const contractSigner = await newcontract.connect(connectedWallet);
+  //   const contractSigner = await newcontract.connect(connectedWallet);
 
-    const tasks = [];
+  //   const tasks = [];
 
-    let taskMetadata;
-    await contractSigner.getTask(id).then(function (response) {
-      taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
-      tasks.push(taskMetadata);
-    });
+  //   let taskMetadata;
+  //   await contractSigner.getTask(id).then(function (response) {
+  //     taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
+  //     tasks.push(taskMetadata);
+  //   });
 
-    console.log('the response');
-    console.log(taskMetadata);
+  //   console.log('the response');
+  //   console.log(taskMetadata);
 
-    const tasksWithMetadata = [];
+  //   const tasksWithMetadata = [];
 
-    const ipfsRes = await this.getDataFromIPFS(
-      tasks[0][0],
-      id,
-      tasks[0][1],
-      tasks[0][7],
-      tasks[0][5],
-    );
-    console.log('ipfs respondido');
-    console.log(ipfsRes);
-    if (ipfsRes) {
-      //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
-      console.log('the task2');
-      console.log(tasks);
-      ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
-      console.log('pushing data');
-      tasksWithMetadata.push(ipfsRes);
-      console.log('pushed');
-    }
-    console.log('receiving links');
-    for (const task of tasksWithMetadata) {
-      let finalLinkAsStrings = [];
-      if (task['links'] && task['links'].length > 0) {
-        finalLinkAsStrings = task['links'].map((dataItem) =>
-          JSON.stringify(dataItem),
-        );
-      }
-      const existingTask = await this.prisma.task.findUnique({
-        where: { taskId: String(task['id']) },
-        include: { payments: true },
-      });
+  //   const ipfsRes = await this.getDataFromIPFS(
+  //     tasks[0][0],
+  //     id,
+  //     tasks[0][1],
+  //     tasks[0][7],
+  //     tasks[0][5],
+  //   );
+  //   console.log('ipfs respondido');
+  //   console.log(ipfsRes);
+  //   if (ipfsRes) {
+  //     //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
+  //     console.log('the task2');
+  //     console.log(tasks);
+  //     ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
+  //     console.log('pushing data');
+  //     tasksWithMetadata.push(ipfsRes);
+  //     console.log('pushed');
+  //   }
+  //   console.log('receiving links');
+  //   for (const task of tasksWithMetadata) {
+  //     let finalLinkAsStrings = [];
+  //     if (task['links'] && task['links'].length > 0) {
+  //       finalLinkAsStrings = task['links'].map((dataItem) =>
+  //         JSON.stringify(dataItem),
+  //       );
+  //     }
+  //     const existingTask = await this.prisma.task.findUnique({
+  //       where: { taskId: String(task['id']) },
+  //       include: { payments: true },
+  //     });
 
-      const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
+  //     const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
 
-      await this.prisma.task.upsert({
-        where: { taskId: String(task['id']) },
-        update: {
-          deadline: task['deadline'],
-          description: task['description'],
-          file: task['file'],
-          links: finalLinkAsStrings,
-          payments: {
-            create: task['payments'],
-          },
-          estimatedBudget: task['estimatedBudget'],
-          contributorsNeeded: task['numberOfApplicants'],
-          projectLength: task['projectLength'],
-          skills: task['skills'],
-          applications: task['applications'],
-          skillsSearch,
-          status: String(task['status']),
-          title: task['title'],
-          departament: task['departament'],
-          type: task['type'],
-        },
-        create: {
-          taskId: String(task['id']),
-          deadline: task['deadline'],
-          description: task['description'],
-          file: task['file'],
-          links: finalLinkAsStrings,
-          payments: {
-            create: task['payments'],
-          },
-          estimatedBudget: task['estimatedBudget'],
-          contributorsNeeded: task['numberOfApplicants'],
-          projectLength: task['projectLength'],
-          skills: task['skills'],
-          applications: task['applications'],
-          skillsSearch,
-          status: String(task['status']),
-          title: task['title'],
-          departament: task['departament'],
-          type: task['type'],
-        },
-      });
+  //     await this.prisma.task.upsert({
+  //       where: { taskId: String(task['id']) },
+  //       update: {
+  //         deadline: task['deadline'],
+  //         description: task['description'],
+  //         file: task['file'],
+  //         links: finalLinkAsStrings,
+  //         payments: {
+  //           create: task['payments'],
+  //         },
+  //         estimatedBudget: task['estimatedBudget'],
+  //         contributorsNeeded: task['numberOfApplicants'],
+  //         projectLength: task['projectLength'],
+  //         skills: task['skills'],
+  //         applications: task['applications'],
+  //         skillsSearch,
+  //         status: String(task['status']),
+  //         title: task['title'],
+  //         departament: task['departament'],
+  //         type: task['type'],
+  //       },
+  //       create: {
+  //         taskId: String(task['id']),
+  //         deadline: task['deadline'],
+  //         description: task['description'],
+  //         file: task['file'],
+  //         links: finalLinkAsStrings,
+  //         payments: {
+  //           create: task['payments'],
+  //         },
+  //         estimatedBudget: task['estimatedBudget'],
+  //         contributorsNeeded: task['numberOfApplicants'],
+  //         projectLength: task['projectLength'],
+  //         skills: task['skills'],
+  //         applications: task['applications'],
+  //         skillsSearch,
+  //         status: String(task['status']),
+  //         title: task['title'],
+  //         departament: task['departament'],
+  //         type: task['type'],
+  //       },
+  //     });
 
-      await this.updatePreapprovedApplicationsFromTask(
-        task['id'],
-        JSON.parse(ipfsRes['applications']),
-      );
-      // await this.applicationsFromTask(task['id']);
-    }
-    return tasksWithMetadata;
-  }
+  //     await this.updatePreapprovedApplicationsFromTask(
+  //       task['id'],
+  //       JSON.parse(ipfsRes['applications']),
+  //     );
+  //     // await this.applicationsFromTask(task['id']);
+  //   }
+  //   return tasksWithMetadata;
+  // }
 
   async updatePreapprovedApplicationsFromTask(
     taskId: string,
