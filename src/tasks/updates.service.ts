@@ -96,7 +96,6 @@ export class UpdatesService {
     if (ipfsRes) {
       //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
       console.log('the task2');
-      console.log(tasks);
       ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
       console.log('pushing data');
       tasksWithMetadata.push(ipfsRes);
@@ -114,7 +113,16 @@ export class UpdatesService {
         where: { taskId: String(task['id']) },
         include: { payments: true },
       });
-
+      if (existingTask) {
+        console.log('exists tasks');
+        await this.prisma.payment.deleteMany({
+          where: {
+            taskId: existingTask.id,
+          },
+        });
+        console.log('deleted');
+      }
+      console.log('next step');
       const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
 
       await this.prisma.task.upsert({
@@ -163,8 +171,9 @@ export class UpdatesService {
       await this.updatePreapprovedApplicationsFromTask(
         task['id'],
         JSON.parse(ipfsRes['applications']),
-      );
-      await this.updateApplicationsFromTask(Number(task['id']));
+      ).then(async () => {
+        // await this.updateApplicationsFromTask(Number(task['id']));
+      });
       // await this.applicationsFromTask(task['id']);
     }
     return tasksWithMetadata;
@@ -175,7 +184,7 @@ export class UpdatesService {
     applications: any,
   ) {
     console.log(
-      'searching for the applications (preapproved - they are the first ones), if not exist yet, just creat it',
+      'searching for the applications (preapproved - they are the first ones), if not exist yet, just create it',
     );
     const task = await this.prisma.task.findFirst({
       where: {
@@ -189,6 +198,8 @@ export class UpdatesService {
     });
     console.log('what I received from applications');
     console.log(typeof applications);
+    console.log('here it is the application');
+    console.log(applications);
     applications.forEach(async (application, index) => {
       const applicationExists = await this.prisma.application.findFirst({
         where: {
@@ -196,30 +207,61 @@ export class UpdatesService {
           applicationId: String(index),
         },
       });
+      console.log('and the application payment');
+      console.log(application[3]);
+      console.log('another one');
+      console.log(application[3][0]);
+      console.log(Number(application[3][0][2]['hex']));
+
+      console.log('and now the task payments');
+      console.log(task.payments);
+      console.log(task.payments.length);
+
       if (!applicationExists) {
         console.log('getting the estimated budget of payments');
         for (let i = 0; i < task.payments.length; i++) {
-          task.payments[i].amount = String(application[1][i]['amount']);
+          task.payments[i].amount = String(Number(application[3][i][2]['hex']));
         }
         console.log('budget for budgetApplication');
         console.log(task.payments);
         const budgetApplication =
           await this.tasksService.getEstimateBudgetToken(task.payments);
+        console.log('it went back from get estimated budget token');
         const finalPercentageBudget = (
           (Number(budgetApplication) / Number(task.estimatedBudget)) *
           100
         ).toFixed(0);
-        await this.prisma.application.create({
+        console.log('here it is if it was accepted or not');
+        console.log(application[2]);
+        const created = await this.prisma.application.create({
           data: {
             taskId,
             applicationId: String(index),
             metadataProposedBudget: finalPercentageBudget,
-            applicant: application[0],
+            applicant: application[1],
             proposer: task.executor,
-            accepted: application[2],
+            accepted: application[2] === true ? true : false,
           },
         });
+        console.log('create succesfulyy');
+      } else {
+        console.log(
+          'this task already exists, so just updating to see if its preaproved or not',
+        );
+        if (application[2] === true) {
+          await this.prisma.application.updateMany({
+            where: {
+              taskId,
+              applicationId: String(index),
+            },
+            data: {
+              accepted: true,
+            },
+          });
+        }
       }
+      console.log('now getting all previous applications from events log');
+      await this.updateApplicationsFromTask(Number(taskId));
     });
   }
 
@@ -231,6 +273,7 @@ export class UpdatesService {
       this.web3Provider,
     );
 
+    console.log('now updating the applications all of them from task - events');
     const taskIdBigNumber = ethers.BigNumber.from(taskId);
     const filter = newcontract.filters.ApplicationCreated(taskIdBigNumber);
 
@@ -316,6 +359,10 @@ export class UpdatesService {
       }
 
       let finalPercentageBudget = '0';
+      console.log('the event budget');
+      console.log(event['args'][3][0]);
+      console.log('more');
+      console.log(event['args'][3][0]['amount']);
       try {
         //getting estimated budget
         for (let i = 0; i < task.payments.length; i++) {
@@ -333,7 +380,6 @@ export class UpdatesService {
         ).toFixed(0);
       } catch (err) {
         console.log('error getting estimated budget3');
-        console.log(err);
       }
 
       await this.prisma.application.upsert({
@@ -348,9 +394,9 @@ export class UpdatesService {
           reward: event['reward'] || [],
           proposer: event['args'][4],
           applicant: event['args'][5],
-          metadataDescription: metadataData['description'] || '',
+          metadataDescription: metadataData ? metadataData['description'] : '',
           metadataProposedBudget: finalPercentageBudget,
-          metadataDisplayName: metadataData['displayName'] || '',
+          metadataDisplayName: metadataData ? metadataData['displayName'] : '',
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),
@@ -362,9 +408,9 @@ export class UpdatesService {
           reward: event['reward'] || [],
           proposer: event['args'][4],
           applicant: event['args'][5],
-          metadataDescription: metadataData['description'] || '',
+          metadataDescription: metadataData ? metadataData['description'] : '',
           metadataProposedBudget: finalPercentageBudget,
-          metadataDisplayName: metadataData['displayName'] || '',
+          metadataDisplayName: metadataData ? metadataData['displayName'] : '',
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),

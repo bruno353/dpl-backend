@@ -59,6 +59,7 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        console.log('application received');
         //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
         await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);

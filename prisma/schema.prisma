@@ -211,8 +211,8 @@ model Application {
     applicationId String //Application id onchain
     metadata String? //The metadata hash
     reward  String[] //Rewards: struct Reward {bool nextToken; address to; uint88 amount;}
-    proposer String //Proposer
-    applicant String //Applicant
+    proposer String? //Proposer
+    applicant String? //Applicant
 
     accepted Boolean @default(false) //If the application was accepted
     taken    Boolean @default(false) //After the application  is accepted, if the submitter took the task to work on it.

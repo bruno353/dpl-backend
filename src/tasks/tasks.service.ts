@@ -200,7 +200,6 @@ export class TasksService {
         dado = response.data;
       });
     } catch (err) {
-      console.log(err);
       throw new BadRequestException('Error during IPFS upload', {
         cause: new Error(),
         description: 'Error during IPFS upload',
@@ -462,60 +461,6 @@ export class TasksService {
   //   }
   //   return tasksWithMetadata;
   // }
-
-  async updatePreapprovedApplicationsFromTask(
-    taskId: string,
-    applications: any,
-  ) {
-    console.log(
-      'searching for the applications (preapproved - they are the first ones), if not exist yet, just creat it',
-    );
-    const task = await this.prisma.task.findFirst({
-      where: {
-        taskId,
-      },
-      select: {
-        payments: true,
-        estimatedBudget: true,
-        executor: true,
-      },
-    });
-    console.log('what I received from applications');
-    console.log(typeof applications);
-    applications.forEach(async (application, index) => {
-      const applicationExists = await this.prisma.application.findFirst({
-        where: {
-          taskId,
-          applicationId: String(index),
-        },
-      });
-      if (!applicationExists) {
-        console.log('getting the estimated budget of payments');
-        for (let i = 0; i < task.payments.length; i++) {
-          task.payments[i].amount = String(application[1][i]['amount']);
-        }
-        console.log('budget for budgetApplication');
-        console.log(task.payments);
-        const budgetApplication = await this.getEstimateBudgetToken(
-          task.payments,
-        );
-        const finalPercentageBudget = (
-          (Number(budgetApplication) / Number(task.estimatedBudget)) *
-          100
-        ).toFixed(0);
-        await this.prisma.application.create({
-          data: {
-            taskId,
-            applicationId: String(index),
-            metadataProposedBudget: finalPercentageBudget,
-            applicant: application[0],
-            proposer: task.executor,
-            accepted: application[2],
-          },
-        });
-      }
-    });
-  }
 
   //updates a single task
   async updateSingleTaskDraftData(
@@ -1101,7 +1046,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro ocorreu get ipfs');
-        console.log(err);
         const response = await this.recallGetDataFromIPFS(hash);
         console.log('the metadata:');
         console.log(response);
@@ -1134,7 +1078,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened');
-        console.log(err);
         res = await this.recallGetDataFromIPFS(hash);
       });
     return res;
@@ -1154,7 +1097,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened on submission');
-        console.log(err);
         res = await this.recallGetDataFromIPFS(hash);
       });
     return res;
@@ -1175,7 +1117,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened on recall ipfs get data');
-        console.log(err);
       });
     return res;
   }
