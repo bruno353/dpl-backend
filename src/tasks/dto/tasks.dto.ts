@@ -127,6 +127,14 @@ class ApplicationDto {
   })
   accepted: boolean;
 
+  @IsBoolean()
+  @ApiProperty({
+    description:
+      'used to track if the task description has any pottencial link spam',
+    example: false,
+  })
+  hasSpamLink: boolean;
+
   @IsString()
   @ApiProperty({
     description: 'Any additional link',

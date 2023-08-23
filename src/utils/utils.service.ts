@@ -40,6 +40,8 @@ export class UtilsService {
 
   //Funcion to check if a task desc has any type of link, this is utilize to check if the task might have some type of spam / scam
   async hasLink(text: string, taskId: string) {
+    console.log('values received for links');
+    console.log(text);
     function isAllowedLink(link: string): boolean {
       // Allow to have links that are any subdomain of google (docs.google for instance) and github links
       const allowedPatterns = [/github/, /\.google/];

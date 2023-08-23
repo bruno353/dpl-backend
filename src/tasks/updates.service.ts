@@ -172,9 +172,9 @@ export class UpdatesService {
         task['id'],
         JSON.parse(ipfsRes['applications']),
       );
-      if (task['departament']) {
+      if (task['description']) {
         console.log('checking potencial links spam');
-        this.utilsService.hasLink(task['departament'], String(task['id']));
+        this.utilsService.hasLink(task['description'], String(task['id']));
       }
       // await this.applicationsFromTask(task['id']);
     }

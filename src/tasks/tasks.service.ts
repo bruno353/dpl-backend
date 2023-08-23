@@ -715,6 +715,7 @@ export class TasksService {
         executor: true,
         projectLength: true,
         links: true,
+        hasSpamLink: true,
         skills: true,
         estimatedBudget: true,
         contributors: true,
