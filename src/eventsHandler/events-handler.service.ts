@@ -497,6 +497,7 @@ export class EventsHandlerService {
             reviewed: true,
             review: String(judgement),
             metadataReview: feedback,
+            executorReview: executor,
             metadataReviewFeedback: metadataData
               ? metadataData['description']
               : '',

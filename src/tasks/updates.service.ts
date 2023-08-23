@@ -686,6 +686,168 @@ export class UpdatesService {
         },
       });
     }
+    console.log('now getting all submissions reviews from events log');
+    await this.updateSubmissionReviewedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the submissions revisions from a task and store it on database
+  async updateSubmissionReviewedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the submissions reviews');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.SubmissionReviewed(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      console.log('getting metadata if its exists');
+      let metadataData;
+      try {
+        if (String(event['args'][3]).length > 0) {
+          metadataData = await this.tasksService.getSubmissionDataFromIPFS(
+            String(event['args'][3]),
+          );
+        }
+      } catch (err) {
+        console.log('not found metadata valid');
+      }
+
+      await this.prisma.submission.update({
+        where: {
+          taskId_submissionId: {
+            taskId: String(taskId),
+            submissionId: String(event['args'][1]),
+          },
+        },
+        data: {
+          accepted:
+            event['args'][2] && Number(event['args'][2]) === 1 ? true : false,
+          reviewed: true,
+          review: String(event['args'][2]),
+          metadataReview: String(event['args'][3]),
+          executorReview: String(event['args'][5]),
+          metadataReviewFeedback: metadataData
+            ? metadataData['description']
+            : '',
+          timestampReview: event['timestamp'],
+        },
+      });
+    }
+    console.log('now getting all tasks completed from events log');
+    await this.updateTaskCompletedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the tasks completed events from a task and store it on database
+  async updateTaskCompletedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the tasks completed');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.TaskCompleted(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      await this.prisma.task.update({
+        where: {
+          taskId: String(taskId),
+        },
+        data: {
+          status: '2',
+        },
+      });
+    }
   }
 
   //updates a single task
