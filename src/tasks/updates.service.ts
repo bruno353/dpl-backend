@@ -464,16 +464,6 @@ export class UpdatesService {
     // Define a cache for timestamps
     const timestampCache = {};
 
-    //getting the task and its budget
-    const task = await this.prisma.task.findFirst({
-      where: {
-        taskId: String(taskId),
-      },
-      select: {
-        payments: true,
-      },
-    });
-
     //getting events
     console.log('getting events');
     // Get block data for each event
@@ -548,16 +538,6 @@ export class UpdatesService {
     // Define a cache for timestamps
     const timestampCache = {};
 
-    //getting the task and its budget
-    const task = await this.prisma.task.findFirst({
-      where: {
-        taskId: String(taskId),
-      },
-      select: {
-        payments: true,
-      },
-    });
-
     //getting events
     console.log('getting events');
     // Get block data for each event
@@ -596,6 +576,115 @@ export class UpdatesService {
         },
       });
       await this.utilsService.updatesJobSuccess(event['args'][3]);
+    }
+    console.log('now getting all submissions created from events log');
+    await this.updateSubmissionCreatedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the submissions created from a task and store it on database
+  async updateSubmissionCreatedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the submissions');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.SubmissionCreated(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      console.log('getting metadata if its exists');
+      let metadataData;
+      try {
+        if (String(event['args'][2]).length > 0) {
+          metadataData = await this.tasksService.getSubmissionDataFromIPFS(
+            String(event['args'][2]),
+          );
+        }
+      } catch (err) {
+        console.log('not found metadata valid');
+      }
+
+      await this.prisma.submission.upsert({
+        where: {
+          taskId_submissionId: {
+            taskId: String(taskId),
+            submissionId: String(event['args'][1]),
+          },
+        },
+        update: {
+          taskId: String(taskId),
+          submissionId: String(event['args'][1]),
+          metadata: String(event['args'][2]),
+          proposer: String(event['args'][3]),
+          applicant: String(event['args'][4]),
+          metadataDescription: metadataData ? metadataData['description'] : '',
+          // eslint-disable-next-line prettier/prettier
+            metadataAdditionalLinks: metadataData
+              ? metadataData['links']
+              : [],
+          timestamp: event['timestamp'],
+          transactionHash: event.transactionHash,
+        },
+        create: {
+          taskId: String(taskId),
+          submissionId: String(event['args'][1]),
+          metadata: String(event['args'][2]),
+          proposer: String(event['args'][3]),
+          applicant: String(event['args'][4]),
+          metadataDescription: metadataData ? metadataData['description'] : '',
+          // eslint-disable-next-line prettier/prettier
+              metadataAdditionalLinks: metadataData
+                ? metadataData['links']
+                : [],
+          timestamp: event['timestamp'],
+          transactionHash: event.transactionHash,
+        },
+      });
     }
   }
 
