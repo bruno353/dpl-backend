@@ -65,6 +65,8 @@ model Task {
   startDate String? //the task draft start date of voting in Unix timestamp
   endDate String? //the task draft  end date of voting in Unix timestamp
   aragonMetadata String?
+  
+  hasSpamLink Boolean @default(false) //used to track if the task description has any pottencial link spam
 
   @@unique([proposalId, departament])
 
@@ -132,6 +134,8 @@ model TaskDraft {
   startDate String? //the task draft start date of voting in Unix timestamp
   endDate String? //the task draft  end date of voting in Unix timestamp
   aragonMetadata String?
+
+  hasSpamLink Boolean @default(false) //used to track if the task description has any pottencial link spam
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt

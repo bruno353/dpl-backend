@@ -354,4 +354,20 @@ export class TasksController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.getSubmission(data);
   }
+
+  // Returns a specific task's submission:
+  // @ApiOperation({
+  //   summary: "Returns a specific task's submission",
+  // })
+  // @ApiHeader({
+  //   name: 'X-Parse-Application-Id',
+  //   description: 'Token mandatory to connect with the app',
+  // })
+  // @ApiResponse({ status: 200, type: GetSubmissionResponseDto, isArray: true })
+  // @Post('testSpam')
+  // testSpam(@Req() req: Request) {
+  //   const apiToken = String(req.headers['x-parse-application-id']);
+  //   if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+  //   return this.tasksService.testSpam();
+  // }
 }

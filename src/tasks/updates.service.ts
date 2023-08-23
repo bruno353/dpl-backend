@@ -171,9 +171,11 @@ export class UpdatesService {
       await this.updatePreapprovedApplicationsFromTask(
         task['id'],
         JSON.parse(ipfsRes['applications']),
-      ).then(async () => {
-        // await this.updateApplicationsFromTask(Number(task['id']));
-      });
+      );
+      if (task['departament']) {
+        console.log('checking potencial links spam');
+        this.utilsService.hasLink(task['departament'], String(task['id']));
+      }
       // await this.applicationsFromTask(task['id']);
     }
     return tasksWithMetadata;

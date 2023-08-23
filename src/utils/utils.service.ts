@@ -2,6 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { join } from 'path';
 
+import { BayesClassifier } from 'natural';
+import { createReadStream } from 'fs';
+import * as csv from 'csv-parser';
+import * as Linkify from 'linkify-it';
 import Decimal from 'decimal.js';
 Decimal.set({ precision: 60 });
 import { ethers } from 'ethers';
@@ -17,7 +21,11 @@ import axios from 'axios';
 
 @Injectable()
 export class UtilsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private linkify;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.linkify = Linkify();
+  }
 
   //setting variables:
   web3UrlProvider = process.env.WEB3_URL_PROVIDER;
@@ -29,6 +37,37 @@ export class UtilsService {
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
   webhookSigningKey = 'audjduisodoid-213424-214214-ewqewqeqwe-kskak';
+
+  //Funcion to check if a task desc has any type of link, this is utilize to check if the task might have some type of spam / scam
+  async hasLink(text: string, taskId: string) {
+    function isAllowedLink(link: string): boolean {
+      // Allow to have links that are any subdomain of google (docs.google for instance) and github links
+      const allowedPatterns = [/github/, /\.google/];
+      return allowedPatterns.some((pattern) => pattern.test(link));
+    }
+
+    const matches = this.linkify.match(text);
+    if (matches) {
+      for (const match of matches) {
+        if (isAllowedLink(match.url)) {
+          console.log(`Link allowed found: ${match.url}`);
+        } else {
+          console.log(`Potencially spam link found: ${match.url}`);
+          await this.prisma.task.update({
+            where: {
+              taskId: String(taskId),
+            },
+            data: {
+              hasSpamLink: true,
+            },
+          });
+          return;
+        }
+      }
+    } else {
+      console.log('Nenhum link encontrado.');
+    }
+  }
 
   //function used internaly to get all  the price from the tokens allowed to be set as payments on the protocol (so we can give to the user the estimate amount of dollars the task is worth it)
   public async getWETHPriceTokens(tokenAddress: string): Promise<number> {
@@ -270,5 +309,39 @@ export class UtilsService {
     //     console.log(err);
     //   }
     // }
+  }
+
+  async isSpam() {
+    const classifier = new BayesClassifier();
+    createReadStream('./src/utils/spam.csv')
+      .pipe(csv())
+      .on('data', (row) => {
+        const label = row.v1; // 'ham' or 'spam'
+        const text = row.v2;
+
+        if (label && text) {
+          classifier.addDocument(text, label === 'spam' ? 'spam' : 'not_spam');
+        }
+      })
+      .on('end', () => {
+        classifier.train();
+
+        function isSpam(text) {
+          const guessedLabel = classifier.classify(text);
+          return guessedLabel === 'spam';
+        }
+
+        // Testing
+        const testTexts = [
+          'I need you to create me a little of high forward jobs really now!',
+          'Win a brand new car now www.cars.com!',
+          'Free bitcoins -> www.earnbitcoinfree.com',
+          'Manage the ec2 amazon instance - software engineer job',
+        ];
+
+        testTexts.forEach((text) => {
+          console.log(`"${text}" is spam? ${isSpam(text)}`);
+        });
+      });
   }
 }
