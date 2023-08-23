@@ -713,6 +713,8 @@ export class TasksService {
         departament: true,
         contributorsNeeded: true,
         executor: true,
+        creator: true,
+        manager: true,
         projectLength: true,
         links: true,
         hasSpamLink: true,

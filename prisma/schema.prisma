@@ -66,6 +66,9 @@ model Task {
   endDate String? //the task draft  end date of voting in Unix timestamp
   aragonMetadata String?
   
+  creator String? //The task creator
+  manager String? //The task manager
+  
   hasSpamLink Boolean @default(false) //used to track if the task description has any pottencial link spam
 
   @@unique([proposalId, departament])

@@ -234,10 +234,11 @@ export class EventsHandlerService {
         await this.prisma.task.create({
           data: {
             taskId: String(taskId),
-            executor: manager,
+            creator,
+            manager,
           },
         });
-        this.usersService.checkIfUserExistsOnTheChain(manager);
+        this.usersService.checkIfUserExistsOnTheChain(creator);
         this.updatesService.updateSingleTaskData(Number(taskId));
       },
     );

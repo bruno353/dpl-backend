@@ -132,6 +132,8 @@ export class UpdatesService {
           description: task['description'],
           file: task['file'],
           links: finalLinkAsStrings,
+          creator: tasks[0][3],
+          manager: tasks[0][4],
           payments: {
             create: task['payments'],
           },
@@ -152,6 +154,8 @@ export class UpdatesService {
           description: task['description'],
           file: task['file'],
           links: finalLinkAsStrings,
+          creator: tasks[0][3],
+          manager: tasks[0][4],
           payments: {
             create: task['payments'],
           },

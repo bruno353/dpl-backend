@@ -300,6 +300,20 @@ export class TaskDto {
   executor: string;
 
   @ApiProperty({
+    description: 'The task creator',
+    example: '0xas01298d02i2d2d1d121dd21',
+  })
+  @IsString()
+  creator: string;
+
+  @ApiProperty({
+    description: 'The task manager',
+    example: '0xas01298d02i2d2d1d121dd21',
+  })
+  @IsString()
+  manager: string;
+
+  @ApiProperty({
     description: 'How many events there are - updates',
     example: 2,
   })
