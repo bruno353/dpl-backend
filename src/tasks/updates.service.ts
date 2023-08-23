@@ -419,6 +419,184 @@ export class UpdatesService {
         },
       });
     }
+    console.log('now getting all accepted applications from events log');
+    await this.updateApplicationsAcceptedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the applications that were accepted from a task and store it on database
+  async updateApplicationsAcceptedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the applications acceptedes');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.ApplicationAccepted(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting the task and its budget
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId: String(taskId),
+      },
+      select: {
+        payments: true,
+      },
+    });
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      await this.prisma.application.update({
+        where: {
+          taskId_applicationId: {
+            taskId: String(taskId),
+            applicationId: String(event['args'][1]),
+          },
+        },
+        data: {
+          accepted: true,
+        },
+      });
+    }
+    console.log(
+      'now getting all applications taken (task taken) from events log',
+    );
+    await this.updateApplicationsTakenFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the applications that were taken (after being accepted) from a task and store it on database
+  async updateApplicationsTakenFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the applications taken');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.TaskTaken(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting the task and its budget
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId: String(taskId),
+      },
+      select: {
+        payments: true,
+      },
+    });
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      await this.prisma.application.update({
+        where: {
+          taskId_applicationId: {
+            taskId: String(taskId),
+            applicationId: String(event['args'][1]),
+          },
+        },
+        data: {
+          accepted: true,
+          taken: true,
+        },
+      });
+
+      console.log('updating task');
+      await this.prisma.task.update({
+        where: {
+          taskId: String(taskId),
+        },
+        data: {
+          status: String(1),
+        },
+      });
+      await this.utilsService.updatesJobSuccess(event['args'][3]);
+    }
   }
 
   //updates a single task
