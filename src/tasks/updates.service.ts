@@ -180,7 +180,7 @@ export class UpdatesService {
         console.log('checking potencial links spam');
         this.utilsService.hasLink(task['description'], String(task['id']));
       }
-      // await this.applicationsFromTask(task['id']);
+      //   await this.applicationsFromTask(task['id']);
     }
     return tasksWithMetadata;
   }
@@ -266,9 +266,9 @@ export class UpdatesService {
           });
         }
       }
-      console.log('now getting all previous applications from events log');
-      await this.updateApplicationsFromTask(Number(taskId));
     });
+    console.log('now getting all previous applications from events log');
+    await this.updateApplicationsFromTask(Number(taskId));
   }
 
   //Query the events log to get all the applications from a task and store it on database
@@ -849,6 +849,259 @@ export class UpdatesService {
         },
         data: {
           status: '2',
+        },
+      });
+    }
+    console.log('now getting all budgets increases from events log');
+    await this.updateBudgetIncreasedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the budgets increased updates from a task and store it on database
+  async updateBudgetIncreasedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the budgets increases in the task');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.BudgetIncreased(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // const filteredEvents = events.filter((event) => event.args.taskId.eq(id)); //[  {    name: 'ApplicationCreated',    args: [      [BigNumber],      0,      'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      [Array],      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      taskId: [BigNumber],      applicationId: 0,      metadata: 'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      reward: [Array],      proposer: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      applicant: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170'    ],    signature: 'ApplicationCreated(uint256,uint16,string,(bool,address,uint88)[],address,address)',    topic: '0x7dea79221549b396f31442a220505470acfcfd38f772b6b3faa676d25df5998d',    blockNumber: 38426300,    timestamp: 1690664419  }]
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+
+    //getting the task and its budget
+    const task = await this.prisma.task.findFirst({
+      where: {
+        taskId: String(taskId),
+      },
+      select: {
+        payments: true,
+      },
+    });
+    console.log('getting budget fort budgetTask');
+    console.log(task.payments);
+    const budgetTask = await this.tasksService.getEstimateBudgetToken(
+      task.payments,
+    );
+    console.log(budgetTask);
+
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      console.log('the event budget');
+      console.log(event['args'][1]);
+      console.log('more');
+      console.log(event['args'][1][0]);
+      try {
+        //does not need to update the payment, because when you get it in the getTask it already comes updated with the increased budget
+      } catch (err) {
+        console.log('error getting estimated budget3');
+      }
+      await this.prisma.task.update({
+        where: {
+          taskId: String(taskId),
+        },
+        data: {
+          budgetIncreased: true,
+        },
+      });
+    }
+    console.log('now getting all metadata edits from events log');
+    await this.updateMetadataEdittedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the metadata edits updates from a task and store it on database
+  async updateMetadataEdittedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the metadata edits in the task');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.MetadataEditted(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // const filteredEvents = events.filter((event) => event.args.taskId.eq(id)); //[  {    name: 'ApplicationCreated',    args: [      [BigNumber],      0,      'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      [Array],      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      taskId: [BigNumber],      applicationId: 0,      metadata: 'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      reward: [Array],      proposer: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      applicant: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170'    ],    signature: 'ApplicationCreated(uint256,uint16,string,(bool,address,uint88)[],address,address)',    topic: '0x7dea79221549b396f31442a220505470acfcfd38f772b6b3faa676d25df5998d',    blockNumber: 38426300,    timestamp: 1690664419  }]
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      console.log('the event metadata');
+      console.log(event['args']);
+      console.log('more');
+      try {
+        //does not need to update the metadata, because when you get it in the getTask it already comes updated with the metadata edited
+      } catch (err) {
+        console.log('error getting event');
+      }
+      await this.prisma.task.update({
+        where: {
+          taskId: String(taskId),
+        },
+        data: {
+          metadataEdited: true,
+        },
+      });
+    }
+    console.log('now getting all deadlines extendeds from events log');
+    await this.updateDeadlineExtendedFromTask(Number(taskId));
+  }
+
+  //Query the events log to get all the deadlines extended updates from a task and store it on database
+  async updateDeadlineExtendedFromTask(taskId: number) {
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    console.log('now updating the deadlines extendeds in the task');
+    const taskIdBigNumber = ethers.BigNumber.from(taskId);
+    const filter = newcontract.filters.DeadlineExtended(taskIdBigNumber);
+
+    // Getting the events
+    const logs = await this.web3Provider.getLogs({
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: newcontract.address,
+      topics: filter.topics,
+    });
+
+    console.log('logs');
+    console.log(logs);
+
+    // Parsing the events
+    const filteredEvents = logs.map((log) => {
+      const event = newcontract.interface.parseLog(log);
+      console.log('final event');
+      console.log(event);
+      return {
+        name: event.name,
+        args: event.args,
+        signature: event.signature,
+        topic: event.topic,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      };
+    });
+
+    // const filteredEvents = events.filter((event) => event.args.taskId.eq(id)); //[  {    name: 'ApplicationCreated',    args: [      [BigNumber],      0,      'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      [Array],      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      taskId: [BigNumber],      applicationId: 0,      metadata: 'QmZQvs4qfK9iYxfAZxb6XwTz6vexkvLjmJy4iKZURUB5Rt',      reward: [Array],      proposer: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170',      applicant: '0x0DD7167d9707faFE0837c0b1fe12348AfAabF170'    ],    signature: 'ApplicationCreated(uint256,uint16,string,(bool,address,uint88)[],address,address)',    topic: '0x7dea79221549b396f31442a220505470acfcfd38f772b6b3faa676d25df5998d',    blockNumber: 38426300,    timestamp: 1690664419  }]
+
+    // Define a cache for timestamps
+    const timestampCache = {};
+    //getting events
+    console.log('getting events');
+    // Get block data for each event
+    for (const event of filteredEvents) {
+      if (timestampCache[event['blockNumber']]) {
+        // If the timestamp for this block is already cached, use it
+        event['timestamp'] = timestampCache[event['blockNumber']];
+      } else {
+        // Otherwise, fetch the block and cache the timestamp
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = block.timestamp; // Timestamp in seconds
+        timestampCache[event['blockNumber']] = timestamp;
+        event['timestamp'] = String(timestamp);
+      }
+
+      console.log('the event deadline');
+      console.log(event['args']);
+      console.log('more');
+      try {
+        //does not need to update the deadline, because when you get it in the getTask it already comes updated with the deadline edited
+      } catch (err) {
+        console.log('error getting event');
+      }
+      await this.prisma.task.update({
+        where: {
+          taskId: String(taskId),
+        },
+        data: {
+          metadataEdited: true,
+          deadlineIncreased: true,
         },
       });
     }
