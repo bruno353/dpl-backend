@@ -127,7 +127,9 @@ export class TasksController {
       this.deeplinkSignature
     )
       throw new UnauthorizedException();
-    return this.tasksService.updateEstimationBudgetTaskAndApplications(data.id);
+    return this.updatesService.updateEstimationBudgetTaskAndApplications(
+      data.id,
+    );
   }
 
   // Returns all the tasks with its metadata:

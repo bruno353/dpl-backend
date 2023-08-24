@@ -17,6 +17,7 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { UsersService } from 'src/users/users.service';
+import { UpdatesGovernanceService } from 'src/tasks/updates-governance.service';
 
 //This is the service to handle the contracts related to the creation of task drafts / departaments, voting and dao:
 // TaskDrafts.sol
@@ -40,6 +41,7 @@ export class EventsGovernanceHandlerService {
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
     private readonly usersService: UsersService,
+    private readonly updatesGovernanceService: UpdatesGovernanceService,
   ) {
     this.setupDraftListeners();
     this.setupNFTListeners();
@@ -113,7 +115,7 @@ export class EventsGovernanceHandlerService {
           console.log(departament);
           console.log('receveid from taskInfo');
           console.log(taskInfo);
-          await this.tasksService.updateSingleTaskDraftData(
+          await this.updatesGovernanceService.updateSingleTaskDraftData(
             String(proposalId),
             metadata,
             String(startDate),

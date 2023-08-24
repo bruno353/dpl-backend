@@ -642,7 +642,7 @@ export class EventsHandlerService {
         });
         console.log(update);
         console.log('next');
-        await this.tasksService.updateEstimationBudgetTaskAndApplications(
+        await this.updatesService.updateEstimationBudgetTaskAndApplications(
           String(taskId),
         );
         await this.usersService.checkIfUserExistsOnTheChain(executor);

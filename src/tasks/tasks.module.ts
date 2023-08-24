@@ -7,6 +7,7 @@ import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UpdatesService } from './updates.service';
+import { UpdatesGovernanceService } from './updates-governance.service';
 
 @Module({
   imports: [
@@ -25,7 +26,12 @@ import { UpdatesService } from './updates.service';
     }),
   ],
   controllers: [TasksController],
-  providers: [TasksService, UpdatesService, PrismaService],
-  exports: [TasksService, UpdatesService],
+  providers: [
+    TasksService,
+    UpdatesService,
+    PrismaService,
+    UpdatesGovernanceService,
+  ],
+  exports: [TasksService, UpdatesService, UpdatesGovernanceService],
 })
 export class TasksModule {}
