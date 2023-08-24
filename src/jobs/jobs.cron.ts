@@ -17,6 +17,12 @@ export class JobsCron {
 
   @Cron('0 0 12 * * *') //runs every day mid day
   async handleCheckUpdateTasks() {
-    await this.tasksService.updateTasksData();
+    console.log('calling the update budget feature');
+    const tasks = await this.prisma.task.findMany();
+    for (let i = 0; i < tasks.length; i++) {
+      await this.tasksService.updateEstimationBudgetTaskAndApplications(
+        tasks[i].taskId,
+      );
+    }
   }
 }
