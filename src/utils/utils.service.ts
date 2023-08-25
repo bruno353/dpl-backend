@@ -47,10 +47,22 @@ export class UtilsService {
     console.log(text);
     function isAllowedLink(link: string): boolean {
       // Allow to have links that are any subdomain of google (docs.google for instance) and github links
-      const allowedPatterns = [/github/, /\.google/];
+      // const allowedPatterns = [/github/, /\.google/];
+      const allowedPatterns = [/github/];
       return allowedPatterns.some((pattern) => pattern.test(link));
     }
-
+    function removeLinksFromText(
+      originalText: string,
+      linksToRemove: string[],
+    ): string {
+      let newText = originalText;
+      for (const link of linksToRemove) {
+        // Remove o link do texto, substituindo-o por uma string vazia
+        newText = newText.replace(link, '');
+      }
+      return newText;
+    }
+    const spamsList = [];
     const matches = this.linkify.match(text);
     if (matches) {
       for (const match of matches) {
@@ -58,19 +70,25 @@ export class UtilsService {
           console.log(`Link allowed found: ${match.url}`);
         } else {
           console.log(`Potencially spam link found: ${match.url}`);
-          await this.prisma.task.update({
-            where: {
-              taskId: String(taskId),
-            },
-            data: {
-              hasSpamLink: true,
-            },
-          });
-          return;
+          spamsList.push(match.url);
         }
       }
     } else {
       console.log('Nenhum link encontrado.');
+    }
+
+    if (spamsList.length > 0) {
+      const textWithoutSpamLinks = removeLinksFromText(text, spamsList);
+      await this.prisma.task.update({
+        where: {
+          taskId: String(taskId),
+        },
+        data: {
+          hasSpamLink: true,
+          description: textWithoutSpamLinks, //here the description without the spam links,
+        },
+      });
+      return;
     }
   }
 
