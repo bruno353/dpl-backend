@@ -162,11 +162,13 @@ export class UtilsService {
 
   //function used internaly to get all  the price from the tokens allowed to be set as payments on the protocol (so we can give to the user the estimate amount of dollars the task is worth it)
   public async getWETHPriceTokens(tokenAddress: string): Promise<number> {
-    const url = `${this.apiCovalentBase}/pricing/historical_by_addresses_v2/matic-mainnet/USD/${tokenAddress}/?key=${this.apiCovalentKey}`;
+    const url = `${this.apiCovalentBase}/pricing/historical_by_addresses_v2/matic-mainnet/USD/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/?key=${this.apiCovalentKey}`;
     let response = 0;
     try {
       const dado = await axios.get(url);
       if (dado) {
+        console.log('the data');
+        console.log(dado);
         response = dado.data[0].prices[0].price;
       }
       console.log('eth price');
