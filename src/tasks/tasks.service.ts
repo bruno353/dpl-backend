@@ -947,11 +947,12 @@ export class TasksService {
       .then(async (response) => {
         console.log('the metadata:');
         console.log(response.data);
-        const payments = await this.getDecimalsFromPaymentsToken(paymentsInfo);
-        response.data.payments = payments;
-        response.data['estimatedBudget'] = await this.getEstimateBudgetToken(
-          payments,
+        const payments = await this.utilsService.getDecimalsFromPaymentsToken(
+          paymentsInfo,
         );
+        response.data.payments = payments;
+        response.data['estimatedBudget'] =
+          await this.utilsService.getEstimateBudgetToken(payments);
         response.data.id = String(taskId);
         response.data.deadline = String(deadline);
         response.data.status = String(state);
@@ -964,11 +965,12 @@ export class TasksService {
         const response = await this.recallGetDataFromIPFS(hash);
         console.log('the metadata:');
         console.log(response);
-        const payments = await this.getDecimalsFromPaymentsToken(paymentsInfo);
-        response.payments = payments;
-        response['estimatedBudget'] = await this.getEstimateBudgetToken(
-          payments,
+        const payments = await this.utilsService.getDecimalsFromPaymentsToken(
+          paymentsInfo,
         );
+        response.payments = payments;
+        response['estimatedBudget'] =
+          await this.utilsService.getEstimateBudgetToken(payments);
         response.id = String(taskId);
         response.deadline = String(deadline);
         response.status = String(state);
@@ -1034,92 +1036,6 @@ export class TasksService {
         console.log('erro happened on recall ipfs get data');
       });
     return res;
-  }
-
-  //example of payment:   "payments": [    {      "tokenContract": "0x6eFbB027a552637492D827524242252733F06916",      "amount": "1000000000000000000",  "decimals": "18"    }  ],
-  async getEstimateBudgetToken(payments) {
-    let budget = '0';
-    if (this.environment === 'PROD') {
-      try {
-        for (let i = 0; i < payments.length; i++) {
-          //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
-          let valueToken = '1';
-          if (payments[i].tokenContract === this.wEthTokenAddress) {
-            // eslint-disable-next-line prettier/prettier
-            valueToken = String(await this.utilsService.getWETHPriceTokens(this.wEthTokenAddress,));
-          }
-
-          const totalTokens = new Decimal(payments[i].amount).div(
-            new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
-          );
-          budget = new Decimal(budget)
-            .plus(new Decimal(totalTokens).mul(new Decimal(valueToken)))
-            .toFixed(2);
-        }
-      } catch (err) {
-        console.log('error catching estimated budget value');
-        console.log(err);
-      }
-    } else {
-      try {
-        console.log('doing estimated budget here');
-        //if its a dev environment, just consider every token to be a stablecoin 1:1
-        for (let i = 0; i < payments.length; i++) {
-          const totalTokens = new Decimal(payments[i].amount).div(
-            new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
-          );
-          console.log('total tokens');
-          console.log(totalTokens);
-          budget = new Decimal(budget)
-            .plus(new Decimal(totalTokens))
-            .toFixed(2);
-        }
-      } catch (err) {
-        console.log('error catching estimated budget value here');
-        console.log(err);
-      }
-    }
-    console.log('budget to return');
-    console.log('budget');
-    return budget;
-  }
-
-  async getDecimalsFromPaymentsToken(payments) {
-    console.log('getting decimals');
-    console.log(payments);
-    const newPayments = payments.map((payment) => ({ ...payment })); // creating a deep copy of the payments
-    const finalPayments = [];
-
-    const walletEther = new ethers.Wallet(this.viewPrivateKey);
-    const connectedWallet = walletEther.connect(this.web3Provider);
-
-    for (let i = 0; i < payments.length; i++) {
-      const newcontract = new ethers.Contract(
-        payments[i].tokenContract,
-        erc20ContractABI,
-        this.web3Provider,
-      );
-      const contractSigner = await newcontract.connect(connectedWallet);
-
-      let decimals = 18;
-      await contractSigner.decimals().then(function (response) {
-        decimals = response;
-      });
-      console.log('the decimal from token:');
-      console.log(decimals);
-      if (decimals) {
-        newPayments[i].decimals = String(Number(decimals)); // modifying the deep copy
-        console.log('look here the payments');
-        console.log(newPayments[i]);
-        finalPayments.push({
-          tokenContract: newPayments[i].tokenContract,
-          amount: String(Number(newPayments[i].amount)),
-          decimals: newPayments[i].decimals,
-        });
-      }
-    }
-    // returning the newPayments with the correctly decimals
-    return finalPayments;
   }
 
   //Query the events log to get all the applications from a task and store it on database
@@ -1360,7 +1276,9 @@ export class TasksService {
       });
     }
 
-    const budget = await this.getEstimateBudgetToken(task.payments);
+    const budget = await this.utilsService.getEstimateBudgetToken(
+      task.payments,
+    );
     console.log('budget task');
     console.log(budget);
 
@@ -1456,7 +1374,9 @@ export class TasksService {
     });
     console.log('getting budget fort budgetTask');
     console.log(task.payments);
-    const budgetTask = await this.getEstimateBudgetToken(task.payments);
+    const budgetTask = await this.utilsService.getEstimateBudgetToken(
+      task.payments,
+    );
     console.log(budgetTask);
     console.log('looping');
     await this.prisma.task.update({
@@ -1485,7 +1405,7 @@ export class TasksService {
         );
         console.log('loop its over');
       }
-      const budgetApplication = await this.getEstimateBudgetToken(
+      const budgetApplication = await this.utilsService.getEstimateBudgetToken(
         task.payments,
       );
       const finalPercentageBudget = (

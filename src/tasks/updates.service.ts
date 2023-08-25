@@ -231,7 +231,7 @@ export class UpdatesService {
         console.log('budget for budgetApplication');
         console.log(task.payments);
         const budgetApplication =
-          await this.tasksService.getEstimateBudgetToken(task.payments);
+          await this.utilsService.getEstimateBudgetToken(task.payments);
         console.log('it went back from get estimated budget token');
         const finalPercentageBudget = (
           (Number(budgetApplication) / Number(task.estimatedBudget)) *
@@ -325,7 +325,7 @@ export class UpdatesService {
     });
     console.log('getting budget fort budgetTask');
     console.log(task.payments);
-    const budgetTask = await this.tasksService.getEstimateBudgetToken(
+    const budgetTask = await this.utilsService.getEstimateBudgetToken(
       task.payments,
     );
     console.log(budgetTask);
@@ -377,7 +377,7 @@ export class UpdatesService {
         console.log('budget for budgetApplication');
         console.log(task.payments);
         const budgetApplication =
-          await this.tasksService.getEstimateBudgetToken(task.payments);
+          await this.utilsService.getEstimateBudgetToken(task.payments);
         console.log('budgetApplication2');
         console.log(budgetApplication);
         finalPercentageBudget = (
@@ -910,7 +910,7 @@ export class UpdatesService {
     });
     console.log('getting budget fort budgetTask');
     console.log(task.payments);
-    const budgetTask = await this.tasksService.getEstimateBudgetToken(
+    const budgetTask = await this.utilsService.getEstimateBudgetToken(
       task.payments,
     );
     console.log(budgetTask);
@@ -1122,7 +1122,7 @@ export class UpdatesService {
     });
     console.log('getting budget fort budgetTask');
     console.log(task.payments);
-    const budgetTask = await this.tasksService.getEstimateBudgetToken(
+    const budgetTask = await this.utilsService.getEstimateBudgetToken(
       task.payments,
     );
     console.log(budgetTask);
@@ -1153,7 +1153,7 @@ export class UpdatesService {
         );
         console.log('loop its over');
       }
-      const budgetApplication = await this.tasksService.getEstimateBudgetToken(
+      const budgetApplication = await this.utilsService.getEstimateBudgetToken(
         task.payments,
       );
       const finalPercentageBudget = (

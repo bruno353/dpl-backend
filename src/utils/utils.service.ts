@@ -11,6 +11,7 @@ Decimal.set({ precision: 60 });
 import { ethers } from 'ethers';
 import { createHash, createHmac } from 'crypto';
 import { Request, response } from 'express';
+import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 
 import { google } from 'googleapis';
 import { Storage } from '@google-cloud/storage';
@@ -37,6 +38,8 @@ export class UtilsService {
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
   webhookSigningKey = 'audjduisodoid-213424-214214-ewqewqeqwe-kskak';
+  environment = process.env.ENVIRONMENT;
+  viewPrivateKey = process.env.VIEW_PRIVATE_KEY;
 
   //Funcion to check if a task desc has any type of link, this is utilize to check if the task might have some type of spam / scam
   async hasLink(text: string, taskId: string) {
@@ -69,6 +72,92 @@ export class UtilsService {
     } else {
       console.log('Nenhum link encontrado.');
     }
+  }
+
+  //example of payment:   "payments": [    {      "tokenContract": "0x6eFbB027a552637492D827524242252733F06916",      "amount": "1000000000000000000",  "decimals": "18"    }  ],
+  async getEstimateBudgetToken(payments) {
+    let budget = '0';
+    if (this.environment === 'PROD') {
+      try {
+        for (let i = 0; i < payments.length; i++) {
+          //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
+          let valueToken = '1';
+          if (payments[i].tokenContract === this.wEthTokenAddress) {
+            // eslint-disable-next-line prettier/prettier
+            valueToken = String(await this.getWETHPriceTokens(this.wEthTokenAddress,));
+          }
+
+          const totalTokens = new Decimal(payments[i].amount).div(
+            new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
+          );
+          budget = new Decimal(budget)
+            .plus(new Decimal(totalTokens).mul(new Decimal(valueToken)))
+            .toFixed(2);
+        }
+      } catch (err) {
+        console.log('error catching estimated budget value');
+        console.log(err);
+      }
+    } else {
+      try {
+        console.log('doing estimated budget here');
+        //if its a dev environment, just consider every token to be a stablecoin 1:1
+        for (let i = 0; i < payments.length; i++) {
+          const totalTokens = new Decimal(payments[i].amount).div(
+            new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
+          );
+          console.log('total tokens');
+          console.log(totalTokens);
+          budget = new Decimal(budget)
+            .plus(new Decimal(totalTokens))
+            .toFixed(2);
+        }
+      } catch (err) {
+        console.log('error catching estimated budget value here');
+        console.log(err);
+      }
+    }
+    console.log('budget to return');
+    console.log('budget');
+    return budget;
+  }
+
+  async getDecimalsFromPaymentsToken(payments) {
+    console.log('getting decimals');
+    console.log(payments);
+    const newPayments = payments.map((payment) => ({ ...payment })); // creating a deep copy of the payments
+    const finalPayments = [];
+
+    const walletEther = new ethers.Wallet(this.viewPrivateKey);
+    const connectedWallet = walletEther.connect(this.web3Provider);
+
+    for (let i = 0; i < payments.length; i++) {
+      const newcontract = new ethers.Contract(
+        payments[i].tokenContract,
+        erc20ContractABI,
+        this.web3Provider,
+      );
+      const contractSigner = await newcontract.connect(connectedWallet);
+
+      let decimals = 18;
+      await contractSigner.decimals().then(function (response) {
+        decimals = response;
+      });
+      console.log('the decimal from token:');
+      console.log(decimals);
+      if (decimals) {
+        newPayments[i].decimals = String(Number(decimals)); // modifying the deep copy
+        console.log('look here the payments');
+        console.log(newPayments[i]);
+        finalPayments.push({
+          tokenContract: newPayments[i].tokenContract,
+          amount: String(Number(newPayments[i].amount)),
+          decimals: newPayments[i].decimals,
+        });
+      }
+    }
+    // returning the newPayments with the correctly decimals
+    return finalPayments;
   }
 
   //function used internaly to get all  the price from the tokens allowed to be set as payments on the protocol (so we can give to the user the estimate amount of dollars the task is worth it)
