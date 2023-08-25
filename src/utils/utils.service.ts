@@ -57,8 +57,16 @@ export class UtilsService {
     ): string {
       let newText = originalText;
       for (const link of linksToRemove) {
-        // Remove o link do texto, substituindo-o por uma string vazia
+        // Remover a URL completa (com esquema)
         newText = newText.replace(link, '');
+
+        // Tentar remover a URL parcial (sem esquema)
+        const noScheme = link.replace(/^http:\/\/|https:\/\//, '');
+        newText = newText.replace(noScheme, '');
+
+        // Tentar remover a URL sem o 'www.'
+        const noWww = noScheme.replace(/^www\./, '');
+        newText = newText.replace(noWww, '');
       }
       return newText;
     }
@@ -78,7 +86,9 @@ export class UtilsService {
     }
 
     if (spamsList.length > 0) {
+      console.log('removing the links');
       const textWithoutSpamLinks = removeLinksFromText(text, spamsList);
+      console.log(textWithoutSpamLinks);
       await this.prisma.task.update({
         where: {
           taskId: String(taskId),
