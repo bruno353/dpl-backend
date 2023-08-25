@@ -83,6 +83,7 @@ export class UtilsService {
           //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
           let valueToken = '1';
           if (payments[i].tokenContract === this.wEthTokenAddress) {
+            console.log('found one weth address');
             // eslint-disable-next-line prettier/prettier
             valueToken = String(await this.getWETHPriceTokens(this.wEthTokenAddress,));
           }
@@ -90,6 +91,10 @@ export class UtilsService {
           const totalTokens = new Decimal(payments[i].amount).div(
             new Decimal(new Decimal(10).pow(new Decimal(payments[i].decimals))),
           );
+          console.log('total tokens 152');
+          console.log(totalTokens);
+          console.log('tokenVALUE');
+          console.log('tokenValue: ' + valueToken);
           budget = new Decimal(budget)
             .plus(new Decimal(totalTokens).mul(new Decimal(valueToken)))
             .toFixed(2);
@@ -162,21 +167,25 @@ export class UtilsService {
 
   //function used internaly to get all  the price from the tokens allowed to be set as payments on the protocol (so we can give to the user the estimate amount of dollars the task is worth it)
   public async getWETHPriceTokens(tokenAddress: string): Promise<number> {
-    const url = `${this.apiCovalentBase}/pricing/historical_by_addresses_v2/matic-mainnet/USD/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/?key=${this.apiCovalentKey}`;
+    const url = `${this.apiCovalentBase}/pricing/historical_by_addresses_v2/matic-mainnet/USD/${tokenAddress}/?key=${this.apiCovalentKey}`;
     let response = 0;
+
+    const config = {
+      method: 'get',
+      url,
+    };
     try {
-      const dado = await axios.get(url);
-      if (dado) {
+      await axios(config).then(function (dado) {
         console.log('the data');
-        console.log(dado);
-        response = dado.data[0].prices[0].price;
-      }
+        response = dado.data.data[0].prices[0].price;
+      });
       console.log('eth price');
       console.log(url);
     } catch (err) {
       console.log('error api covalent price');
       console.log(err);
     }
+    console.log('the value to be returned from the wethPrice: ' + response);
     return response;
   }
 
