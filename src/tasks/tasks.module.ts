@@ -8,11 +8,13 @@ import { TasksService } from './tasks.service';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UpdatesService } from './updates.service';
 import { UpdatesGovernanceService } from './updates-governance.service';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PassportModule,
+    UsersModule,
     UtilsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

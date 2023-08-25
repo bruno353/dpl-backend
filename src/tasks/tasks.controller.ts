@@ -44,6 +44,7 @@ import {
 } from './dto/metadata.dto';
 import { GetTaskEventsResponseDto } from './dto/event.dto';
 import { UpdatesService } from './updates.service';
+import { UpdatesGovernanceService } from './updates-governance.service';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
 @Controller('functions')
@@ -51,6 +52,7 @@ export class TasksController {
   constructor(
     private readonly tasksService: TasksService,
     private readonly updatesService: UpdatesService,
+    private readonly updatesGovernanceService: UpdatesGovernanceService,
   ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
@@ -101,6 +103,30 @@ export class TasksController {
     )
       throw new UnauthorizedException();
     return this.updatesService.updateSingleTaskData(data.id);
+  }
+
+  @ApiOperation({
+    summary:
+      'initiate the workflow to update all the governance workflow - drafted tasks, votings, verifiedc contributors nfts... etc',
+  })
+  @ApiHeader({
+    name: 'x-deeeplink-team-signature',
+    description: 'Endpoint only available for deeplink team',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('updateGovernanceData')
+  updateGovernanceData(@Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
+      throw new UnauthorizedException();
+    return this.updatesGovernanceService.updateGovernanceData();
   }
 
   @ApiOperation({
