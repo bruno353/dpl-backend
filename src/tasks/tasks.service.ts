@@ -52,6 +52,8 @@ export class TasksService {
   usdcTokenAddress = process.env.USDC_TOKEN_ADDRESS;
   usdtTokenAddress = process.env.USDT_TOKEN_ADDRESS;
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
+  priceFeedETHUSDAddress =
+    process.env.CHAINLINK_PRICE_FEED_ETHUSD_CONTRACT_ADDRESS;
 
   statusOptions = ['open', 'active', 'completed', 'draft'];
 
@@ -1048,7 +1050,7 @@ export class TasksService {
           let valueToken = '1';
           if (payments[i].tokenContract === this.wEthTokenAddress) {
             // eslint-disable-next-line prettier/prettier
-            valueToken = String(await this.utilsService.getWETHPriceTokensFromChailink(this.wEthTokenAddress,));
+            valueToken = String(await this.utilsService.getWETHPriceTokensFromChailink(this.priceFeedETHUSDAddress,));
           }
 
           const totalTokens = new Decimal(payments[i].amount).div(
@@ -1419,7 +1421,7 @@ export class TasksService {
         //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
         if (address === this.wEthTokenAddress) {
           budget = await this.utilsService.getWETHPriceTokensFromChailink(
-            this.wEthTokenAddress,
+            this.priceFeedETHUSDAddress,
           );
         }
       } catch (err) {

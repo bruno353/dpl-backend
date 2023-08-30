@@ -38,6 +38,8 @@ export class UtilsService {
   );
 
   viewPrivateKey = process.env.VIEW_PRIVATE_KEY;
+  priceFeedETHUSDAddress =
+    process.env.CHAINLINK_PRICE_FEED_ETHUSD_CONTRACT_ADDRESS;
 
   apiCovalentBase = process.env.COVALENT_API_BASE_URL;
   apiCovalentKey = process.env.COVALENT_API_KEY;
@@ -119,7 +121,7 @@ export class UtilsService {
           if (payments[i].tokenContract === this.wEthTokenAddress) {
             console.log('found one weth address');
             // eslint-disable-next-line prettier/prettier
-            valueToken = String(await this.getWETHPriceTokens(this.wEthTokenAddress,));
+            valueToken = String(await this.getWETHPriceTokensFromChailink(this.priceFeedETHUSDAddress));
           }
 
           const totalTokens = new Decimal(payments[i].amount).div(
