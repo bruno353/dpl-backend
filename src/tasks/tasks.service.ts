@@ -1131,7 +1131,7 @@ export class TasksService {
           let valueToken = '1';
           if (payments[i].tokenContract === this.wEthTokenAddress) {
             // eslint-disable-next-line prettier/prettier
-            valueToken = String(await this.utilsService.getWETHPriceTokens(this.wEthTokenAddress,));
+            valueToken = String(await this.utilsService.getWETHPriceTokensFromChailink(this.wEthTokenAddress,));
           }
 
           const totalTokens = new Decimal(payments[i].amount).div(
@@ -1497,7 +1497,7 @@ export class TasksService {
       try {
         //if its a weth token, get the price, else it is a stable coin 1:1 so the valueToken should be 1;
         if (address === this.wEthTokenAddress) {
-          budget = await this.utilsService.getWETHPriceTokens(
+          budget = await this.utilsService.getWETHPriceTokensFromChailink(
             this.wEthTokenAddress,
           );
         }
