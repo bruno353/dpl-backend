@@ -15,6 +15,8 @@ import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
 import axios from 'axios';
 import { UsersService } from 'src/users/users.service';
+import { UtilsService } from 'src/utils/utils.service';
+import { UpdatesService } from 'src/tasks/updates.service';
 
 //This is the service to handle the contracts related to the task managment:
 // Task.sol
@@ -38,7 +40,9 @@ export class EventsHandlerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly utilsService: UtilsService,
     private readonly usersService: UsersService,
+    private readonly updatesService: UpdatesService,
   ) {
     console.log('constructor being called');
     console.log(this.taskContractAddress);
@@ -55,6 +59,7 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        console.log('application received');
         //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
         await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
@@ -118,7 +123,7 @@ export class EventsHandlerService {
             });
             console.log('getting budget fort budgetTask');
             console.log(task.payments);
-            const budgetTask = await this.tasksService.getEstimateBudgetToken(
+            const budgetTask = await this.utilsService.getEstimateBudgetToken(
               task.payments,
             );
             console.log(budgetTask);
@@ -131,7 +136,7 @@ export class EventsHandlerService {
             console.log('budget for budgetApplication');
             console.log(task.payments);
             const budgetApplication =
-              await this.tasksService.getEstimateBudgetToken(task.payments);
+              await this.utilsService.getEstimateBudgetToken(task.payments);
             console.log('budgetApplication2');
             console.log(budgetApplication);
             finalPercentageBudget = (
@@ -184,7 +189,8 @@ export class EventsHandlerService {
           } catch (err) {
             console.log('error submiting application');
           }
-          this.usersService.checkIfUserExistsOnTheChain(applicant);
+          await this.usersService.checkIfUserExistsOnTheChain(applicant);
+          await this.utilsService.updatesTotalEarned(applicant);
         }
       },
     );
@@ -228,11 +234,12 @@ export class EventsHandlerService {
         await this.prisma.task.create({
           data: {
             taskId: String(taskId),
-            executor: manager,
+            creator,
+            manager,
           },
         });
-        this.usersService.checkIfUserExistsOnTheChain(manager);
-        this.tasksService.updateSingleTaskData(Number(taskId));
+        this.usersService.checkIfUserExistsOnTheChain(creator);
+        this.updatesService.updateSingleTaskData(Number(taskId));
       },
     );
 
@@ -340,7 +347,9 @@ export class EventsHandlerService {
             status: String(1),
           },
         });
-        this.tasksService.updateSingleTaskData(Number(taskId));
+        await this.updatesService.updateSingleTaskData(Number(taskId));
+        console.log('updating job success');
+        await this.utilsService.updatesJobSuccess(executor);
       },
     );
 
@@ -393,7 +402,9 @@ export class EventsHandlerService {
                 ? metadataData['description']
                 : '',
               // eslint-disable-next-line prettier/prettier
-              metadataAdditionalLinks: metadataData ? metadataData['links'] : [],
+              metadataAdditionalLinks: metadataData
+                ? metadataData['links']
+                : [],
               timestamp: timestamp,
               transactionHash: event.transactionHash,
               blockNumber: String(event.blockNumber),
@@ -435,6 +446,7 @@ export class EventsHandlerService {
         event,
       ) => {
         console.log('new event');
+        console.log('submission reviewed');
         //waiting 4.5 seconds so its gives time to the metadata to load on ipfs.
         await new Promise((resolve) => setTimeout(resolve, 4500));
         console.log(event);
@@ -472,18 +484,21 @@ export class EventsHandlerService {
         const metadataData = await this.tasksService.getSubmissionDataFromIPFS(
           String(event['args'][3]),
         );
-        //setting the task as taken and the application as well
-        console.log('updating application');
+
+        console.log('the judgment');
+        console.log(judgement); // 1-> accepted; 2 -> rejected
+        console.log('updating submission');
         await this.prisma.submission.updateMany({
           where: {
             taskId: String(taskId),
             submissionId: String(submissionId),
           },
           data: {
-            accepted: true,
+            accepted: judgement && Number(judgement) === 1 ? true : false,
             reviewed: true,
             review: String(judgement),
             metadataReview: feedback,
+            executorReview: executor,
             metadataReviewFeedback: metadataData
               ? metadataData['description']
               : '',
@@ -491,7 +506,8 @@ export class EventsHandlerService {
           },
         });
 
-        this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.utilsService.updatesJobSuccess(executor);
       },
     );
 
@@ -534,7 +550,9 @@ export class EventsHandlerService {
             status: '2',
           },
         });
-        this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.usersService.checkIfUserExistsOnTheChain(executor);
+        await this.utilsService.updatesJobSuccess(executor);
+        await this.utilsService.updatesTotalEarned(executor);
       },
     );
 
@@ -607,7 +625,7 @@ export class EventsHandlerService {
           },
         });
         console.log('budgetTask');
-        const budgetTask = await this.tasksService.getEstimateBudgetToken(
+        const budgetTask = await this.utilsService.getEstimateBudgetToken(
           finalPayments,
         );
         console.log(budgetTask);
@@ -619,14 +637,115 @@ export class EventsHandlerService {
           },
           data: {
             estimatedBudget: budgetTask,
+            budgetIncreased: true,
           },
         });
         console.log(update);
         console.log('next');
-        await this.tasksService.updateEstimationBudgetTaskAndApplications(
+        await this.updatesService.updateEstimationBudgetTaskAndApplications(
           String(taskId),
         );
         await this.usersService.checkIfUserExistsOnTheChain(executor);
+      },
+    );
+
+    // event MetadataEditted(uint256 indexed taskId, string newMetadata, address manager);
+    this.newcontract.on(
+      'MetadataEditted',
+      async (taskId, metadata, executor, event) => {
+        console.log('Metadata editted');
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'MetadataEditted',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
+        console.log('updating application');
+        console.log('updating task');
+        await this.prisma.task.update({
+          where: {
+            taskId: String(taskId),
+          },
+          data: {
+            metadataHash: metadata,
+            metadataEdited: true,
+          },
+        });
+        await this.updatesService.updateSingleTaskData(Number(taskId));
+      },
+    );
+
+    // event DeadlineExtended(uint256 indexed taskId, uint64 extension, address manager, address executor);
+    this.newcontract.on(
+      'DeadlineExtended',
+      async (taskId, extension, metadata, executor, event) => {
+        console.log('deadline extended');
+        console.log('new event');
+        console.log(event);
+        console.log('event event');
+        console.log(event.event);
+
+        const block = await this.web3Provider.getBlock(event['blockNumber']);
+        const timestamp = String(block.timestamp) || String(Date.now() / 1000); // Timestamp in seconds
+
+        //storing on the "events" table
+        const finalData = {
+          event: event,
+          contractAddress: event.address,
+        };
+        console.log(finalData);
+        await this.prisma.event.create({
+          data: {
+            name: 'DeadlineExtended',
+            data: JSON.stringify(finalData),
+            eventIndex: String(event.logIndex),
+            transactionHash: event.transactionHash,
+            blockNumber: String(event.blockNumber),
+            taskId: String(taskId),
+            address: executor,
+            timestamp: timestamp,
+          },
+        });
+        this.usersService.checkIfUserExistsOnTheChain(executor);
+
+        const taskExist = await this.prisma.task.findFirst({
+          where: {
+            taskId: String(taskId),
+          },
+        });
+
+        console.log('updating task');
+        await this.prisma.task.update({
+          where: {
+            taskId: String(taskId),
+          },
+          data: {
+            deadline: String(Number(taskExist.deadline) + Number(extension)),
+            deadlineIncreased: true,
+          },
+        });
+        await this.updatesService.updateSingleTaskData(Number(taskId));
       },
     );
   }

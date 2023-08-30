@@ -5,6 +5,7 @@ import { join, extname } from 'path';
 import { PrismaService } from '../database/prisma.service';
 import { addDays, startOfDay } from 'date-fns';
 import { TasksService } from '../tasks/tasks.service';
+import { UpdatesService } from '../tasks/updates.service';
 
 @Injectable()
 export class JobsCron {
@@ -13,10 +14,17 @@ export class JobsCron {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tasksService: TasksService,
+    private readonly updatesService: UpdatesService,
   ) {}
 
   @Cron('0 0 12 * * *') //runs every day mid day
   async handleCheckUpdateTasks() {
-    await this.tasksService.updateTasksData();
+    console.log('calling the update budget feature');
+    const tasks = await this.prisma.task.findMany();
+    for (let i = 0; i < tasks.length; i++) {
+      await this.updatesService.updateEstimationBudgetTaskAndApplications(
+        tasks[i].taskId,
+      );
+    }
   }
 }

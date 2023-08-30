@@ -63,6 +63,8 @@ export class GetUserResponseDTO {
       links: ['www.github.com.br'],
       joinedSince: '1690762870',
       updatesNonce: '3',
+      jobSuccess: '33',
+      totalEarned: '5000',
       createdAt: '2023-08-01T01:01:47.814Z',
       updatedAt: '2023-08-02T01:20:36.295Z',
       tasks: [

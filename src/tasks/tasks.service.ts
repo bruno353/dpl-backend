@@ -93,6 +93,7 @@ export class TasksService {
         tasks[i][0],
         i,
         tasks[i][1],
+        tasks[0][7],
         tasks[i][5],
       );
       console.log('ipfs respondido');
@@ -199,7 +200,6 @@ export class TasksService {
         dado = response.data;
       });
     } catch (err) {
-      console.log(err);
       throw new BadRequestException('Error during IPFS upload', {
         cause: new Error(),
         description: 'Error during IPFS upload',
@@ -352,203 +352,115 @@ export class TasksService {
   }
 
   //updates a single task
-  async updateSingleTaskData(id: number) {
-    const walletEther = new ethers.Wallet(this.viewPrivateKey);
-    const connectedWallet = walletEther.connect(this.web3Provider);
-    const newcontract = new ethers.Contract(
-      this.taskContractAddress,
-      taskContractABI,
-      this.web3Provider,
-    );
+  // async updateSingleTaskData(id: number) {
+  //   console.log('getting a updated task');
+  //   const walletEther = new ethers.Wallet(this.viewPrivateKey);
+  //   const connectedWallet = walletEther.connect(this.web3Provider);
+  //   const newcontract = new ethers.Contract(
+  //     this.taskContractAddress,
+  //     taskContractABI,
+  //     this.web3Provider,
+  //   );
 
-    const contractSigner = await newcontract.connect(connectedWallet);
+  //   const contractSigner = await newcontract.connect(connectedWallet);
 
-    const tasks = [];
+  //   const tasks = [];
 
-    let taskMetadata;
-    await contractSigner.getTask(id).then(function (response) {
-      taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
-      tasks.push(taskMetadata);
-    });
+  //   let taskMetadata;
+  //   await contractSigner.getTask(id).then(function (response) {
+  //     taskMetadata = response; //-> response example: [  'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',  BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },  BigNumber { _hex: '0x64b16a58', _isBigNumber: true },  BigNumber { _hex: '0x00', _isBigNumber: true },  0,  '0x08ADb3400E48cACb7d5a5CB386877B3A159d525C',  0,  '0x12be7EDC6829697B880EE949493fe81D15ADdB7c',  [    [      '0x6eFbB027a552637492D827524242252733F06916',      [BigNumber],      tokenContract: '0x6eFbB027a552637492D827524242252733F06916',       amount: [BigNumber]    ]  ],  [],  [],  [],  [],  [],  metadata: 'QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv',        deadline: BigNumber { _hex: '0x64b9ca80', _isBigNumber: true },    creationTimestamp: BigNumber { _hex: '0x64b16a58', _isBigNumber:   ],  applications: [],  submissions: [],  changeScopeRequests: [],  dropExecutorRequests: [],  cancelTaskRequests: []]
+  //     tasks.push(taskMetadata);
+  //   });
 
-    console.log('the response');
-    console.log(taskMetadata);
+  //   console.log('the response');
+  //   console.log(taskMetadata);
 
-    const tasksWithMetadata = [];
+  //   const tasksWithMetadata = [];
 
-    const ipfsRes = await this.getDataFromIPFS(
-      tasks[0][0],
-      id,
-      tasks[0][1],
-      tasks[0][5],
-    );
-    console.log('ipfs respondido');
-    console.log(ipfsRes);
-    if (ipfsRes) {
-      //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
-      console.log('the task2');
-      console.log(tasks);
-      ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
-      console.log('pushing data');
-      tasksWithMetadata.push(ipfsRes);
-      console.log('pushed');
-    }
-    console.log('receiving links');
-    for (const task of tasksWithMetadata) {
-      let finalLinkAsStrings = [];
-      if (task['links'] && task['links'].length > 0) {
-        finalLinkAsStrings = task['links'].map((dataItem) =>
-          JSON.stringify(dataItem),
-        );
-      }
+  //   const ipfsRes = await this.getDataFromIPFS(
+  //     tasks[0][0],
+  //     id,
+  //     tasks[0][1],
+  //     tasks[0][7],
+  //     tasks[0][5],
+  //   );
+  //   console.log('ipfs respondido');
+  //   console.log(ipfsRes);
+  //   if (ipfsRes) {
+  //     //adding the applications, since its a data from the smart-contracts and not from the ipfs metadata:
+  //     console.log('the task2');
+  //     console.log(tasks);
+  //     ipfsRes['applications'] = JSON.stringify(tasks[0][8]);
+  //     console.log('pushing data');
+  //     tasksWithMetadata.push(ipfsRes);
+  //     console.log('pushed');
+  //   }
+  //   console.log('receiving links');
+  //   for (const task of tasksWithMetadata) {
+  //     let finalLinkAsStrings = [];
+  //     if (task['links'] && task['links'].length > 0) {
+  //       finalLinkAsStrings = task['links'].map((dataItem) =>
+  //         JSON.stringify(dataItem),
+  //       );
+  //     }
+  //     const existingTask = await this.prisma.task.findUnique({
+  //       where: { taskId: String(task['id']) },
+  //       include: { payments: true },
+  //     });
 
-      const existingTask = await this.prisma.task.findUnique({
-        where: { taskId: String(task['id']) },
-        include: { payments: true },
-      });
+  //     const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
 
-      if (existingTask) {
-        await this.prisma.payment.deleteMany({
-          where: { taskId: existingTask.id },
-        });
-      }
+  //     await this.prisma.task.upsert({
+  //       where: { taskId: String(task['id']) },
+  //       update: {
+  //         deadline: task['deadline'],
+  //         description: task['description'],
+  //         file: task['file'],
+  //         links: finalLinkAsStrings,
+  //         payments: {
+  //           create: task['payments'],
+  //         },
+  //         estimatedBudget: task['estimatedBudget'],
+  //         contributorsNeeded: task['numberOfApplicants'],
+  //         projectLength: task['projectLength'],
+  //         skills: task['skills'],
+  //         applications: task['applications'],
+  //         skillsSearch,
+  //         status: String(task['status']),
+  //         title: task['title'],
+  //         departament: task['departament'],
+  //         type: task['type'],
+  //       },
+  //       create: {
+  //         taskId: String(task['id']),
+  //         deadline: task['deadline'],
+  //         description: task['description'],
+  //         file: task['file'],
+  //         links: finalLinkAsStrings,
+  //         payments: {
+  //           create: task['payments'],
+  //         },
+  //         estimatedBudget: task['estimatedBudget'],
+  //         contributorsNeeded: task['numberOfApplicants'],
+  //         projectLength: task['projectLength'],
+  //         skills: task['skills'],
+  //         applications: task['applications'],
+  //         skillsSearch,
+  //         status: String(task['status']),
+  //         title: task['title'],
+  //         departament: task['departament'],
+  //         type: task['type'],
+  //       },
+  //     });
 
-      const skillsSearch = task['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
-
-      await this.prisma.task.upsert({
-        where: { taskId: String(task['id']) },
-        update: {
-          deadline: task['deadline'],
-          description: task['description'],
-          file: task['file'],
-          links: finalLinkAsStrings,
-          payments: {
-            create: task['payments'],
-          },
-          estimatedBudget: task['estimatedBudget'],
-          contributorsNeeded: task['numberOfApplicants'],
-          projectLength: task['projectLength'],
-          skills: task['skills'],
-          applications: task['applications'],
-          skillsSearch,
-          status: String(task['status']),
-          title: task['title'],
-          departament: task['departament'],
-          type: task['type'],
-        },
-        create: {
-          taskId: String(task['id']),
-          deadline: task['deadline'],
-          description: task['description'],
-          file: task['file'],
-          links: finalLinkAsStrings,
-          payments: {
-            create: task['payments'],
-          },
-          estimatedBudget: task['estimatedBudget'],
-          contributorsNeeded: task['numberOfApplicants'],
-          projectLength: task['projectLength'],
-          skills: task['skills'],
-          applications: task['applications'],
-          skillsSearch,
-          status: String(task['status']),
-          title: task['title'],
-          departament: task['departament'],
-          type: task['type'],
-        },
-      });
-
-      await this.applicationsFromTask(task['id']);
-    }
-    return tasksWithMetadata;
-  }
-
-  //updates a single task
-  async updateSingleTaskDraftData(
-    proposalId: string,
-    aragonMetadata: string,
-    startDate: string,
-    endDate: string,
-    taskInfo: any,
-    executor: string,
-    departamentName: string,
-  ) {
-    const ipfsRes = await this.getDataFromIPFS(
-      taskInfo['metadata'],
-      Number(proposalId),
-      taskInfo['deadline'],
-      0,
-    );
-    console.log('ipfs respondido');
-    console.log(ipfsRes);
-
-    let finalLinkAsStrings = [];
-    if (ipfsRes['links'] && ipfsRes['links'].length > 0) {
-      finalLinkAsStrings = ipfsRes['links'].map((dataItem) =>
-        JSON.stringify(dataItem),
-      );
-    }
-
-    const skillsSearch = ipfsRes['skills'].join(' '); //parameter mandatory to execute case insensitive searchs on the database
-
-    await this.prisma.task.upsert({
-      where: {
-        proposalId_departament: {
-          proposalId: String(ipfsRes['id']),
-          departament: departamentName,
-        },
-      },
-      update: {
-        deadline: ipfsRes['deadline'],
-        description: ipfsRes['description'],
-        file: ipfsRes['file'],
-        links: finalLinkAsStrings,
-        payments: {
-          create: ipfsRes['payments'],
-        },
-        estimatedBudget: ipfsRes['estimatedBudget'],
-        contributorsNeeded: ipfsRes['numberOfApplicants'],
-        projectLength: ipfsRes['projectLength'],
-        skills: ipfsRes['skills'],
-        skillsSearch,
-        status: '3',
-        title: ipfsRes['title'],
-        departament: ipfsRes['departament'],
-        type: ipfsRes['type'],
-        isDraft: true,
-        aragonMetadata: aragonMetadata,
-        startDate,
-        endDate,
-        executor,
-      },
-      create: {
-        proposalId: String(ipfsRes['id']),
-        deadline: ipfsRes['deadline'],
-        description: ipfsRes['description'],
-        file: ipfsRes['file'],
-        links: finalLinkAsStrings,
-        payments: {
-          create: ipfsRes['payments'],
-        },
-        estimatedBudget: ipfsRes['estimatedBudget'],
-        contributorsNeeded: ipfsRes['numberOfApplicants'],
-        projectLength: ipfsRes['projectLength'],
-        skills: ipfsRes['skills'],
-        skillsSearch,
-        status: '3',
-        title: ipfsRes['title'],
-        departament: ipfsRes['departament'],
-        type: ipfsRes['type'],
-        isDraft: true,
-        aragonMetadata: aragonMetadata,
-        startDate,
-        endDate,
-        executor,
-      },
-    });
-
-    return;
-  }
+  //     await this.updatePreapprovedApplicationsFromTask(
+  //       task['id'],
+  //       JSON.parse(ipfsRes['applications']),
+  //     );
+  //     // await this.applicationsFromTask(task['id']);
+  //   }
+  //   return tasksWithMetadata;
+  // }
 
   async getTasks(data: GetTasksDto) {
     const {
@@ -713,11 +625,17 @@ export class TasksService {
         departament: true,
         contributorsNeeded: true,
         executor: true,
+        creator: true,
+        manager: true,
         projectLength: true,
         links: true,
+        hasSpamLink: true,
         skills: true,
         estimatedBudget: true,
         contributors: true,
+        metadataEdited: true,
+        budgetIncreased: true,
+        deadlineIncreased: true,
         type: true,
         payments: {
           select: {
@@ -1010,6 +928,7 @@ export class TasksService {
     hash: string,
     taskId: number,
     deadline: number,
+    paymentsInfo: any,
     state: number,
   ) {
     console.log('a task');
@@ -1018,19 +937,22 @@ export class TasksService {
     console.log('a url');
     console.log(url);
 
+    //getting payment info directly from blockchain
+    console.log('getting payment info directly from blockchain');
+    console.log(paymentsInfo);
+
     let res;
     await axios
       .get(url)
       .then(async (response) => {
         console.log('the metadata:');
         console.log(response.data);
-        const payments = await this.getDecimalsFromPaymentsToken(
-          response.data.payments,
+        const payments = await this.utilsService.getDecimalsFromPaymentsToken(
+          paymentsInfo,
         );
         response.data.payments = payments;
-        response.data['estimatedBudget'] = await this.getEstimateBudgetToken(
-          payments,
-        );
+        response.data['estimatedBudget'] =
+          await this.utilsService.getEstimateBudgetToken(payments);
         response.data.id = String(taskId);
         response.data.deadline = String(deadline);
         response.data.status = String(state);
@@ -1040,17 +962,15 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro ocorreu get ipfs');
-        console.log(err);
         const response = await this.recallGetDataFromIPFS(hash);
         console.log('the metadata:');
         console.log(response);
-        const payments = await this.getDecimalsFromPaymentsToken(
-          response.payments,
+        const payments = await this.utilsService.getDecimalsFromPaymentsToken(
+          paymentsInfo,
         );
         response.payments = payments;
-        response['estimatedBudget'] = await this.getEstimateBudgetToken(
-          payments,
-        );
+        response['estimatedBudget'] =
+          await this.utilsService.getEstimateBudgetToken(payments);
         response.id = String(taskId);
         response.deadline = String(deadline);
         response.status = String(state);
@@ -1075,7 +995,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened');
-        console.log(err);
         res = await this.recallGetDataFromIPFS(hash);
       });
     return res;
@@ -1095,7 +1014,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened on submission');
-        console.log(err);
         res = await this.recallGetDataFromIPFS(hash);
       });
     return res;
@@ -1116,7 +1034,6 @@ export class TasksService {
       })
       .catch(async (err) => {
         console.log('erro happened on recall ipfs get data');
-        console.log(err);
       });
     return res;
   }
@@ -1331,6 +1248,8 @@ export class TasksService {
         departament: true,
         contributorsNeeded: true,
         executor: true,
+        creator: true,
+        manager: true,
         projectLength: true,
         links: true,
         skills: true,
@@ -1435,7 +1354,9 @@ export class TasksService {
       });
     }
 
-    const budget = await this.getEstimateBudgetToken(task.payments);
+    const budget = await this.utilsService.getEstimateBudgetToken(
+      task.payments,
+    );
     console.log('budget task');
     console.log(budget);
 
@@ -1531,7 +1452,9 @@ export class TasksService {
     });
     console.log('getting budget fort budgetTask');
     console.log(task.payments);
-    const budgetTask = await this.getEstimateBudgetToken(task.payments);
+    const budgetTask = await this.utilsService.getEstimateBudgetToken(
+      task.payments,
+    );
     console.log(budgetTask);
     console.log('looping');
     await this.prisma.task.update({
@@ -1560,7 +1483,7 @@ export class TasksService {
         );
         console.log('loop its over');
       }
-      const budgetApplication = await this.getEstimateBudgetToken(
+      const budgetApplication = await this.utilsService.getEstimateBudgetToken(
         task.payments,
       );
       const finalPercentageBudget = (

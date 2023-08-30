@@ -43,11 +43,17 @@ import {
   UploadIPFSMetadataTaskSubmissionRevisionDTO,
 } from './dto/metadata.dto';
 import { GetTaskEventsResponseDto } from './dto/event.dto';
+import { UpdatesService } from './updates.service';
+import { UpdatesGovernanceService } from './updates-governance.service';
 
 @ApiTags('Tasks - Getting tasks on-chain; metadata and events')
 @Controller('functions')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly updatesService: UpdatesService,
+    private readonly updatesGovernanceService: UpdatesGovernanceService,
+  ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
@@ -96,7 +102,31 @@ export class TasksController {
       this.deeplinkSignature
     )
       throw new UnauthorizedException();
-    return this.tasksService.updateSingleTaskData(data.id);
+    return this.updatesService.updateSingleTaskData(data.id);
+  }
+
+  @ApiOperation({
+    summary:
+      'initiate the workflow to update all the governance workflow - drafted tasks, votings, verifiedc contributors nfts... etc',
+  })
+  @ApiHeader({
+    name: 'x-deeeplink-team-signature',
+    description: 'Endpoint only available for deeplink team',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('updateGovernanceData')
+  updateGovernanceData(@Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
+      throw new UnauthorizedException();
+    return this.updatesGovernanceService.updateGovernanceData();
   }
 
   @ApiOperation({
@@ -123,7 +153,9 @@ export class TasksController {
       this.deeplinkSignature
     )
       throw new UnauthorizedException();
-    return this.tasksService.updateEstimationBudgetTaskAndApplications(data.id);
+    return this.updatesService.updateEstimationBudgetTaskAndApplications(
+      data.id,
+    );
   }
 
   // Returns all the tasks with its metadata:
@@ -350,4 +382,20 @@ export class TasksController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.tasksService.getSubmission(data);
   }
+
+  // Returns a specific task's submission:
+  // @ApiOperation({
+  //   summary: "Returns a specific task's submission",
+  // })
+  // @ApiHeader({
+  //   name: 'X-Parse-Application-Id',
+  //   description: 'Token mandatory to connect with the app',
+  // })
+  // @ApiResponse({ status: 200, type: GetSubmissionResponseDto, isArray: true })
+  // @Post('testSpam')
+  // testSpam(@Req() req: Request) {
+  //   const apiToken = String(req.headers['x-parse-application-id']);
+  //   if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+  //   return this.tasksService.testSpam();
+  // }
 }

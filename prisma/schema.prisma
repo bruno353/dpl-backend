@@ -12,6 +12,7 @@ model Task {
 
   taskId String?  @unique //The id of the task onchain
 
+  metadataHash String? //the metadata ipfs hash
   proposalId String?  //If this task is a draft task, so its not still a task, but has its own proposal Id
 
   isDraft  Boolean @default(false) //If this task is a draft task, so its not still a task, but has its own proposal Id
@@ -54,12 +55,21 @@ model Task {
 
   projectLength String @default("Less than 1 week") //How much time is estimated to complete the task 
 
+  metadataEdited Boolean @default(false) //When the metadata for this task is eddited, set this parameter as true
+  budgetIncreased Boolean @default(false) //When the budget for this task is eddited, set this parameter as true
+  deadlineIncreased Boolean @default(false) //When the deadline for this task is eddited, set this parameter as true
+
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
   startDate String? //the task draft start date of voting in Unix timestamp
   endDate String? //the task draft  end date of voting in Unix timestamp
   aragonMetadata String?
+  
+  creator String? //The task creator
+  manager String? //The task manager
+  
+  hasSpamLink Boolean @default(false) //used to track if the task description has any pottencial link spam
 
   @@unique([proposalId, departament])
 
@@ -127,6 +137,8 @@ model TaskDraft {
   startDate String? //the task draft start date of voting in Unix timestamp
   endDate String? //the task draft  end date of voting in Unix timestamp
   aragonMetadata String?
+
+  hasSpamLink Boolean @default(false) //used to track if the task description has any pottencial link spam
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
@@ -204,10 +216,10 @@ model Application {
     id String @id @default(uuid())
 
     applicationId String //Application id onchain
-    metadata String //The metadata hash
+    metadata String? //The metadata hash
     reward  String[] //Rewards: struct Reward {bool nextToken; address to; uint88 amount;}
-    proposer String //Proposer
-    applicant String //Applicant
+    proposer String? //Proposer
+    applicant String? //Applicant
 
     accepted Boolean @default(false) //If the application was accepted
     taken    Boolean @default(false) //After the application  is accepted, if the submitter took the task to work on it.
@@ -217,9 +229,9 @@ model Application {
     metadataAdditionalLink String?
     metadataDisplayName String? // The name that the user wants to show in his application
 
-    timestamp String //Timestamp Unix global in seconds of when the event was emitted;
+    timestamp String? //Timestamp Unix global in seconds of when the event was emitted;
 
-    transactionHash String //The hash of the transaction that emitted the vent
+    transactionHash String? //The hash of the transaction that emitted the vent
     blockNumber     String @default("0")
 
     taskId String  
@@ -310,6 +322,9 @@ model User {
 
   updatesNonce String @default("0") //Nonce that managens everytime a profile update is done, to control the message signing.
 
+  jobSuccess String?   //Variable (0 - 100) that says the percentage of job success of the user - everytime a job he is in charge of is completed, it counts as a success
+  totalEarned String? //Variable that says the total amount that the user earned based on the tasks that he completed (the estimated amount in USD)
+
   VerifiedContributorSubmission VerifiedContributorSubmission[]
   VerifiedContributorToken VerifiedContributorToken[]
 
@@ -344,3 +359,26 @@ model VerifiedContributorSubmission {
 
   @@map("verifiedContributorSubmission")
 }
+
+//Table utilized to store info about the speakers that are going to register on the calendly of the conference/hackathon 2023 - each registration is a "event"
+model SpeakersRegistrationCalendly {
+  id String @id @default(uuid())
+
+  uri String? //Unique identifier that links with the event
+  userName String? //The speaker name
+  userEmail String? //The speaker email
+  additionalInfo String? //Additional info like questions responses, descriptions etc
+  eventName String? //The event name
+
+  eventAt DateTime? //When the event is ocurring
+  timezone String? //The event timezone time
+
+  active Boolean @default(true) //if the event is active, if it was canceled or reschedule this will be false
+  reschedule Boolean @default(false)
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@map("speakersRegistrationCalendly")
+}
+

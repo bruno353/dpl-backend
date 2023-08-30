@@ -24,6 +24,7 @@ import {
 import { Request } from 'express';
 
 import { UsersService } from './users.service';
+import { UtilsService } from '../utils/utils.service';
 import {
   EditUserDTO,
   GetUserDTO,
@@ -35,7 +36,10 @@ import {
 @ApiTags('Users')
 @Controller('functions')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly utilsService: UtilsService,
+  ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
@@ -110,5 +114,22 @@ export class UsersController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.usersService.githubLogin(data);
+  }
+
+  @ApiOperation({
+    summary:
+      'Alternative endpoint used to register speaks on the calendly for the conference/hackathon - webhook calendly',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('calendlyWebhook')
+  calendlyWebhook(@Body() data: any, @Req() req: Request) {
+    // const apiToken = String(req.headers['x-parse-application-id']);
+    // if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    console.log('os headers');
+    console.log(req.headers);
+    return this.utilsService.calendlyWebhook(data, req);
   }
 }

@@ -8,12 +8,15 @@ import { EventsHandlerService } from './events-handler.service';
 import { EventsGovernanceHandlerService } from './events-governance-handler.service';
 import { TasksModule } from '../tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
+import { UtilsModule } from 'src/utils/utils.module';
+import { UpdatesService } from 'src/tasks/updates.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PassportModule,
     UsersModule,
+    UtilsModule,
     TasksModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

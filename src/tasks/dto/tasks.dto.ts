@@ -127,6 +127,14 @@ class ApplicationDto {
   })
   accepted: boolean;
 
+  @IsBoolean()
+  @ApiProperty({
+    description:
+      'used to track if the task description has any pottencial link spam',
+    example: false,
+  })
+  hasSpamLink: boolean;
+
   @IsString()
   @ApiProperty({
     description: 'Any additional link',
@@ -252,6 +260,30 @@ export class TaskDto {
   id: number;
 
   @ApiProperty({
+    description:
+      'When the metadata for this task is eddited, set this parameter as true',
+    example: true,
+  })
+  @IsBoolean()
+  metadataEdited: boolean;
+
+  @ApiProperty({
+    description:
+      'When the budgetIncreased for this task is eddited, set this parameter as true',
+    example: true,
+  })
+  @IsBoolean()
+  budgetIncreased: boolean;
+
+  @ApiProperty({
+    description:
+      'When the deadlineIncreased for this task is eddited, set this parameter as true',
+    example: true,
+  })
+  @IsBoolean()
+  deadlineIncreased: boolean;
+
+  @ApiProperty({
     description: 'The task status',
     example: 'open',
     enum: ['open', 'active', 'completed'],
@@ -266,6 +298,20 @@ export class TaskDto {
   })
   @IsString()
   executor: string;
+
+  @ApiProperty({
+    description: 'The task creator',
+    example: '0xas01298d02i2d2d1d121dd21',
+  })
+  @IsString()
+  creator: string;
+
+  @ApiProperty({
+    description: 'The task manager',
+    example: '0xas01298d02i2d2d1d121dd21',
+  })
+  @IsString()
+  manager: string;
 
   @ApiProperty({
     description: 'How many events there are - updates',
