@@ -6,12 +6,14 @@ import { EventsHandlerModule } from './eventsHandler/events-handler.module';
 import { UtilsModule } from './utils/utils.module';
 import { UsersModule } from './users/users.module';
 import { DepartamentsModule } from './departaments/departaments.module';
+import { OpenmeshExpertsModule } from './openmesh-experts/openmesh-experts.module';
 
 @Module({
   imports: [
     TasksModule,
     DepartamentsModule,
     UsersModule,
+    OpenmeshExpertsModule,
     UtilsModule,
     EventsHandlerModule,
     MulterModule.register({
