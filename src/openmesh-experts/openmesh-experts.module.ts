@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'src/database/prisma.service';
 import { OpenmeshExpertsController } from './openmesh-experts.controller';
-import { OpenmeshExpertsService } from './openmesh-experts.service';
+import { OpenmeshExpertsAuthService } from './openmesh-experts-auth.service';
 import { UtilsModule } from 'src/utils/utils.module';
 
 @Module({
@@ -24,7 +24,7 @@ import { UtilsModule } from 'src/utils/utils.module';
     }),
   ],
   controllers: [OpenmeshExpertsController],
-  providers: [OpenmeshExpertsService, PrismaService],
-  exports: [OpenmeshExpertsService],
+  providers: [OpenmeshExpertsAuthService, PrismaService],
+  exports: [OpenmeshExpertsAuthService],
 })
 export class OpenmeshExpertsModule {}

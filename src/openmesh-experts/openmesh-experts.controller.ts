@@ -23,8 +23,12 @@ import {
 
 import { Request } from 'express';
 
-import { OpenmeshExpertsService } from './openmesh-experts.service';
-import { CreateOpenmeshExpertUserDTO } from './dto/openmesh-experts.dto';
+import { OpenmeshExpertsAuthService } from './openmesh-experts-auth.service';
+import {
+  CreateOpenmeshExpertUserDTO,
+  LoginDTO,
+  LoginResponseDTO,
+} from './dto/openmesh-experts-auth.dto';
 
 @ApiTags(
   'Openmesh-experts - Companies / individuals that qualify to become an openmesh expert endpoints.',
@@ -32,13 +36,12 @@ import { CreateOpenmeshExpertUserDTO } from './dto/openmesh-experts.dto';
 @Controller('openmesh-experts/functions')
 export class OpenmeshExpertsController {
   constructor(
-    private readonly openmeshExpertsService: OpenmeshExpertsService,
+    private readonly openmeshExpertsAuthService: OpenmeshExpertsAuthService,
   ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
 
-  // Returns all the tasks with its metadata:
   @ApiOperation({
     summary: 'Create an openmesh user',
   })
@@ -47,9 +50,24 @@ export class OpenmeshExpertsController {
     description: 'Token mandatory to connect with the app',
   })
   @Post('createUser')
-  getTasks(@Body() data: CreateOpenmeshExpertUserDTO, @Req() req: Request) {
+  createUser(@Body() data: CreateOpenmeshExpertUserDTO, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    return this.openmeshExpertsService.createUser(data);
+    return this.openmeshExpertsAuthService.createUser(data);
+  }
+
+  @ApiOperation({
+    summary: 'Login an openmesh user',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: LoginResponseDTO })
+  @Post('login')
+  login(@Body() data: LoginDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.login(data);
   }
 }
