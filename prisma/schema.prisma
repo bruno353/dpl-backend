@@ -382,3 +382,32 @@ model SpeakersRegistrationCalendly {
   @@map("speakersRegistrationCalendly")
 }
 
+model OpenmeshExpertUser {
+
+  id       String @id @default(uuid())
+  email    String @unique //unique
+  password String
+
+  companyName String?
+  name String?
+  foundingYear Int?
+  location String?
+  website String?
+  tags String[]
+  description String?
+  scheduleCalendlyLink String?
+  profilePictureHash String?
+
+  userEnabled     Boolean @default(true)
+
+  confirmedEmail       Boolean?  @default(false)
+  hashConfirmEmail    String? 
+  timestampCodeEmail  String?   
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime? @updatedAt
+
+  @@map("openmeshExpertUser")
+
+}
+

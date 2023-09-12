@@ -24,6 +24,7 @@ import {
 import { Request } from 'express';
 
 import { OpenmeshExpertsService } from './openmesh-experts.service';
+import { CreateOpenmeshExpertUserDTO } from './dto/openmesh-experts.dto';
 
 @ApiTags(
   'Openmesh-experts - Companies / individuals that qualify to become an openmesh expert endpoints.',
@@ -37,22 +38,18 @@ export class OpenmeshExpertsController {
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
 
-  //Returns all the departaments
+  // Returns all the tasks with its metadata:
   @ApiOperation({
-    summary: 'Returns all the departaments',
-  })
-  @ApiHeader({
-    name: 'x-deeeplink-team-signature',
-    description: 'Endpoint only available for deeplink team',
+    summary: 'Create an openmesh user',
   })
   @ApiHeader({
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
-  @ApiResponse({ status: 200 })
-  @Post('getDepartaments')
-  getDepartaments(@Req() req: Request) {
+  @Post('createUser')
+  getTasks(@Body() data: CreateOpenmeshExpertUserDTO, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsService.createUser(data);
   }
 }
