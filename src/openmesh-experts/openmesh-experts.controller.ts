@@ -25,9 +25,11 @@ import { Request } from 'express';
 
 import { OpenmeshExpertsAuthService } from './openmesh-experts-auth.service';
 import {
+  ChangePasswordOpenmeshExpertUserDTO,
   CreateOpenmeshExpertUserDTO,
   LoginDTO,
   LoginResponseDTO,
+  UpdateOpenmeshExpertUserDTO,
 } from './dto/openmesh-experts-auth.dto';
 
 @ApiTags(
@@ -91,12 +93,43 @@ export class OpenmeshExpertsController {
   })
   @ApiHeader({
     name: 'X-Parse-Application-Id',
-    description: 'oken mandatory to connect with the app',
+    description: 'Token mandatory to connect with the app',
   })
   @Post('getCurrentUser')
   getCurrentUser(@Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.getCurrentUser(req);
+  }
+
+  @ApiOperation({
+    summary: 'Updates the user',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('updateUser')
+  updateUser(@Body() data: UpdateOpenmeshExpertUserDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.updateUser(data, req);
+  }
+
+  @ApiOperation({
+    summary: 'Changes user password',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('changePassword')
+  changePassword(
+    @Body() data: ChangePasswordOpenmeshExpertUserDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.changePassword(data, req);
   }
 }

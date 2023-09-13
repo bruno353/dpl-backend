@@ -167,6 +167,135 @@ export class CreateOpenmeshExpertUserDTO {
   profilePictureHash: string;
 }
 
+export class UpdateOpenmeshExpertUserDTO {
+  @IsOptional()
+  @IsEmail()
+  @ApiProperty({
+    description: 'User email',
+    example: 'bruno@gmail.com',
+  })
+  email: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    maxLength: 500,
+    description: 'Company name',
+    example: 'Bruno',
+  })
+  companyName: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    maxLength: 500,
+    description: 'Name',
+    example: 'Bruno',
+  })
+  name: string;
+
+  @IsOptional()
+  @IsInt()
+  @Max(10000)
+  @ApiProperty({
+    maxLength: 10000,
+    description: 'Company founding year',
+    example: 2014,
+  })
+  foundingYear: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    maxLength: 500,
+    description: 'Company location',
+    example: 'New York, US',
+  })
+  location: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    maxLength: 500,
+    description: 'Company website',
+    example: 'www.website.com.br',
+  })
+  website: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsEnum(TagsEnum, {
+    each: true,
+    message:
+      'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
+  })
+  @ApiProperty({
+    maxLength: 500,
+    description: 'Company tags',
+    example: ['IoT'],
+  })
+  tags: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  @ApiProperty({
+    maxLength: 5000,
+    description: 'Company description',
+    example: 'Lorem ipsum relugaris',
+  })
+  description: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  @Transform((value) => `https://calendly.com/${value}`)
+  @ApiProperty({
+    maxLength: 5000,
+    description: 'Company calendly sub-path link',
+    example: 'kathleen-ragos/1?month=2023-09',
+  })
+  scheduleCalendlyLink: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The user profile picture hash',
+    example: 'ipfs://21312d10dj1209d091290d29012id09',
+  })
+  @IsOptional()
+  profilePictureHash: string;
+}
+
+export class ChangePasswordOpenmeshExpertUserDTO {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8)
+  @MaxLength(500)
+  @ApiProperty({
+    minLength: 8,
+    maxLength: 500,
+    description: 'User new password',
+    example: '12345',
+  })
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8)
+  @MaxLength(500)
+  @ApiProperty({
+    minLength: 8,
+    maxLength: 500,
+    description: 'User old password',
+    example: '12345',
+  })
+  oldPassword: string;
+}
+
 export class LoginResponseDTO {
   @IsNotEmpty()
   @IsEmail()

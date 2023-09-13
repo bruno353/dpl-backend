@@ -31,8 +31,10 @@ import axios from 'axios';
 
 import { UtilsService } from '../utils/utils.service';
 import {
+  ChangePasswordOpenmeshExpertUserDTO,
   CreateOpenmeshExpertUserDTO,
   LoginDTO,
+  UpdateOpenmeshExpertUserDTO,
 } from './dto/openmesh-experts-auth.dto';
 
 //This service is utilized to update all the governance workflow - it runs a query trhough all the events from the contracts governance to update it (its util to some cases in which the backend may have losed some events caused by a downtime or something similar)
@@ -209,6 +211,56 @@ export class OpenmeshExpertsAuthService {
     };
 
     return userFinalReturn;
+  }
+
+  async updateUser(data: UpdateOpenmeshExpertUserDTO, req: Request) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+
+    const user = await this.verifySessionToken(accessToken);
+
+    const update = await this.prisma.openmeshExpertUser.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        ...data,
+      },
+    });
+    return update;
+  }
+
+  async changePassword(
+    data: ChangePasswordOpenmeshExpertUserDTO,
+    req: Request,
+  ) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+
+    const user = await this.verifySessionToken(accessToken);
+
+    const passwordCompare = await bcrypt.compare(
+      data.oldPassword,
+      user.password,
+    );
+    let sessionToken: string;
+
+    if (user && passwordCompare) {
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(data.password, salt);
+
+      await this.prisma.openmeshExpertUser.updateMany({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+    } else {
+      throw new BadRequestException('Invalid username/password.', {
+        cause: new Error(),
+        description: 'Invalid username/password.',
+      });
+    }
   }
 
   async validateRecaptcha(data: any) {
