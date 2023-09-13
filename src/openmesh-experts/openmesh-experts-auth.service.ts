@@ -186,6 +186,31 @@ export class OpenmeshExpertsAuthService {
     return userFinalReturn;
   }
 
+  async getCurrentUser(req: Request) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+
+    const user = await this.verifySessionToken(accessToken);
+
+    const userFinalReturn = {
+      email: user.email,
+      name: user.name,
+      companyName: user.companyName,
+      location: user.location,
+      description: user.description,
+      foundingYear: user.foundingYear,
+      website: user.website,
+      tags: user.tags,
+      calendly: user.scheduleCalendlyLink,
+      profilePictureHash: user.profilePictureHash,
+      confirmedEmail: user.confirmedEmail,
+      sessionToken: accessToken,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    return userFinalReturn;
+  }
+
   async validateRecaptcha(data: any) {
     const config = {
       method: 'post',
@@ -207,5 +232,24 @@ export class OpenmeshExpertsAuthService {
     }
 
     return dado.success;
+  }
+
+  async verifySessionToken(accessToken: string) {
+    let user;
+    try {
+      const tokenValido = await this.jwtService.verifyAsync(accessToken);
+      user = await this.prisma.openmeshExpertUser.findFirst({
+        where: {
+          id: tokenValido.id,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException('Invalid session token', {
+        cause: new Error(),
+        description: 'Invalid session token',
+      });
+    }
+    return user;
   }
 }

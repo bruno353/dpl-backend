@@ -85,4 +85,18 @@ export class OpenmeshExpertsController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.validateRecaptcha(data);
   }
+
+  @ApiOperation({
+    summary: 'Return user info',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'oken mandatory to connect with the app',
+  })
+  @Post('getCurrentUser')
+  getCurrentUser(@Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.getCurrentUser(req);
+  }
 }
