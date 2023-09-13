@@ -18,9 +18,11 @@ import {
 } from 'class-validator';
 
 enum TagsEnum {
-  BLOCKCHAIN = 'blockchain',
-  FRONTEND = 'frontend',
-  BACKEND = 'backend',
+  BLOCKCHAIN = 'IoT',
+  WEB = 'Web development',
+  CONSULTANCY = 'Consultancy',
+  DESIGN = 'UI / UX',
+  MARKETING = 'Marketing',
 }
 
 export class LoginDTO {
