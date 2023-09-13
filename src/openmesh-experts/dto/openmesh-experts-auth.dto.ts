@@ -18,7 +18,7 @@ import {
 } from 'class-validator';
 
 enum TagsEnum {
-  BLOCKCHAIN = 'IoT',
+  IOT = 'IoT',
   WEB = 'Web development',
   CONSULTANCY = 'Consultancy',
   DESIGN = 'UI / UX',
@@ -119,12 +119,12 @@ export class CreateOpenmeshExpertUserDTO {
   @IsEnum(TagsEnum, {
     each: true,
     message:
-      'Tag value must be one of the following: blockchain, frontend, backend',
+      'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
   })
   @ApiProperty({
     maxLength: 500,
     description: 'Company tags',
-    example: ['backend'],
+    example: ['IoT'],
   })
   tags: string;
 
