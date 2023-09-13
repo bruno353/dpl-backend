@@ -53,7 +53,7 @@ export class CreateOpenmeshExpertUserDTO {
   email: string;
 
   @IsNotEmpty()
-  @IsEmail()
+  @IsString()
   @ApiProperty({
     description: 'Token to validate recaptcha',
     example:
