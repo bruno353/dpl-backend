@@ -45,6 +45,15 @@ export class OpenmeshExpertsAuthService {
   ) {}
 
   async createUser(data: CreateOpenmeshExpertUserDTO) {
+    const recaptchaValidated = await this.validateRecaptcha({
+      token: data.googleRecaptchaToken,
+    });
+    if (!recaptchaValidated) {
+      throw new BadRequestException('Recaptcha incorrect', {
+        cause: new Error(),
+        description: 'Recaptcha incorrect',
+      });
+    }
     const results = await this.prisma.openmeshExpertUser.findFirst({
       where: {
         email: data.email,
@@ -94,7 +103,7 @@ export class OpenmeshExpertsAuthService {
     const id = crypto.randomBytes(16);
     const id2 = id.toString('hex');
 
-    const { password, ...rest } = data;
+    const { password, googleRecaptchaToken, ...rest } = data;
 
     const response = await this.prisma.openmeshExpertUser.create({
       data: {
@@ -175,5 +184,28 @@ export class OpenmeshExpertsAuthService {
     };
 
     return userFinalReturn;
+  }
+
+  async validateRecaptcha(data: any) {
+    const config = {
+      method: 'post',
+      url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_PRIVATE_KEY}&response=${data.token}`,
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('Error during validation', {
+        cause: new Error(),
+        description: 'Error during validation',
+      });
+    }
+
+    return dado.success;
   }
 }

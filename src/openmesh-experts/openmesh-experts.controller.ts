@@ -70,4 +70,19 @@ export class OpenmeshExpertsController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.login(data);
   }
+
+  @ApiOperation({
+    summary: 'validateRecaptcha from google',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('validateRecaptcha')
+  @ApiResponse({ status: 200, type: Boolean })
+  validateRecaptcha(@Body() data: any, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.validateRecaptcha(data);
+  }
 }
