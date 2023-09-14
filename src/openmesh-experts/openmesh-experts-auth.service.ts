@@ -35,7 +35,10 @@ import {
   ChangePasswordOpenmeshExpertUserDTO,
   ConfirmEmailDTO,
   CreateOpenmeshExpertUserDTO,
+  EmailRecoverPasswordDTO,
   LoginDTO,
+  RecoverPasswordDTO,
+  RecoverPasswordIsValidDTO,
   UpdateOpenmeshExpertUserDTO,
 } from './dto/openmesh-experts-auth.dto';
 
@@ -216,6 +219,134 @@ export class OpenmeshExpertsAuthService {
       throw new BadRequestException('Already confirmed / does not exists.', {
         cause: new Error(),
         description: 'Already confirmed / does not exists.',
+      });
+    }
+  }
+
+  //sends email to recover password
+  async emailRecoverPassword(data: EmailRecoverPasswordDTO) {
+    const userExists = await this.prisma.openmeshExpertUser.findFirst({
+      where: {
+        email: data.email,
+      },
+    });
+    if (!userExists) {
+      console.log('Not enabled user');
+      return;
+    }
+    if (!userExists.userEnabled) {
+      console.log('Not enabled user');
+      return;
+    }
+
+    const id = crypto.randomBytes(58);
+    const id2 = id.toString('hex');
+
+    await this.prisma.recoverPassword.create({
+      data: {
+        openmeshExpertUserId: userExists.id,
+        email: userExists.email,
+        txid: id2,
+        timeStamp: String(Math.round(Date.now() / 1000)),
+      },
+    });
+
+    await this.openmeshExpertsEmailManagerService.emailRecPassword(
+      userExists.email,
+      id2,
+    );
+  }
+
+  //recover the password, after sending the email and the user putting the new password.
+  async recoverPassword(data: RecoverPasswordDTO) {
+    const recoverPassword = await this.prisma.recoverPassword.findFirst({
+      where: {
+        txid: data.objectId,
+      },
+    });
+    if (!recoverPassword) {
+      throw new BadRequestException('Couldnt find txid', {
+        cause: new Error(),
+        description: 'Couldnt find txid',
+      });
+    }
+    if (!recoverPassword.isValid) {
+      throw new BadRequestException('Invalid recoverPassword', {
+        cause: new Error(),
+        description: 'Invalid recoverPassword',
+      });
+    }
+    if (
+      Number(recoverPassword.timeStamp) + 86400 <
+      Math.round(Date.now() / 1000)
+    ) {
+      throw new BadRequestException('recoverPassword timeout 86400 sec', {
+        cause: new Error(),
+        description: 'recoverPassword timeout 86400 sec',
+      });
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(data.newPassword, salt);
+
+    await this.prisma.openmeshExpertUser.updateMany({
+      where: {
+        id: recoverPassword.openmeshExpertUserId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    const jwt = await this.jwtService.signAsync({
+      id: recoverPassword.openmeshExpertUserId,
+    });
+
+    const user = await this.prisma.openmeshExpertUser.findFirst({
+      where: {
+        id: recoverPassword.openmeshExpertUserId,
+      },
+    });
+
+    await this.prisma.recoverPassword.delete({
+      where: {
+        txid: data.objectId,
+      },
+    });
+
+    const userFinalReturn = {
+      email: user.email,
+      sessionToken: jwt,
+    };
+    return userFinalReturn;
+  }
+
+  //Checks if exists a valid recover password with this id
+  async recoverPasswordIdIsValid(data: RecoverPasswordIsValidDTO) {
+    const recoverPassword = await this.prisma.recoverPassword.findFirst({
+      where: {
+        txid: data.objectId,
+      },
+    });
+    if (!recoverPassword) {
+      throw new BadRequestException('Couldnt find txid', {
+        cause: new Error(),
+        description: 'Couldnt find txid',
+      });
+    }
+    if (!recoverPassword.isValid) {
+      throw new BadRequestException('Invalid recoverPassword', {
+        cause: new Error(),
+        description: 'Invalid recoverPassword',
+      });
+    }
+    if (
+      Number(recoverPassword.timeStamp) + 86400 <
+      Math.round(Date.now() / 1000)
+    ) {
+      throw new BadRequestException('recoverPassword timeout 86400 sec', {
+        cause: new Error(),
+        description: 'recoverPassword timeout 86400 sec',
       });
     }
   }

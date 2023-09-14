@@ -282,6 +282,46 @@ export class ConfirmEmailDTO {
   id: string;
 }
 
+export class EmailRecoverPasswordDTO {
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty({
+    minLength: 8,
+    maxLength: 500,
+    description: 'Email to whom the recover password link must be send',
+    example: 'agame@gmail.com',
+  })
+  email: string;
+}
+
+export class RecoverPasswordDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'New password set by the user',
+    example: 'senha123',
+  })
+  newPassword: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Id sent through email link for recovery',
+    example: '212302130248281428401480824082121321321321321321',
+  })
+  objectId: string;
+}
+
+export class RecoverPasswordIsValidDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Id sent through email link for recovery',
+    example: '212302130248281428401480824082121321321321321321',
+  })
+  objectId: string;
+}
+
 export class ChangePasswordOpenmeshExpertUserDTO {
   @IsNotEmpty()
   @IsString()

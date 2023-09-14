@@ -404,10 +404,29 @@ model OpenmeshExpertUser {
   hashConfirmEmail    String? 
   timestampCodeEmail  String?   
 
+  RecoverPassword   RecoverPassword[]
+
   createdAt        DateTime  @default(now())
   updatedAt        DateTime? @updatedAt
 
   @@map("openmeshExpertUser")
+}
 
+model RecoverPassword { 
+  id String @id @default(uuid())
+
+  email     String
+  txid      String @unique
+  timeStamp String
+  isValid   Boolean @default(true)
+
+  
+  openmeshExpertUserId String   
+  openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("recoverPassword")
 }
 

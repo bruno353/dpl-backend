@@ -28,8 +28,10 @@ import {
   ChangePasswordOpenmeshExpertUserDTO,
   ConfirmEmailDTO,
   CreateOpenmeshExpertUserDTO,
+  EmailRecoverPasswordDTO,
   LoginDTO,
   LoginResponseDTO,
+  RecoverPasswordDTO,
   UpdateOpenmeshExpertUserDTO,
 } from './dto/openmesh-experts-auth.dto';
 import { OpenmeshExpertsEmailManagerService } from './openmesh-experts-email-manager.service';
@@ -148,6 +150,38 @@ export class OpenmeshExpertsController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.confirmEmail(data);
+  }
+
+  @ApiOperation({
+    summary: 'Sends an email to recover user password',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('emailRecoverPassword')
+  emailRecoverPassword(
+    @Body() data: EmailRecoverPasswordDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.emailRecoverPassword(data);
+  }
+
+  @ApiOperation({
+    summary:
+      'Recover the password, after sending the email and the user putting the new password.',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('recoverPassword')
+  recoverPassword(@Body() data: RecoverPasswordDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.recoverPassword(data);
   }
 
   // @ApiOperation({

@@ -15,13 +15,13 @@ export class OpenmeshExpertsEmailManagerService {
   ) {}
   sgApiKey = process.env.SG_API_KEY;
 
-  async emailRecSenha(email: string, id: string) {
+  async emailRecPassword(email: string, id: string) {
     sgMail.setApiKey(this.sgApiKey);
 
     const msg: any = {
       to: email,
-      from: 'contato@scalable.com.br',
-      template_id: 'd-dba4aae843174903a73e2d2c93738e22',
+      from: 'movviaugust@gmail.com',
+      template_id: 'd-bcd38e413f4b46cc9d1b2e50d1052320',
       dynamic_template_data: {
         objectId: id,
       },
