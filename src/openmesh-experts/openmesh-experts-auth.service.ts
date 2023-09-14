@@ -114,7 +114,7 @@ export class OpenmeshExpertsAuthService {
       data: {
         password: hashedPassword,
         hashConfirmEmail: id2,
-        confirmedEmail: true,
+        confirmedEmail: false,
         ...rest,
       },
     });
