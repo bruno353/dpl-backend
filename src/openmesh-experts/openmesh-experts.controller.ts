@@ -32,6 +32,7 @@ import {
   LoginDTO,
   LoginResponseDTO,
   RecoverPasswordDTO,
+  RecoverPasswordIsValidDTO,
   UpdateOpenmeshExpertUserDTO,
 } from './dto/openmesh-experts-auth.dto';
 import { OpenmeshExpertsEmailManagerService } from './openmesh-experts-email-manager.service';
@@ -182,6 +183,23 @@ export class OpenmeshExpertsController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.recoverPassword(data);
+  }
+
+  @ApiOperation({
+    summary: 'Checks if exists a valid recover password with this id',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('recoverPasswordIdIsValid')
+  recoverPasswordIdIsValid(
+    @Body() data: RecoverPasswordIsValidDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.recoverPasswordIdIsValid(data);
   }
 
   // @ApiOperation({
