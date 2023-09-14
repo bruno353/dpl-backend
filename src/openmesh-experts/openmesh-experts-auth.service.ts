@@ -105,7 +105,7 @@ export class OpenmeshExpertsAuthService {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
-    const id = crypto.randomBytes(16);
+    const id = crypto.randomBytes(54);
     const id2 = id.toString('hex');
 
     const { password, googleRecaptchaToken, ...rest } = data;
@@ -197,14 +197,27 @@ export class OpenmeshExpertsAuthService {
   }
 
   async confirmEmail(data: ConfirmEmailDTO) {
-    return await this.prisma.openmeshExpertUser.updateMany({
-      data: {
-        confirmedEmail: true,
-      },
+    const idExists = await this.prisma.openmeshExpertUser.findFirst({
       where: {
         hashConfirmEmail: data.id,
+        confirmedEmail: false,
       },
     });
+    if (idExists) {
+      return await this.prisma.openmeshExpertUser.updateMany({
+        data: {
+          confirmedEmail: true,
+        },
+        where: {
+          hashConfirmEmail: data.id,
+        },
+      });
+    } else {
+      throw new BadRequestException('Already confirmed / does not exists.', {
+        cause: new Error(),
+        description: 'Already confirmed / does not exists.',
+      });
+    }
   }
 
   async getCurrentUser(req: Request) {
