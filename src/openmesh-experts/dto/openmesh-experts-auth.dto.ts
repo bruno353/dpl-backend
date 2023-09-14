@@ -270,6 +270,18 @@ export class UpdateOpenmeshExpertUserDTO {
   profilePictureHash: string;
 }
 
+export class ConfirmEmailDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    minLength: 8,
+    maxLength: 500,
+    description: 'Email confirm hash',
+    example: '12345',
+  })
+  id: string;
+}
+
 export class ChangePasswordOpenmeshExpertUserDTO {
   @IsNotEmpty()
   @IsString()

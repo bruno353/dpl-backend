@@ -6,6 +6,7 @@ import { PrismaService } from 'src/database/prisma.service';
 import { OpenmeshExpertsController } from './openmesh-experts.controller';
 import { OpenmeshExpertsAuthService } from './openmesh-experts-auth.service';
 import { UtilsModule } from 'src/utils/utils.module';
+import { OpenmeshExpertsEmailManagerService } from './openmesh-experts-email-manager.service';
 
 @Module({
   imports: [
@@ -24,7 +25,11 @@ import { UtilsModule } from 'src/utils/utils.module';
     }),
   ],
   controllers: [OpenmeshExpertsController],
-  providers: [OpenmeshExpertsAuthService, PrismaService],
-  exports: [OpenmeshExpertsAuthService],
+  providers: [
+    OpenmeshExpertsAuthService,
+    OpenmeshExpertsEmailManagerService,
+    PrismaService,
+  ],
+  exports: [OpenmeshExpertsAuthService, OpenmeshExpertsEmailManagerService],
 })
 export class OpenmeshExpertsModule {}

@@ -30,8 +30,10 @@ import { Request, response } from 'express';
 import axios from 'axios';
 
 import { UtilsService } from '../utils/utils.service';
+import { OpenmeshExpertsEmailManagerService } from './openmesh-experts-email-manager.service';
 import {
   ChangePasswordOpenmeshExpertUserDTO,
+  ConfirmEmailDTO,
   CreateOpenmeshExpertUserDTO,
   LoginDTO,
   UpdateOpenmeshExpertUserDTO,
@@ -43,19 +45,20 @@ export class OpenmeshExpertsAuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    private readonly openmeshExpertsEmailManagerService: OpenmeshExpertsEmailManagerService,
     private readonly utilsService: UtilsService,
   ) {}
 
   async createUser(data: CreateOpenmeshExpertUserDTO) {
-    const recaptchaValidated = await this.validateRecaptcha({
-      token: data.googleRecaptchaToken,
-    });
-    if (!recaptchaValidated) {
-      throw new BadRequestException('Recaptcha incorrect', {
-        cause: new Error(),
-        description: 'Recaptcha incorrect',
-      });
-    }
+    // const recaptchaValidated = await this.validateRecaptcha({
+    //   token: data.googleRecaptchaToken,
+    // });
+    // if (!recaptchaValidated) {
+    //   throw new BadRequestException('Recaptcha incorrect', {
+    //     cause: new Error(),
+    //     description: 'Recaptcha incorrect',
+    //   });
+    // }
     const results = await this.prisma.openmeshExpertUser.findFirst({
       where: {
         email: data.email,
@@ -125,6 +128,11 @@ export class OpenmeshExpertsAuthService {
       sessionToken: jwt,
     };
 
+    await this.openmeshExpertsEmailManagerService.emailConfirmationAccount(
+      response.email,
+      id2,
+    );
+
     //this.financeService.KYBBigData(response.id);
     return userFinalReturn;
   }
@@ -186,6 +194,17 @@ export class OpenmeshExpertsAuthService {
     };
 
     return userFinalReturn;
+  }
+
+  async confirmEmail(data: ConfirmEmailDTO) {
+    return await this.prisma.openmeshExpertUser.updateMany({
+      data: {
+        confirmedEmail: true,
+      },
+      where: {
+        hashConfirmEmail: data.id,
+      },
+    });
   }
 
   async getCurrentUser(req: Request) {

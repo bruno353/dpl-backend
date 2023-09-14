@@ -26,11 +26,13 @@ import { Request } from 'express';
 import { OpenmeshExpertsAuthService } from './openmesh-experts-auth.service';
 import {
   ChangePasswordOpenmeshExpertUserDTO,
+  ConfirmEmailDTO,
   CreateOpenmeshExpertUserDTO,
   LoginDTO,
   LoginResponseDTO,
   UpdateOpenmeshExpertUserDTO,
 } from './dto/openmesh-experts-auth.dto';
+import { OpenmeshExpertsEmailManagerService } from './openmesh-experts-email-manager.service';
 
 @ApiTags(
   'Openmesh-experts - Companies / individuals that qualify to become an openmesh expert endpoints.',
@@ -39,6 +41,7 @@ import {
 export class OpenmeshExpertsController {
   constructor(
     private readonly openmeshExpertsAuthService: OpenmeshExpertsAuthService,
+    private readonly openmeshExpertsEmailManagerService: OpenmeshExpertsEmailManagerService,
   ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
@@ -132,4 +135,35 @@ export class OpenmeshExpertsController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.changePassword(data, req);
   }
+
+  @ApiOperation({
+    summary: 'Confirms the user email',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('confirmEmail')
+  confirmEmail(@Body() data: ConfirmEmailDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.confirmEmail(data);
+  }
+
+  // @ApiOperation({
+  //   summary: 'Changes user password',
+  // })
+  // @ApiHeader({
+  //   name: 'X-Parse-Application-Id',
+  //   description: 'Token mandatory to connect with the app',
+  // })
+  // @Post('testEmail')
+  // testEmail(@Req() req: Request) {
+  //   const apiToken = String(req.headers['x-parse-application-id']);
+  //   if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+  //   return this.openmeshExpertsEmailManagerService.testEmail(
+  //     'brunolsantos152@gmail.com',
+  //     '1232213',
+  //   );
+  // }
 }
