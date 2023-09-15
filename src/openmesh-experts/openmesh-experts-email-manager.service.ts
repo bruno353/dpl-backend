@@ -20,8 +20,8 @@ export class OpenmeshExpertsEmailManagerService {
 
     const msg: any = {
       to: email,
-      from: 'movviaugust@gmail.com',
-      template_id: 'd-bcd38e413f4b46cc9d1b2e50d1052320',
+      from: 'bruno.santos@l3a.xyz',
+      template_id: 'd-45414c11f48d4bcdbd65e7bbc2b7605e',
       dynamic_template_data: {
         objectId: id,
       },
@@ -44,8 +44,8 @@ export class OpenmeshExpertsEmailManagerService {
     console.log(this.sgApiKey);
     const msg: any = {
       to: email,
-      from: 'movviaugust@gmail.com',
-      template_id: 'd-5ff3c619db7842c5925199f21d8f10de',
+      from: 'bruno.santos@l3a.xyz',
+      template_id: 'd-8e65b4ec7d974bba9a2450ab0bb1b1d1',
       dynamic_template_data: {
         objectId: objectId,
       },
