@@ -416,6 +416,14 @@ export class LoginResponseDTO {
   })
   website: string;
 
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    description: 'If the user wants to schedule a call',
+    example: true,
+  })
+  scheduleCall: string;
+
   @IsNotEmpty()
   @IsArray()
   @IsEnum(TagsEnum, {

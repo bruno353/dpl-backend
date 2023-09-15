@@ -398,6 +398,8 @@ model OpenmeshExpertUser {
   scheduleCalendlyLink String?
   profilePictureHash String?
 
+  scheduleCall Boolean @default(false)
+
   userEnabled     Boolean @default(true)
 
   confirmedEmail       Boolean?  @default(false)
