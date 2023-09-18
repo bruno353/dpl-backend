@@ -68,7 +68,7 @@ export class CreateOpenmeshExpertUserDTO {
   @ApiProperty({
     minLength: 8,
     maxLength: 500,
-    description: 'User-password',
+    description: 'User-password-',
     example: '12345',
   })
   password: string;
