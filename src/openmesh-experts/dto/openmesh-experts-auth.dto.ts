@@ -88,10 +88,20 @@ export class CreateOpenmeshExpertUserDTO {
   @MaxLength(500)
   @ApiProperty({
     maxLength: 500,
-    description: 'Name',
+    description: 'First name',
     example: 'Bruno',
   })
-  name: string;
+  firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    maxLength: 500,
+    description: 'Last name',
+    example: 'Santos',
+  })
+  lastName: string;
 
   @IsNotEmpty()
   @IsInt()

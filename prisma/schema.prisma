@@ -389,7 +389,8 @@ model OpenmeshExpertUser {
   password String
 
   companyName String?
-  name String?
+  firstName String?
+  lastName String?
   foundingYear Int?
   location String?
   website String?
