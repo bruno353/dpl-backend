@@ -359,7 +359,8 @@ export class OpenmeshExpertsAuthService {
 
     const userFinalReturn = {
       email: user.email,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       companyName: user.companyName,
       location: user.location,
       description: user.description,
