@@ -24,17 +24,7 @@ import {
 import { Request } from 'express';
 
 import { OpenmeshDataService } from './openmesh-data.service';
-import {
-  ChangePasswordOpenmeshExpertUserDTO,
-  ConfirmEmailDTO,
-  CreateOpenmeshExpertUserDTO,
-  EmailRecoverPasswordDTO,
-  LoginDTO,
-  LoginResponseDTO,
-  RecoverPasswordDTO,
-  RecoverPasswordIsValidDTO,
-  UpdateOpenmeshExpertUserDTO,
-} from './dto/openmesh-experts-auth.dto';
+import { GetDatasetDTO } from './dto/openmesh-data.dto';
 
 @ApiTags(
   'Openmesh-experts - Companies / individuals that qualify to become an openmesh expert endpoints.',
@@ -47,7 +37,7 @@ export class OpenmeshDataController {
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
 
   @ApiOperation({
-    summary: 'Create an openmesh user',
+    summary: 'Return the datasets',
   })
   @ApiHeader({
     name: 'X-Parse-Application-Id',
@@ -58,5 +48,19 @@ export class OpenmeshDataController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshDataService.getDatasets();
+  }
+
+  @ApiOperation({
+    summary: 'Return the datasets',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('getDataset')
+  getDataset(@Body() data: GetDatasetDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshDataService.getDataset(data);
   }
 }
