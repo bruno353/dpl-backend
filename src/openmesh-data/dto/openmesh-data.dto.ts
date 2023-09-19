@@ -26,3 +26,30 @@ export class GetDatasetDTO {
   })
   id: string;
 }
+
+export class UploadDatasetsDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset name',
+    example: 'My dataset',
+  })
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset desc',
+    example: 'My dataset',
+  })
+  description: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset sql',
+    example:
+      'SELECT number AS numberFROM  (SELECT blocktimestamp, number, size,                                  gasused   FROM ethereum_blocks   ORDER BY number) AS virtual_tableLIMIT 1000;',
+  })
+  sql: string;
+}
