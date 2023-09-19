@@ -7,6 +7,7 @@ import { UtilsModule } from './utils/utils.module';
 import { UsersModule } from './users/users.module';
 import { DepartamentsModule } from './departaments/departaments.module';
 import { OpenmeshExpertsModule } from './openmesh-experts/openmesh-experts.module';
+import { OpenmeshDataModule } from './openmesh-data/openmesh-data.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OpenmeshExpertsModule } from './openmesh-experts/openmesh-experts.modul
     DepartamentsModule,
     UsersModule,
     OpenmeshExpertsModule,
+    OpenmeshDataModule,
     UtilsModule,
     EventsHandlerModule,
     MulterModule.register({

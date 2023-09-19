@@ -415,6 +415,17 @@ model OpenmeshExpertUser {
   @@map("openmeshExpertUser")
 }
 
+model OpenmeshDataProviders {
+
+  id       String @id @default(uuid())
+
+  name String?
+  description String?
+  sql String?
+
+  @@map("openmeshDataProviders")
+}
+
 model RecoverPassword { 
   id String @id @default(uuid())
 
