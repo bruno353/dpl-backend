@@ -28,7 +28,7 @@ export class GetDatasetDTO {
 }
 
 export class UploadDatasetsDTO {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'Dataset name',
@@ -36,7 +36,7 @@ export class UploadDatasetsDTO {
   })
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'Dataset desc',
@@ -45,6 +45,46 @@ export class UploadDatasetsDTO {
   description: string;
 
   @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({
+    description: 'Dataset tag',
+    example: ['Blockchain'],
+  })
+  tags: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({
+    description: 'Dataset usecases',
+    example: ['Blockchain'],
+  })
+  useCases: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset company`s name',
+    example: 'Openmesh',
+  })
+  company: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    example: true,
+  })
+  live: boolean;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  @ApiProperty({
+    example: false,
+  })
+  download: boolean;
+
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'Dataset sql',

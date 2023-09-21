@@ -423,7 +423,10 @@ model OpenmeshDataProviders {
   description String?
   sql String?
   tags String[] @default([])
+  useCases String[] @default([])
   company String?
+  live Boolean @default(false)
+  download Boolean @default(false)
 
 
   createdAt     DateTime  @default(now())
