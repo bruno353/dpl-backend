@@ -63,6 +63,14 @@ export class UploadDatasetsDTO {
   useCases: string;
 
   @IsOptional()
+  @IsInt()
+  @ApiProperty({
+    description: 'Dataset popularity, the greater the more popular',
+    example: 12,
+  })
+  popularity: string;
+
+  @IsOptional()
   @IsString()
   @ApiProperty({
     description: 'Dataset company`s name',

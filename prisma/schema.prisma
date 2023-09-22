@@ -424,6 +424,7 @@ model OpenmeshDataProviders {
   sql String?
   tags String[] @default([])
   useCases String[] @default([])
+  popularity Int @default(0) //quanto maior, mais popular
   company String?
   live Boolean @default(false)
   download Boolean @default(false)
