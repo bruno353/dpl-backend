@@ -68,7 +68,7 @@ export class UploadDatasetsDTO {
     description: 'Dataset popularity, the greater the more popular',
     example: 12,
   })
-  popularity: Int;
+  popularity: number;
 
   @IsOptional()
   @IsString()
