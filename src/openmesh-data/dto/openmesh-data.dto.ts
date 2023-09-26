@@ -44,23 +44,19 @@ export class UploadDatasetsDTO {
   })
   description: string;
 
-  @IsNotEmpty()
-  @IsArray()
-  @IsString({ each: true })
   @ApiProperty({
     description: 'Dataset tag',
     example: ['Blockchain'],
+    type: [String],
   })
-  tags: string;
+  tags: string[];
 
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
   @ApiProperty({
     description: 'Dataset usecases',
     example: ['Blockchain'],
+    type: [String],
   })
-  useCases: string;
+  useCases: string[];
 
   @IsOptional()
   @IsInt()
