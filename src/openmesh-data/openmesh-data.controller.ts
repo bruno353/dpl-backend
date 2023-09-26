@@ -26,9 +26,7 @@ import { Request } from 'express';
 import { OpenmeshDataService } from './openmesh-data.service';
 import { GetDatasetDTO, UploadDatasetsDTO } from './dto/openmesh-data.dto';
 
-@ApiTags(
-  'Openmesh-experts - Companies / individuals that qualify to become an openmesh expert endpoints.',
-)
+@ApiTags('Data products')
 @Controller('openmesh-data/functions')
 export class OpenmeshDataController {
   constructor(private readonly openmeshDataService: OpenmeshDataService) {}
