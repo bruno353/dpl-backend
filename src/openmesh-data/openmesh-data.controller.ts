@@ -69,6 +69,10 @@ export class OpenmeshDataController {
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
+  @ApiHeader({
+    name: 'x-deeeplink-team-signature',
+    description: 'Token mandatory to connect with the app',
+  })
   @Post('uploadDatasets')
   @ApiBody({ type: [UploadDatasetsDTO] })
   uploadDatasets(@Body() data: UploadDatasetsDTO[], @Req() req: Request) {
