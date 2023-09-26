@@ -75,6 +75,62 @@ export class UploadDatasetsDTO {
   company: string;
 
   @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'If this is a live connection, the link of it',
+    example: 'wss://ws.tech.l3a.xyz',
+  })
+  liveLink: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'If this is a download connection, the csv link of it',
+    example: 'wss://ws.tech.l3a.xyz',
+  })
+  downloadCSVLink: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'How much space its consuming',
+    example: '6 MB',
+  })
+  dataSpace: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'The clous name where its stored (?)',
+    example: 'US Virginia RE67243',
+  })
+  dataCloudName: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'The cloud link where its stored (?)',
+    example: 'www.aws.com',
+  })
+  dataCloudLink: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Github data name',
+    example: 'Coinbase Connector #3',
+  })
+  dataGithubName: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Github data link',
+    example: 'www.github.com',
+  })
+  dataGithubLink: string;
+
+  @IsOptional()
   @IsBoolean()
   @ApiProperty({
     example: true,

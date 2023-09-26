@@ -424,11 +424,20 @@ model OpenmeshDataProviders {
   sql String?
   tags String[] @default([])
   useCases String[] @default([])
-  popularity Int @default(0) //quanto maior, mais popular
+  popularity Int @default(0) //the greater, the more popular
   company String?
   live Boolean @default(false)
+  dataSpace String @default("0 MB")
   download Boolean @default(false)
+  downloadCSVLink String @default("")
+  liveLink String @default("wss://ws.tech.l3a.xyz")
 
+  dataCloudName String @default("US Virginia RE67243")
+  dataCloudLink String @default("www.aws.com")
+
+
+  dataGithubName String @default("Connector")
+  dataGithubLink String @default("www.github.com")
 
   createdAt     DateTime  @default(now())
   updatedAt DateTime? @updatedAt
