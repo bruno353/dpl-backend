@@ -394,10 +394,12 @@ model OpenmeshExpertUser {
   foundingYear Int?
   location String?
   website String?
+  personalBlog String?
   tags String[]
   description String?
   scheduleCalendlyLink String?
   profilePictureHash String?
+  isCompany Boolean @default(false) //if its not, it means its a individual.
 
   scheduleCall Boolean @default(false)
 

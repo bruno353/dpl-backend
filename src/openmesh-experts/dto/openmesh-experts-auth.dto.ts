@@ -73,15 +73,38 @@ export class CreateOpenmeshExpertUserDTO {
   })
   password: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(500)
   @ApiProperty({
+    required: false,
     maxLength: 500,
     description: 'Company name',
     example: 'Bruno',
   })
   companyName: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    required: false,
+    maxLength: 500,
+    description: 'githubLink',
+    example: 'www.github.com',
+  })
+  githubLink: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    required: false,
+    maxLength: 500,
+    description: 'personal blog link',
+    example: 'www.myBlog.com',
+  })
+  personalBlog: string;
 
   @IsNotEmpty()
   @IsString()
@@ -103,10 +126,11 @@ export class CreateOpenmeshExpertUserDTO {
   })
   lastName: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsInt()
   @Max(10000)
   @ApiProperty({
+    required: false,
     maxLength: 10000,
     description: 'Company founding year',
     example: 2014,
@@ -123,34 +147,37 @@ export class CreateOpenmeshExpertUserDTO {
   })
   location: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(500)
   @ApiProperty({
+    required: false,
     maxLength: 500,
     description: 'Company website',
     example: 'www.website.com.br',
   })
   website: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsArray()
-  @IsEnum(TagsEnum, {
-    each: true,
-    message:
-      'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
-  })
+  // @IsEnum(TagsEnum, {
+  //   each: true,
+  //   message:
+  //     'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
+  // })
   @ApiProperty({
+    required: false,
     maxLength: 500,
     description: 'Company tags',
     example: ['IoT'],
   })
   tags: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(5000)
   @ApiProperty({
+    required: false,
     maxLength: 5000,
     description: 'Company description',
     example: 'Lorem ipsum relugaris',
@@ -162,6 +189,7 @@ export class CreateOpenmeshExpertUserDTO {
   @MaxLength(5000)
   @Transform((value) => `https://calendly.com/${value}`)
   @ApiProperty({
+    required: false,
     maxLength: 5000,
     description: 'Company calendly sub-path link',
     example: 'kathleen-ragos/1?month=2023-09',
