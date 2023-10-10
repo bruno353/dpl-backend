@@ -366,6 +366,7 @@ export class OpenmeshExpertsAuthService {
       description: user.description,
       personalBlog: user.personalBlog,
       githubLink: user.githubLink,
+      isCompany: user.isCompany,
       foundingYear: user.foundingYear,
       website: user.website,
       tags: user.tags,
