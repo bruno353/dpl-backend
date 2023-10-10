@@ -106,6 +106,17 @@ export class CreateOpenmeshExpertUserDTO {
   })
   personalBlog: string;
 
+  @IsOptional()
+  @IsBoolean()
+  @MaxLength(500)
+  @ApiProperty({
+    required: false,
+    maxLength: 500,
+    description: 'If the user is a company',
+    example: true,
+  })
+  isCompany: string;
+
   @IsNotEmpty()
   @IsString()
   @MaxLength(500)
