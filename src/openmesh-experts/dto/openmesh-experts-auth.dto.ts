@@ -115,7 +115,7 @@ export class CreateOpenmeshExpertUserDTO {
     description: 'If the user is a company',
     example: true,
   })
-  isCompany: string;
+  isCompany: boolean;
 
   @IsNotEmpty()
   @IsString()
