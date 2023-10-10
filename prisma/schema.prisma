@@ -395,6 +395,7 @@ model OpenmeshExpertUser {
   location String?
   website String?
   personalBlog String?
+  githubLink String?
   tags String[]
   description String?
   scheduleCalendlyLink String?
