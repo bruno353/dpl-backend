@@ -111,7 +111,6 @@ export class CreateOpenmeshExpertUserDTO {
   @MaxLength(500)
   @ApiProperty({
     required: false,
-    maxLength: 500,
     description: 'If the user is a company',
     example: true,
   })
