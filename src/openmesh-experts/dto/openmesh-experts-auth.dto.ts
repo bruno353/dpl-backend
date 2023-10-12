@@ -515,11 +515,11 @@ export class LoginResponseDTO {
 
   @IsNotEmpty()
   @IsArray()
-  @IsEnum(TagsEnum, {
-    each: true,
-    message:
-      'Tag value must be one of the following: blockchain, frontend, backend',
-  })
+  // @IsEnum(TagsEnum, {
+  //   each: true,
+  //   message:
+  //     'Tag value must be one of the following: blockchain, frontend, backend',
+  // })
   @ApiProperty({
     maxLength: 500,
     description: 'Company tags',
