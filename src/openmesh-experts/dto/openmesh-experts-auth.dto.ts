@@ -233,6 +233,37 @@ export class UpdateOpenmeshExpertUserDTO {
   })
   companyName: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    required: false,
+    maxLength: 500,
+    description: 'githubLink',
+    example: 'www.github.com',
+  })
+  githubLink: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    required: false,
+    maxLength: 500,
+    description: 'personal blog link',
+    example: 'www.myBlog.com',
+  })
+  personalBlog: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    required: false,
+    description: 'If the user is a company',
+    example: true,
+  })
+  isCompany: boolean;
+
   @IsNotEmpty()
   @IsString()
   @MaxLength(500)
@@ -285,11 +316,11 @@ export class UpdateOpenmeshExpertUserDTO {
 
   @IsOptional()
   @IsArray()
-  @IsEnum(TagsEnum, {
-    each: true,
-    message:
-      'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
-  })
+  // @IsEnum(TagsEnum, {
+  //   each: true,
+  //   message:
+  //     'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
+  // })
   @ApiProperty({
     maxLength: 500,
     description: 'Company tags',

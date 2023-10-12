@@ -20,7 +20,7 @@ export class OpenmeshExpertsEmailManagerService {
 
     const msg: any = {
       to: email,
-      from: 'bruno.santos@l3a.xyz',
+      from: 'hello@openmesh.network',
       template_id: 'd-45414c11f48d4bcdbd65e7bbc2b7605e',
       dynamic_template_data: {
         objectId: id,
