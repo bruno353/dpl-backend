@@ -322,6 +322,7 @@ export class UpdateOpenmeshExpertUserDTO {
   //     'Tag value must be one of the following: IoT, Web development, Consultancy, UI / UX, Marketing',
   // })
   @ApiProperty({
+    required: false,
     maxLength: 500,
     description: 'Company tags',
     example: ['IoT'],
