@@ -44,7 +44,7 @@ export class OpenmeshExpertsEmailManagerService {
     console.log(this.sgApiKey);
     const msg: any = {
       to: email,
-      from: 'bruno.santos@l3a.xyz',
+      from: 'hello@openmesh.network',
       template_id: 'd-8e65b4ec7d974bba9a2450ab0bb1b1d1',
       dynamic_template_data: {
         objectId: objectId,
