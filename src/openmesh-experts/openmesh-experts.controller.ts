@@ -10,8 +10,9 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
+  Res,
 } from '@nestjs/common';
-
+import { Response } from 'express';
 import {
   ApiOperation,
   ApiTags,
@@ -200,6 +201,26 @@ export class OpenmeshExpertsController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.openmeshExpertsAuthService.recoverPasswordIdIsValid(data);
+  }
+
+  @ApiOperation({
+    summary: 'Get users csv',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: LoginResponseDTO })
+  @Get('getUsersCSV')
+  getUsersCSV(@Req() req: Request, @Res() response: Response) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
+      throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.getUsersCSV(response);
   }
 
   // @ApiOperation({

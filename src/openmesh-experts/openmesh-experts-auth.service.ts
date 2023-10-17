@@ -3,8 +3,10 @@ import {
   Injectable,
   BadRequestException,
   UnauthorizedException,
+  Res,
 } from '@nestjs/common';
-
+import { Response } from 'express';
+import * as fastcsv from 'fast-csv';
 // import { import_ } from '@brillout/import';
 import { ethers } from 'ethers';
 import * as taskContractABI from '../contracts/taskContractABI.json';
@@ -138,6 +140,23 @@ export class OpenmeshExpertsAuthService {
 
     //this.financeService.KYBBigData(response.id);
     return userFinalReturn;
+  }
+
+  async convertToCSV(users: any[]) {
+    let csvData = '';
+    await fastcsv.writeToString(users, { headers: true }).then((data) => {
+      csvData = data;
+    });
+    return csvData;
+  }
+
+  async getUsersCSV(@Res() response: Response) {
+    const users = await this.prisma.openmeshExpertUser.findMany();
+    const csv = await this.convertToCSV(users);
+
+    response.setHeader('Content-Type', 'text/csv');
+    response.setHeader('Content-Disposition', 'attachment; filename=users.csv');
+    response.send(csv);
   }
 
   async login(data: LoginDTO) {
