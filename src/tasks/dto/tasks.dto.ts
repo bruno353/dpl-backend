@@ -334,7 +334,7 @@ export class TaskDto {
 
   @ApiProperty({
     example: 'Frontend',
-    enum: ['Data', 'Blockchain', 'Cloud', 'Frontend'],
+    // enum: ['Data', 'Blockchain', 'Cloud', 'Frontend'],
   })
   @IsString()
   departament: string;
