@@ -19,7 +19,6 @@ export class GetTasksDto {
   @IsString()
   @ApiProperty({
     description: 'The task departament',
-    enum: ['Data', 'Blockchain', 'Cloud', 'Frontend'],
   })
   departament: string;
 
