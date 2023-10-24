@@ -408,7 +408,7 @@ model OpenmeshExpertUser {
 
   scheduleCall Boolean @default(false)
 
-  userEnabled     Boolean @default(true)
+  userEnabled     Boolean @default(false)
 
   confirmedEmail       Boolean?  @default(false)
   hashConfirmEmail    String? 
