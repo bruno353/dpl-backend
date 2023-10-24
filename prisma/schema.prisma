@@ -26,6 +26,8 @@ model Task {
 
   skillsSearch String? //parameter mandatory to execute case insensitive searchs on the database - additional paramater to facilitate the searchs on database
 
+  engineersRequirement String? //Of the total contributors needed, what is the tech requirement of this team (ex: 1 developer, 1 UI/UX, 1 PM) etc
+
   departament String?   //the departament of the task
 
   deadline String? //the task deadline in Unix timestamp
@@ -109,6 +111,8 @@ model TaskDraft {
   skills String[] @default([]) //the skills of this task. ex: Frontend, Backend, Solidity
 
   skillsSearch String? //parameter mandatory to execute case insensitive searchs on the database - additional paramater to facilitate the searchs on database
+
+  engineersRequirement String? //Of the total contributors needed, what is the tech requirement of this team (ex: 1 developer, 1 UI/UX, 1 PM) etc
 
   departament String?   //the departament of the task
 
