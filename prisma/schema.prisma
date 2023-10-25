@@ -273,6 +273,8 @@ model ApplicationOffChain {
     taskId String  
     task   Task  @relation(fields: [taskId], references: [taskId])
 
+    offChain Boolean @default(true)
+
     createdAt    DateTime  @default(now())
     timestamp    DateTime  @default(now())
     updatedAt    DateTime? @updatedAt

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "applicationOffChain" ADD COLUMN     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
