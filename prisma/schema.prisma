@@ -44,6 +44,7 @@ model Task {
 
   payments Payment[]
   Application Application[]
+  ApplicationOffChain ApplicationOffChain[]
   Submission Submission[]
   DraftVote DraftVote[]
 
@@ -216,6 +217,7 @@ model Payment {
     @@map("payment")
 }
 
+// Applications on-chain
 model Application {
     id String @id @default(uuid())
 
@@ -246,6 +248,35 @@ model Application {
 
     @@unique([taskId, applicationId]) //cannot exist application with same taskId and applicationId
     @@map("application")
+}
+
+// Applications off-chain
+model ApplicationOffChain {
+    id String @id @default(uuid())
+
+    metadata String? //The metadata hash
+    reward  String[] //Rewards: struct Reward {bool nextToken; address to; uint88 amount;}
+    proposer String? //Proposer
+    applicant String? //Applicant
+
+    accepted Boolean @default(false) //If the application was accepted
+    taken    Boolean @default(false) //After the application is accepted, if the submitter took the task to work on it.
+
+    metadataDescription String? //Application description
+    metadataProposedBudget String? //Percentage of how much of the budget the user is asking for
+    metadataAdditionalLink String?
+    metadataDisplayName String? // The name that the user wants to show in his application
+
+    openmeshExpertUserId String  
+    openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
+
+    taskId String  
+    task   Task  @relation(fields: [taskId], references: [taskId])
+
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime? @updatedAt
+
+    @@map("applicationOffChain")
 }
 
 model Submission {
@@ -415,6 +446,7 @@ model OpenmeshExpertUser {
   timestampCodeEmail  String?   
 
   RecoverPassword   RecoverPassword[]
+  ApplicationOffChain ApplicationOffChain[]
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime? @updatedAt

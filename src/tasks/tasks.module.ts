@@ -9,12 +9,14 @@ import { UtilsModule } from 'src/utils/utils.module';
 import { UpdatesService } from './updates.service';
 import { UpdatesGovernanceService } from './updates-governance.service';
 import { UsersModule } from 'src/users/users.module';
+import { OpenmeshExpertsModule } from 'src/openmesh-experts/openmesh-experts.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PassportModule,
     UsersModule,
+    OpenmeshExpertsModule,
     UtilsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

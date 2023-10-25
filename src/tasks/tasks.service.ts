@@ -30,13 +30,16 @@ import {
   UploadIPFSMetadataTaskDraftCreationDTO,
   UploadIPFSMetadataTaskSubmissionDTO,
   UploadIPFSMetadataTaskSubmissionRevisionDTO,
+  UploadMetadataTaskApplicationOffchainDTO,
 } from './dto/metadata.dto';
+import { OpenmeshExpertsAuthService } from 'src/openmesh-experts/openmesh-experts-auth.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utilsService: UtilsService,
+    private readonly openmeshExpertsAuthService: OpenmeshExpertsAuthService,
   ) {}
 
   //setting variables:
@@ -1503,5 +1506,58 @@ export class TasksService {
         },
       });
     }
+  }
+
+  async createTaskApplicationWeb2(
+    data: UploadMetadataTaskApplicationOffchainDTO,
+    req: Request,
+  ) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+    const user = await this.openmeshExpertsAuthService.verifySessionToken(
+      accessToken,
+    );
+
+    const taskExists = await this.prisma.task.findFirst({
+      where: {
+        taskId: data.taskId,
+      },
+    });
+
+    if (!taskExists) {
+      throw new BadRequestException('Task not found', {
+        cause: new Error(),
+        description: 'Task not found',
+      });
+    }
+
+    const applicationExists = await this.prisma.applicationOffChain.findFirst({
+      where: {
+        taskId: data.taskId,
+        openmeshExpertUserId: user.id,
+      },
+    });
+
+    if (applicationExists) {
+      throw new BadRequestException(
+        'Already exists an application for this user',
+        {
+          cause: new Error(),
+          description: 'Already exists an application for this user',
+        },
+      );
+    }
+
+    const application = await this.prisma.applicationOffChain.create({
+      data: {
+        openmeshExpertUserId: user.id,
+        taskId: data.taskId,
+        metadataDisplayName: data.displayName,
+        metadataDescription: data.description,
+        metadataAdditionalLink: JSON.stringify(data.links),
+        metadataProposedBudget: JSON.stringify(data.budgetPercentageRequested),
+      },
+    });
+
+    return application;
   }
 }

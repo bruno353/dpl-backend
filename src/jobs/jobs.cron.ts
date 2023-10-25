@@ -17,9 +17,10 @@ export class JobsCron {
     private readonly updatesService: UpdatesService,
   ) {}
 
-  @Cron('0 0 12 * * 1') //runs every day mid day
+  @Cron('0 0 12 * * 1') //runs every week
   async handleCheckUpdateTasks() {
     console.log('calling the update budget feature');
+    return;
     const tasks = await this.prisma.task.findMany();
     for (let i = 0; i < tasks.length; i++) {
       await this.updatesService.updateEstimationBudgetTaskAndApplications(

@@ -41,6 +41,7 @@ import {
   UploadIPFSMetadataTaskDraftCreationDTO,
   UploadIPFSMetadataTaskSubmissionDTO,
   UploadIPFSMetadataTaskSubmissionRevisionDTO,
+  UploadMetadataTaskApplicationOffchainDTO,
 } from './dto/metadata.dto';
 import { GetTaskEventsResponseDto } from './dto/event.dto';
 import { UpdatesService } from './updates.service';
@@ -398,4 +399,21 @@ export class TasksController {
   //   if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
   //   return this.tasksService.testSpam();
   // }
+  @ApiOperation({
+    summary: 'WEB2 user - Apply to a task',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: IPFSUploadTaskCreationResponseDTO })
+  @Post('createTaskApplicationWeb2')
+  createTaskApplicationWeb2(
+    @Body() data: UploadMetadataTaskApplicationOffchainDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.createTaskApplicationWeb2(data, req);
+  }
 }
