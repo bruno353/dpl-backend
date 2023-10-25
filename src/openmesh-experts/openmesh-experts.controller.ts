@@ -81,6 +81,21 @@ export class OpenmeshExpertsController {
   }
 
   @ApiOperation({
+    summary: 'Login an openmesh user',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @ApiResponse({ status: 200, type: LoginResponseDTO })
+  @Post('loginOpenRD')
+  loginOpenRD(@Body() data: LoginDTO, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.loginOpenRD(data);
+  }
+
+  @ApiOperation({
     summary: 'validateRecaptcha from google',
   })
   @ApiHeader({

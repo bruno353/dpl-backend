@@ -219,6 +219,66 @@ export class OpenmeshExpertsAuthService {
     return userFinalReturn;
   }
 
+  async loginOpenRD(data: LoginDTO) {
+    const user = await this.prisma.openmeshExpertUser.findFirst({
+      where: {
+        email: data.email,
+      },
+    });
+    if (!user) {
+      throw new BadRequestException('Invalid username/password.', {
+        cause: new Error(),
+        description: 'Invalid username/password.',
+      });
+    }
+    const passwordCompare = await bcrypt.compare(data.password, user.password);
+    let sessionToken: string;
+
+    if (user && passwordCompare) {
+      sessionToken = await this.jwtService.signAsync({
+        id: user.id,
+      });
+    } else {
+      throw new BadRequestException('Invalid username/password.', {
+        cause: new Error(),
+        description: 'Invalid username/password.',
+      });
+    }
+
+    if (!user.confirmedEmail)
+      throw new BadRequestException('Unconfirmed Email', {
+        cause: new Error(),
+        description: 'Unconfirmed Email',
+      });
+    if (!user.userEnabled)
+      throw new BadRequestException('User disabled', {
+        cause: new Error(),
+        description: 'User disabled',
+      });
+
+    const jwt = await this.jwtService.signAsync({ id: user.id });
+
+    const userFinalReturn = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      companyName: user.companyName,
+      location: user.location,
+      description: user.description,
+      foundingYear: user.foundingYear,
+      website: user.website,
+      tags: user.tags,
+      calendly: user.scheduleCalendlyLink,
+      profilePictureHash: user.profilePictureHash,
+      confirmedEmail: user.confirmedEmail,
+      sessionToken: jwt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    return userFinalReturn;
+  }
+
   async confirmEmail(data: ConfirmEmailDTO) {
     const idExists = await this.prisma.openmeshExpertUser.findFirst({
       where: {
