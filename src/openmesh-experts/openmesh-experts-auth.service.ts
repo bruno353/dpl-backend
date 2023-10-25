@@ -282,7 +282,7 @@ export class OpenmeshExpertsAuthService {
       },
     });
     if (idExists) {
-      return await this.prisma.openmeshExpertUser.updateMany({
+      const update = await this.prisma.openmeshExpertUser.updateMany({
         data: {
           confirmedEmail: true,
         },
@@ -290,6 +290,7 @@ export class OpenmeshExpertsAuthService {
           hashConfirmEmail: data.id,
         },
       });
+      return { update, registrationByOpenRD: idExists.registrationByOpenRD };
     } else {
       throw new BadRequestException('Already confirmed / does not exists.', {
         cause: new Error(),

@@ -446,7 +446,8 @@ model OpenmeshExpertUser {
   userEnabled     Boolean @default(false)
 
   confirmedEmail       Boolean?  @default(false)
-  hashConfirmEmail    String? 
+  hashConfirmEmail    String?
+  registrationByOpenRD Boolean @default(false) // if the user registered through the openrd plataform. 
   timestampCodeEmail  String?   
 
   RecoverPassword   RecoverPassword[]

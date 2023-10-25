@@ -110,6 +110,15 @@ export class CreateOpenmeshExpertUserDTO {
   @IsBoolean()
   @ApiProperty({
     required: false,
+    description: 'If the user registered through the openrd plataform.',
+    example: true,
+  })
+  registrationByOpenRD: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    required: false,
     description: 'If the user is a company',
     example: true,
   })
