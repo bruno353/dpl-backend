@@ -651,6 +651,27 @@ export class TasksService {
           },
         },
         Application: true,
+        ApplicationOffChain: {
+          include: {
+            openmeshExpertUser: {
+              select: {
+                companyName: true,
+                createdAt: true,
+                description: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                githubLink: true,
+                isCompany: true,
+                tags: true,
+                profilePictureHash: true,
+                website: true,
+                foundingYear: true,
+                location: true,
+              },
+            },
+          },
+        },
         Submission: true,
       },
       where: {
