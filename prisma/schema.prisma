@@ -276,7 +276,8 @@ model ApplicationOffChain {
     offChain Boolean @default(true)
 
     createdAt    DateTime  @default(now())
-    timestamp    DateTime  @default(now())
+    timestamp String?      @default("1698253") //Timestamp Unix global in seconds of when the event was emitted;
+
     updatedAt    DateTime? @updatedAt
 
     @@map("applicationOffChain")

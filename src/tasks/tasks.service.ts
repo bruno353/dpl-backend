@@ -1576,6 +1576,7 @@ export class TasksService {
         metadataDescription: data.description,
         metadataAdditionalLink: JSON.stringify(data.links),
         metadataProposedBudget: JSON.stringify(data.budgetPercentageRequested),
+        timestamp: String(Date.now() / 1000),
       },
     });
 
