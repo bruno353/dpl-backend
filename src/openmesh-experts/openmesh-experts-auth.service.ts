@@ -290,7 +290,11 @@ export class OpenmeshExpertsAuthService {
           hashConfirmEmail: data.id,
         },
       });
-      return { update, registrationByOpenRD: idExists.registrationByOpenRD };
+      return {
+        update,
+        registrationByOpenRD: idExists.registrationByOpenRD,
+        pageRedirect: idExists.pageRedirect,
+      };
     } else {
       throw new BadRequestException('Already confirmed / does not exists.', {
         cause: new Error(),

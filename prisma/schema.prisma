@@ -450,6 +450,8 @@ model OpenmeshExpertUser {
   registrationByOpenRD Boolean @default(false) // if the user registered through the openrd plataform. 
   timestampCodeEmail  String?   
 
+  pageRedirect  String?
+
   RecoverPassword   RecoverPassword[]
   ApplicationOffChain ApplicationOffChain[]
 

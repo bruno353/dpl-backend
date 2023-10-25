@@ -116,6 +116,18 @@ export class CreateOpenmeshExpertUserDTO {
   registrationByOpenRD: boolean;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  @ApiProperty({
+    required: false,
+    maxLength: 500,
+    description:
+      'If there is any page it should redirect after the user email confirmation',
+    example: 'www.myBlog.com',
+  })
+  pageRedirect: string;
+
+  @IsOptional()
   @IsBoolean()
   @ApiProperty({
     required: false,
