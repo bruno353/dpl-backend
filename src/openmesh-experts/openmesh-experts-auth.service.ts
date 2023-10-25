@@ -250,11 +250,6 @@ export class OpenmeshExpertsAuthService {
         cause: new Error(),
         description: 'Unconfirmed Email',
       });
-    if (!user.userEnabled)
-      throw new BadRequestException('User disabled', {
-        cause: new Error(),
-        description: 'User disabled',
-      });
 
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
