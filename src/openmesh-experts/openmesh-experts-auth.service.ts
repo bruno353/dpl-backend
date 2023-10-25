@@ -311,11 +311,7 @@ export class OpenmeshExpertsAuthService {
       },
     });
     if (!userExists) {
-      console.log('Not enabled user');
-      return;
-    }
-    if (!userExists.userEnabled) {
-      console.log('Not enabled user');
+      console.log('User does not exists');
       return;
     }
 
