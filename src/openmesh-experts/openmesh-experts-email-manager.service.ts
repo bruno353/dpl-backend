@@ -21,6 +21,7 @@ export class OpenmeshExpertsEmailManagerService {
     const msg: any = {
       to: email,
       from: { email: 'hello@openmesh.network', name: 'Openmesh' },
+      subject: 'Password recovery',
       template_id: 'd-45414c11f48d4bcdbd65e7bbc2b7605e',
       dynamic_template_data: {
         objectId: id,
