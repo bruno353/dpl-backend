@@ -274,6 +274,7 @@ model ApplicationOffChain {
     task   Task  @relation(fields: [taskId], references: [taskId])
 
     createdAt    DateTime  @default(now())
+    timestamp    DateTime  @default(now())
     updatedAt    DateTime? @updatedAt
 
     @@map("applicationOffChain")
