@@ -478,6 +478,8 @@ model OpenmeshDataProviders {
   downloadCSVLink String @default("")
   liveLink String @default("wss://ws.tech.l3a.xyz")
 
+  type String @default("data") // - the product type, ex: data, analytics, apis etc.
+
   dataCloudName String @default("US Virginia RE67243")
   dataCloudLink String @default("www.aws.com")
 

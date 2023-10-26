@@ -24,7 +24,11 @@ import {
 import { Request } from 'express';
 
 import { OpenmeshDataService } from './openmesh-data.service';
-import { GetDatasetDTO, UploadDatasetsDTO } from './dto/openmesh-data.dto';
+import {
+  GetDatasetDTO,
+  GetDatasetsDTO,
+  UploadDatasetsDTO,
+} from './dto/openmesh-data.dto';
 
 @ApiTags('Data products')
 @Controller('openmesh-data/functions')
@@ -42,10 +46,10 @@ export class OpenmeshDataController {
     description: 'Token mandatory to connect with the app',
   })
   @Post('getDatasets')
-  getDatasets(@Req() req: Request) {
+  getDatasets(@Body() data: GetDatasetsDTO, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    return this.openmeshDataService.getDatasets();
+    return this.openmeshDataService.getDatasets(data);
   }
 
   @ApiOperation({

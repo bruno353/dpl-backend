@@ -27,6 +27,17 @@ export class GetDatasetDTO {
   id: string;
 }
 
+export class GetDatasetsDTO {
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    required: false,
+    description: 'dataset type',
+    example: 'data',
+  })
+  type: string;
+}
+
 export class UploadDatasetsDTO {
   @IsOptional()
   @IsString()

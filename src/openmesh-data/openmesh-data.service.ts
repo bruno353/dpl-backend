@@ -30,7 +30,11 @@ import { Request, response } from 'express';
 import axios from 'axios';
 
 import { UtilsService } from '../utils/utils.service';
-import { GetDatasetDTO, UploadDatasetsDTO } from './dto/openmesh-data.dto';
+import {
+  GetDatasetDTO,
+  GetDatasetsDTO,
+  UploadDatasetsDTO,
+} from './dto/openmesh-data.dto';
 
 //This service is utilized to update all the governance workflow - it runs a query trhough all the events from the contracts governance to update it (its util to some cases in which the backend may have losed some events caused by a downtime or something similar)
 @Injectable()
@@ -41,8 +45,12 @@ export class OpenmeshDataService {
     private readonly utilsService: UtilsService,
   ) {}
 
-  async getDatasets() {
-    const datasets = await this.prisma.openmeshDataProviders.findMany();
+  async getDatasets(data: GetDatasetsDTO) {
+    const datasets = await this.prisma.openmeshDataProviders.findMany({
+      where: {
+        ...data,
+      },
+    });
     return datasets;
   }
 
