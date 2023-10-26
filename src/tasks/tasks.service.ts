@@ -768,10 +768,17 @@ export class TasksService {
       },
     });
 
+    const applicationsOffChainCount =
+      await this.prisma.applicationOffChain.findMany({
+        where: {
+          taskId: data.id,
+        },
+      });
+
     return {
       id: Number(taskId),
       status: this.statusOptions[status],
-      updatesCount: updatesCount.length,
+      updatesCount: updatesCount.length + applicationsOffChainCount.length,
       deadline,
       daysLeft,
       ...rest,
@@ -865,10 +872,17 @@ export class TasksService {
       },
     });
 
+    const applicationsOffChainCount =
+      await this.prisma.applicationOffChain.findMany({
+        where: {
+          taskId: data.id,
+        },
+      });
+
     return {
       proposalId: proposalId,
       status: this.statusOptions[status],
-      updatesCount: updatesCount.length,
+      updatesCount: updatesCount.length + applicationsOffChainCount.length,
       deadline,
       daysLeft,
       ...rest,
@@ -1368,11 +1382,18 @@ export class TasksService {
       },
     });
 
+    const applicationsOffChainCount =
+      await this.prisma.applicationOffChain.findMany({
+        where: {
+          taskId: data.id,
+        },
+      });
+
     return {
       task: {
         id: Number(taskId),
         status: this.statusOptions[status],
-        updatesCount: updatesCount.length,
+        updatesCount: updatesCount.length + applicationsOffChainCount.length,
         deadline,
         daysLeft,
         ...rest,
