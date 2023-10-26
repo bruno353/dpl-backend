@@ -946,7 +946,33 @@ export class TasksService {
         taskId: data.id,
       },
     });
-    return events;
+    const offChainApplications = await this.prisma.applicationOffChain.findMany(
+      {
+        where: {
+          taskId: data.id,
+        },
+        include: {
+          openmeshExpertUser: {
+            select: {
+              companyName: true,
+              createdAt: true,
+              description: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              githubLink: true,
+              isCompany: true,
+              tags: true,
+              profilePictureHash: true,
+              website: true,
+              foundingYear: true,
+              location: true,
+            },
+          },
+        },
+      },
+    );
+    return [...events, ...offChainApplications];
   }
 
   // FUNCTIONS
