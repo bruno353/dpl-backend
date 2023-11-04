@@ -216,6 +216,12 @@ export class OpenmeshExpertsAuthService {
       updatedAt: user.updatedAt,
     };
 
+    await this.prisma.session.create({
+      data: {
+        sessionToken: jwt,
+      },
+    });
+
     return userFinalReturn;
   }
 
@@ -545,6 +551,19 @@ export class OpenmeshExpertsAuthService {
         description: 'Invalid session token',
       });
     }
+
+    const sessionExists = await this.prisma.session.findFirst({
+      where: {
+        sessionToken: accessToken,
+      },
+    });
+    if (!sessionExists) {
+      throw new BadRequestException('Invalid session token', {
+        cause: new Error(),
+        description: 'Invalid session token',
+      });
+    }
+
     return user;
   }
 }

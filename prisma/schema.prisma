@@ -461,6 +461,18 @@ model OpenmeshExpertUser {
   @@map("openmeshExpertUser")
 }
 
+model Session {
+
+  id       String @id @default(uuid())
+  sessionToken String   
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime? @updatedAt
+
+  @@map("session")
+
+}
+
 model OpenmeshDataProviders {
 
   id       String @id @default(uuid())
