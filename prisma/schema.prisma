@@ -490,6 +490,11 @@ model OpenmeshDataProviders {
   download Boolean @default(false)
   downloadCSVLink String @default("")
   liveLink String @default("wss://ws.tech.l3a.xyz")
+  website String?
+  addToXnodeMessage String @default("Coming Soon") 
+  location String?
+  foundingYear String?
+  relevantDocs String?
 
   type String @default("data") // - the product type, ex: data, analytics, apis etc.
 
@@ -497,6 +502,7 @@ model OpenmeshDataProviders {
   dataCloudLink String @default("www.aws.com")
 
   logoURL String?
+  logoWithCompanyNameURL String?
 
   dataGithubName String @default("Connector")
   dataGithubLink String @default("www.github.com")
