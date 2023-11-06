@@ -96,6 +96,62 @@ export class UploadDatasetsDTO {
   @IsOptional()
   @IsString()
   @ApiProperty({
+    description: 'Dataset logo`s url with company name',
+    example: 'www.logo.com/ewqe21e12',
+  })
+  logoWithCompanyNameURL: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'What is the message will be add in the box',
+    example: 'Add to Xnode',
+  })
+  addToXnodeMessage: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset website',
+    example: 'www.website.com',
+  })
+  website: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset location',
+    example: 'my loc here',
+  })
+  location: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset founding Year',
+    example: '2019',
+  })
+  foundingYear: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    description: 'Dataset relevant docs',
+    example: 'www.doc.com',
+  })
+  relevantDocs: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    description: 'Dataset is third party',
+    example: true,
+  })
+  isThirdParty: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
     description: 'If this is a live connection, the link of it',
     example: 'wss://ws.tech.l3a.xyz',
   })
