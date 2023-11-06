@@ -147,7 +147,7 @@ export class UploadDatasetsDTO {
     description: 'Dataset is third party',
     example: true,
   })
-  isThirdParty: string;
+  isThirdParty: boolean;
 
   @IsOptional()
   @IsString()
