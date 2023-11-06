@@ -496,6 +496,7 @@ model OpenmeshDataProviders {
   dataCloudName String @default("US Virginia RE67243")
   dataCloudLink String @default("www.aws.com")
 
+  logoURL String?
 
   dataGithubName String @default("Connector")
   dataGithubLink String @default("www.github.com")

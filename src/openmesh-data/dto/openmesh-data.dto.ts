@@ -88,6 +88,14 @@ export class UploadDatasetsDTO {
   @IsOptional()
   @IsString()
   @ApiProperty({
+    description: 'Dataset logo`s url',
+    example: 'www.logo.com/ewqe21e12',
+  })
+  logoURL: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
     description: 'If this is a live connection, the link of it',
     example: 'wss://ws.tech.l3a.xyz',
   })
