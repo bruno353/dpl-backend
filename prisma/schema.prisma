@@ -485,6 +485,7 @@ model OpenmeshDataProviders {
   popularity Int @default(0) //the greater, the more popular
   company String?
   live Boolean @default(false)
+  free Boolean @default(false)
   isThirdParty Boolean @default(false)
   dataSpace String @default("0 MB")
   download Boolean @default(false)
@@ -497,6 +498,8 @@ model OpenmeshDataProviders {
   relevantDocs String?
 
   type String @default("data") // - the product type, ex: data, analytics, apis etc.
+
+  category String? // - the product type, ex: data, analytics, apis etc.
 
   dataCloudName String?
   dataCloudLink String?

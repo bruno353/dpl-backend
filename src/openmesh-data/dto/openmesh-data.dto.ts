@@ -88,6 +88,14 @@ export class UploadDatasetsDTO {
   @IsOptional()
   @IsString()
   @ApiProperty({
+    description: 'Dataset category',
+    example: 'Servers',
+  })
+  category: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
     description: 'Dataset logo`s url',
     example: 'www.logo.com/ewqe21e12',
   })
