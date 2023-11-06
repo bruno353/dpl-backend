@@ -498,14 +498,14 @@ model OpenmeshDataProviders {
 
   type String @default("data") // - the product type, ex: data, analytics, apis etc.
 
-  dataCloudName String @default("US Virginia RE67243")
-  dataCloudLink String @default("www.aws.com")
+  dataCloudName String?
+  dataCloudLink String?
 
   logoURL String?
   logoWithCompanyNameURL String?
 
-  dataGithubName String @default("Connector")
-  dataGithubLink String @default("www.github.com")
+  dataGithubName String?
+  dataGithubLink String?
 
   createdAt     DateTime  @default(now())
   updatedAt DateTime? @updatedAt
