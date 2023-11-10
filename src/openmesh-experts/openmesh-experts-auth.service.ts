@@ -112,7 +112,7 @@ export class OpenmeshExpertsAuthService {
 
     const id = crypto.randomBytes(54);
     const id2 = id.toString('hex');
-
+    console.log('login');
     const { password, googleRecaptchaToken, ...rest } = data;
 
     const response = await this.prisma.openmeshExpertUser.create({
