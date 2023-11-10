@@ -277,6 +277,12 @@ export class OpenmeshExpertsAuthService {
       updatedAt: user.updatedAt,
     };
 
+    await this.prisma.session.create({
+      data: {
+        sessionToken: jwt,
+      },
+    });
+
     return userFinalReturn;
   }
 
