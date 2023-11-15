@@ -175,6 +175,21 @@ export class TasksController {
     return this.tasksService.getTasks(data);
   }
 
+  // Returns all the tasks updates and activities:
+  @ApiOperation({
+    summary: 'Returns all the tasks updates and activities',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('getTasksEvents')
+  getTasksEvents(@Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.tasksService.getTasksEvents();
+  }
+
   // Returns a specific task:
   @ApiOperation({
     summary: 'Returns a specific task with its metadata',

@@ -989,6 +989,35 @@ export class TasksService {
     return [...events, ...offChainApplications];
   }
 
+  //Returns all tasks events
+  async getTasksEvents() {
+    const events = await this.prisma.event.findMany();
+    const offChainApplications = await this.prisma.applicationOffChain.findMany(
+      {
+        include: {
+          openmeshExpertUser: {
+            select: {
+              companyName: true,
+              createdAt: true,
+              description: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              githubLink: true,
+              isCompany: true,
+              tags: true,
+              profilePictureHash: true,
+              website: true,
+              foundingYear: true,
+              location: true,
+            },
+          },
+        },
+      },
+    );
+    return [...events, ...offChainApplications];
+  }
+
   // FUNCTIONS
   //get the task metadata
   //example metadata: QmX8MeaSR16FEmk6YxRfFJjgSNf5B7DJHDRvLhCcqNhSSv

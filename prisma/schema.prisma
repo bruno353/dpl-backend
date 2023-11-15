@@ -65,6 +65,8 @@ model Task {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
 
+  isOpenmesh Boolean @default(false) //If this is a task created by the openemesh team
+
   startDate String? //the task draft start date of voting in Unix timestamp
   endDate String? //the task draft  end date of voting in Unix timestamp
   aragonMetadata String?
