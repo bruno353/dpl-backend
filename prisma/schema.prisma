@@ -454,8 +454,9 @@ model OpenmeshExpertUser {
 
   pageRedirect  String?
 
-  RecoverPassword   RecoverPassword[]
+  RecoverPassword     RecoverPassword[]
   ApplicationOffChain ApplicationOffChain[]
+  Xnode               Xnode[]
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime? @updatedAt
@@ -529,10 +530,30 @@ model RecoverPassword {
   
   openmeshExpertUserId String   
   openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
-
+   
   createdAt     DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
   @@map("recoverPassword")
+}
+
+//The xnodes that the users will be able to deploy and manage
+model Xnode { 
+  id String @id @default(uuid())
+
+  name        String?
+  description String?
+  useCase     String? 
+  status     String? //the xnode status -> Draft, Running, Off;
+  consoleNodes      String? //The nodes that exists in the console created by the user
+  consoleEdges   Boolean @default(true) //The edges (connections bettwen nodes) that exists in the console created by the user
+
+  openmeshExpertUserId String   
+  openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("xnode")
 }
 
