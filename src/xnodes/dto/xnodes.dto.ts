@@ -12,78 +12,160 @@ import {
   IsDateString,
   ArrayMaxSize,
   IsArray,
+  MaxLength,
+  IsEnum,
 } from 'class-validator';
 
+enum XnodeEnum {
+  DRAFT = 'Draft',
+  RUNNING = 'Running',
+  OFF = 'Off',
+}
+
 export class CreateXnodeDto {
-  @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(1000)
   @IsString()
   @ApiProperty({
     description: 'The xnode name',
+    maxLength: 1000,
   })
   name: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   @ApiProperty({
+    required: false,
     description: 'The xnode desc',
+    maxLength: 1000,
   })
   description: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   @ApiProperty({
+    required: false,
     description: 'The xnode useCase',
+    maxLength: 1000,
   })
   useCase: string;
 
   @IsOptional()
   @IsString()
+  @IsEnum(XnodeEnum, {
+    each: true,
+    message: 'Status value must be one of the following: Draft, Running, Off',
+  })
   @ApiProperty({
+    required: false,
     description: 'The xnode status',
+    enum: ['Draft', 'Running', 'Off'],
   })
   status: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(20000)
   @ApiProperty({
+    required: false,
     description:
-      'Returning tasks with a longer or a shorter deadline compared to the currently time',
-    enum: ['newest', 'oldest'],
+      'The xnode nodes - The nodes that exists in the console created by the user',
   })
-  deadlineSorting: string;
+  consoleNodes: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(20000)
   @ApiProperty({
+    required: false,
     description:
-      'Returning tasks with a greater or lesser estimated budget - this sorting has priority over deadlineSorting',
-    enum: ['greater', 'lesser'],
+      'The xnode edges - The edges (connections bettwen nodes) that exists in the console created by the user',
   })
-  estimatedBudgetSorting: string;
+  consoleEdges: string;
+}
+
+export class UpdateXnodeDto {
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'The xnode id',
+    maxLength: 1000,
+  })
+  xnodeId: string;
+
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'The xnode name',
+    maxLength: 1000,
+  })
+  name: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   @ApiProperty({
-    description: 'Search tasks based on its title and skills',
-    example: 'Web3 development of website',
+    required: false,
+    description: 'The xnode desc',
+    maxLength: 1000,
   })
-  searchBar: string;
+  description: string;
 
   @IsOptional()
-  @IsInt()
+  @IsString()
+  @MaxLength(1000)
   @ApiProperty({
-    description: 'Current page for pagination',
-    minimum: 1,
-    default: 1,
+    required: false,
+    description: 'The xnode useCase',
+    maxLength: 1000,
   })
-  page: number;
+  useCase: string;
 
   @IsOptional()
-  @IsInt()
-  @ApiProperty({
-    description: 'Tasks limit per page for pagination',
-    minimum: 1,
-    default: 10,
+  @IsString()
+  @IsEnum(XnodeEnum, {
+    each: true,
+    message: 'Status value must be one of the following: Draft, Running, Off',
   })
-  limit: number;
+  @ApiProperty({
+    required: false,
+    description: 'The xnode status',
+    enum: ['Draft', 'Running', 'Off'],
+  })
+  status: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  @ApiProperty({
+    required: false,
+    description:
+      'The xnode nodes - The nodes that exists in the console created by the user',
+  })
+  consoleNodes: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  @ApiProperty({
+    required: false,
+    description:
+      'The xnode edges - The edges (connections bettwen nodes) that exists in the console created by the user',
+  })
+  consoleEdges: string;
+}
+
+export class GetXnodeDto {
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'The xnode id',
+    maxLength: 1000,
+  })
+  id: string;
 }

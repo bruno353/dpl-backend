@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 
 import {
@@ -23,39 +24,70 @@ import {
 
 import { Request } from 'express';
 
-import { TasksService } from './tasks.service';
+import { XnodesService } from './xnodes.service';
+import { CreateXnodeDto, GetXnodeDto, UpdateXnodeDto } from './dto/xnodes.dto';
 
 @ApiTags('Xnodes - Managing xnodes')
-@Controller('functions')
+@Controller('xnodes/functions')
 export class XnodesController {
-  constructor(
-    private readonly tasksService: TasksService,
-  ) {}
+  constructor(private readonly xnodesService: XnodesService) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
 
-  //Runs a check-update through the on-chain and off-chain tasks data and store it in the database - its used to always be updated with the tasks data:
   @ApiOperation({
-    summary: 'Check-update through the on-chain and off-chain tasks data',
-  })
-  @ApiHeader({
-    name: 'x-deeeplink-team-signature',
-    description: 'Endpoint only available for deeplink team',
+    summary: 'Create a xnode',
   })
   @ApiHeader({
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
-  @Post('updateTasksData')
-  updateTasksData(@Req() req: Request) {
+  @Post('createXnode')
+  createXnode(@Body() data: CreateXnodeDto, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    if (
-      String(req.headers['x-deeeplink-team-signature']) !==
-      this.deeplinkSignature
-    )
-      throw new UnauthorizedException();
-    return this.tasksService.updateTasksData();
+    return this.xnodesService.createXnode(data, req);
+  }
+
+  @ApiOperation({
+    summary: 'Update a xnode',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Put('updateXnode')
+  updateXnode(@Body() data: UpdateXnodeDto, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.updateXnode(data, req);
+  }
+
+  @ApiOperation({
+    summary: 'Returns a xnode',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Get('getXnode')
+  getXnode(@Body() data: GetXnodeDto, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.getXnode(data, req);
+  }
+
+  @ApiOperation({
+    summary: 'Returns all user xnodes',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Get('getXnodes')
+  getXnodes(@Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.getXnodes(req);
   }
 }

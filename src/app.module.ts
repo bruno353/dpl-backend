@@ -8,12 +8,14 @@ import { UsersModule } from './users/users.module';
 import { DepartamentsModule } from './departaments/departaments.module';
 import { OpenmeshExpertsModule } from './openmesh-experts/openmesh-experts.module';
 import { OpenmeshDataModule } from './openmesh-data/openmesh-data.module';
+import { XnodesModule } from './xnodes/xnodes.module';
 
 @Module({
   imports: [
     TasksModule,
     DepartamentsModule,
     UsersModule,
+    XnodesModule,
     OpenmeshExpertsModule,
     OpenmeshDataModule,
     UtilsModule,

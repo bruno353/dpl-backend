@@ -544,9 +544,9 @@ model Xnode {
   name        String?
   description String?
   useCase     String? 
-  status     String? //the xnode status -> Draft, Running, Off;
+  status      String? //the xnode status -> Draft, Running, Off;
   consoleNodes      String? //The nodes that exists in the console created by the user
-  consoleEdges   Boolean @default(true) //The edges (connections bettwen nodes) that exists in the console created by the user
+  consoleEdges    String? //The edges (connections bettwen nodes) that exists in the console created by the user
 
   openmeshExpertUserId String   
   openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
@@ -556,4 +556,3 @@ model Xnode {
 
   @@map("xnode")
 }
-
