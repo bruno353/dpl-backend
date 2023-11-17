@@ -82,7 +82,7 @@ export class XnodesService {
         ...finalBody,
       },
       where: {
-        id: dataBody.xnodeId,
+        id: xnodeId,
       },
     });
   }
