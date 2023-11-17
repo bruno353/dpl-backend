@@ -77,7 +77,7 @@ export class XnodesService {
 
     const { xnodeId, ...finalBody } = dataBody;
 
-    await this.prisma.xnode.update({
+    return await this.prisma.xnode.update({
       data: {
         ...finalBody,
       },
