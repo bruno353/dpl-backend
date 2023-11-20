@@ -54,6 +54,16 @@ export class CreateXnodeDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
+  @ApiProperty({
+    required: false,
+    description: 'The xnode type',
+    maxLength: 1000,
+  })
+  type: string;
+
+  @IsOptional()
+  @IsString()
   @IsEnum(XnodeEnum, {
     each: true,
     message: 'Status value must be one of the following: Draft, Running, Off',
@@ -124,6 +134,16 @@ export class UpdateXnodeDto {
     maxLength: 1000,
   })
   useCase: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  @ApiProperty({
+    required: false,
+    description: 'The xnode type',
+    maxLength: 1000,
+  })
+  type: string;
 
   @IsOptional()
   @IsString()
