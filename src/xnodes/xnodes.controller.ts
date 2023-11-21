@@ -99,7 +99,7 @@ export class XnodesController {
     name: 'X-Parse-Application-Id',
     description: 'Token mandatory to connect with the app',
   })
-  @Get('getXnodeWithNodesValidatorsStats')
+  @Post('getXnodeWithNodesValidatorsStats')
   getXnodeWithNodesValidatorsStats(
     @Body() data: GetXnodeDto,
     @Req() req: Request,
