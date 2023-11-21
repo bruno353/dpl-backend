@@ -32,6 +32,15 @@ export class CreateXnodeDto {
   })
   name: string;
 
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'The xnode location',
+    maxLength: 1000,
+  })
+  location: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(1000)
