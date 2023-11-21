@@ -113,4 +113,46 @@ export class XnodesService {
       },
     });
   }
+
+  async getNodesValidatorsStats() {
+    const nodesListing = await this.prisma.xnode.findMany({
+      where: {
+        type: 'validator',
+      },
+    });
+
+    return {
+      stats: {
+        totalValidators: nodesListing.length,
+        totalStakeAmount: 0,
+        totalAverageReward: 0,
+        averagePayoutPeriod: 'Every 7 days',
+      },
+      nodes: nodesListing,
+    };
+  }
+
+  async getXnodeWithNodesValidatorsStats(data: GetXnodeDto) {
+    const node = await this.prisma.xnode.findFirst({
+      where: {
+        id: data.id,
+      },
+    });
+    const nodesListing = await this.prisma.xnode.findMany({
+      where: {
+        type: 'validator',
+      },
+    });
+
+    return {
+      node: node,
+      stats: {
+        totalValidators: nodesListing.length,
+        totalStakeAmount: 0,
+        totalAverageReward: 0,
+        averagePayoutPeriod: 'Every 7 days',
+      },
+      nodes: nodesListing,
+    };
+  }
 }

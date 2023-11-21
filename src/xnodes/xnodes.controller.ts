@@ -78,6 +78,38 @@ export class XnodesController {
   }
 
   @ApiOperation({
+    summary: 'Returns general stats and a listing of all nodes validators',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Get('getNodesValidatorsStats')
+  getNodesValidatorsStats(@Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.getNodesValidatorsStats();
+  }
+
+  @ApiOperation({
+    summary:
+      'Returns general stats and a listing of all nodes validators, and also returns the data about a specific xnode',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Get('getXnodeWithNodesValidatorsStats')
+  getXnodeWithNodesValidatorsStats(
+    @Body() data: GetXnodeDto,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.getXnodeWithNodesValidatorsStats(data);
+  }
+
+  @ApiOperation({
     summary: 'Returns all user xnodes',
   })
   @ApiHeader({
