@@ -137,6 +137,9 @@ export class XnodesService {
       where: {
         id: data.id,
       },
+      include: {
+        XnodeClaimActivities: true,
+      },
     });
     const nodesListing = await this.prisma.xnode.findMany({
       where: {

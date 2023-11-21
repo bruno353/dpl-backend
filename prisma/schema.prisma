@@ -553,8 +553,29 @@ model Xnode {
   openmeshExpertUserId String   
   openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
 
+  XnodeClaimActivities XnodeClaimActivities[]
+
+
   createdAt     DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
   @@map("xnode")
+}
+
+//The xnodes that the users will be able to deploy and manage
+model XnodeClaimActivities { 
+  id String @id @default(uuid())
+
+  wallet        String?
+  amount        String?
+  txStatus      String?
+  isClaimed     Boolean @default(false)
+
+  xnodeId String  
+  xnode   Xnode  @relation(fields: [xnodeId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("xnodeClaimActivities")
 }
