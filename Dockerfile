@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY src/xnodes/create_wallet.sh ./src/xnodes/
 
 RUN npm install
 
@@ -22,10 +23,10 @@ RUN curl -fsSL https://internetcomputer.org/install.sh | sh
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/xnodes/create_wallet.sh ./src/xnodes/create_wallet.sh
 
-# Copiar o script create_wallet.sh para o container e dar permissão de execução
-COPY xnodes/create_wallet.sh /app/xnodes/create_wallet.sh
-RUN chmod +x /app/xnodes/create_wallet.sh
+# Dar permissão de execução para o script
+RUN chmod +x ./src/xnodes/create_wallet.sh
 
 EXPOSE 3000
 CMD [ "npm", "run", "start:prod" ]
