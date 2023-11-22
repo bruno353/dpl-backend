@@ -26,11 +26,15 @@ import { Request } from 'express';
 
 import { XnodesService } from './xnodes.service';
 import { CreateXnodeDto, GetXnodeDto, UpdateXnodeDto } from './dto/xnodes.dto';
+import { TestingService } from './testing.service';
 
 @ApiTags('Xnodes - Managing xnodes')
 @Controller('xnodes/functions')
 export class XnodesController {
-  constructor(private readonly xnodesService: XnodesService) {}
+  constructor(
+    private readonly xnodesService: XnodesService,
+    private readonly testingService: TestingService,
+  ) {}
 
   apiTokenKey = process.env.API_TOKEN_KEY;
   deeplinkSignature = process.env.DEEPLINK_TEAM_SIGNATURE;
@@ -121,5 +125,19 @@ export class XnodesController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.xnodesService.getXnodes(req);
+  }
+
+  @ApiOperation({
+    summary: 'test',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('test')
+  test(@Body() data: any, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.testingService.createWallet(data.name);
   }
 }

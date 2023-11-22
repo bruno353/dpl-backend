@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { OpenmeshExpertsModule } from 'src/openmesh-experts/openmesh-experts.module';
 import { XnodesService } from './xnodes.service';
 import { XnodesController } from './xnodes.controller';
+import { TestingService } from './testing.service';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { XnodesController } from './xnodes.controller';
     }),
   ],
   controllers: [XnodesController],
-  providers: [XnodesService, PrismaService],
-  exports: [XnodesService],
+  providers: [XnodesService, PrismaService, TestingService],
+  exports: [XnodesService, TestingService],
 })
 export class XnodesModule {}

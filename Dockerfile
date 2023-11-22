@@ -7,6 +7,8 @@ COPY prisma ./prisma/
 
 RUN npm install
 
+RUN npm install -g dfx
+
 COPY . .
 
 RUN npm run build
