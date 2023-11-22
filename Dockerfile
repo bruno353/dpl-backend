@@ -27,6 +27,11 @@ COPY --from=builder /app/src/xnodes/create_wallet.sh ./src/xnodes/create_wallet.
 
 # Dar permissão de execução para o script
 RUN chmod +x ./src/xnodes/create_wallet.sh
+RUN ls -la /app/
+RUN ls -la /app/src/
+RUN ls -la /app/xnodes/
+
+
 
 EXPOSE 3000
 CMD [ "npm", "run", "start:prod" ]
