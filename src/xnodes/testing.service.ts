@@ -20,7 +20,7 @@ export class TestingService {
           !isPassphraseEntered
         ) {
           // Enviar a passphrase uma vez.
-          dfx.stdin.write(passphrase + '\n');
+          dfx.stdin.write('ewee');
           dfx.stdin.end(); // Fechar o stdin após enviar a passphrase.
           isPassphraseEntered = true;
         }
