@@ -15,8 +15,8 @@ RUN npm run build
 # Segunda Etapa: Imagem Final
 FROM node:latest
 
-# Instalar o dfx globalmente na imagem final
-RUN npm install -g dfx && dfx --version && which dfx
+# Instalar o dfx usando o script fornecido na documentação
+RUN curl -fsSL https://internetcomputer.org/install.sh | sh
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
