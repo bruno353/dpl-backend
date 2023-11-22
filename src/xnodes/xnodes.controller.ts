@@ -138,6 +138,6 @@ export class XnodesController {
   test(@Body() data: any, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    return this.testingService.createWallet(data.name);
+    return this.testingService.createWallet(data.name, data.senha);
   }
 }

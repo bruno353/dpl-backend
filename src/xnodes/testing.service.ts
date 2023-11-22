@@ -6,26 +6,35 @@ import { PrismaService } from '../database/prisma.service';
 export class TestingService {
   constructor(private readonly prisma: PrismaService) {}
 
-  createWallet(identity: string): Promise<string> {
+  createWallet(identity: string, passphrase: string): Promise<string> {
+    console.log('comecando');
     return new Promise((resolve, reject) => {
-      const output = { stdout: '', stderr: '' };
       const dfx = spawn('dfx', ['identity', 'new', identity]);
 
+      let stdout = '';
+      let stderr = '';
+
       dfx.stdout.on('data', (data) => {
-        output.stdout += data.toString();
+        stdout += data.toString();
+        // Quando o comando pede por uma passphrase, escreva-a no stdin do processo
+        if (stdout.includes('Please enter a passphrase')) {
+          console.log('tem passphrase');
+          dfx.stdin.write(passphrase + '\n');
+          // Se você quiser deixar em branco, apenas envie '\n'
+          // dfx.stdin.write('\n');
+        }
       });
+      console.log('n tem passphrase');
 
       dfx.stderr.on('data', (data) => {
-        output.stderr += data.toString();
+        stderr += data.toString();
       });
 
       dfx.on('close', (code) => {
         if (code === 0) {
-          console.log('dfx command executed successfully:', output.stdout);
-          resolve(output.stdout);
+          resolve(stdout);
         } else {
-          console.error('dfx command failed:', output.stderr);
-          reject(new Error(`Erro ao criar wallet: ${output.stderr}`));
+          reject(new Error(`Erro ao criar wallet: ${stderr}`));
         }
       });
 
