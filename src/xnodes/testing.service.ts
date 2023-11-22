@@ -1,24 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { join } from 'path';
+import * as pty from 'node-pty';
 
 @Injectable()
 export class TestingService {
-  private execPromise = promisify(exec);
-
   async createWallet(identity: string, passphrase: string): Promise<string> {
-    try {
-      const scriptPath = join(__dirname, 'create_wallet.sh'); // Caminho relativo do script a partir do diretório atual do serviço
-      const { stdout, stderr } = await this.execPromise(
-        `sh ${scriptPath} ${identity} ${passphrase}`,
-      );
-      if (stderr) {
-        throw new Error(stderr);
-      }
-      return stdout;
-    } catch (error) {
-      throw new Error(`Erro ao criar wallet: ${error.message}`);
-    }
+    return new Promise((resolve, reject) => {
+      const ptyProcess = pty.spawn('dfx', ['identity', 'new', identity], {
+        name: 'xterm-color',
+        cwd: process.cwd(), // Ou o diretório que você precisa
+        env: process.env,
+      });
+
+      let output = '';
+
+      ptyProcess.onData((data) => {
+        output += data;
+        console.log(data); // Para debug, você verá o que está acontecendo no terminal
+        if (data.includes('Please enter a passphrase')) {
+          ptyProcess.write(passphrase + '\r'); // '\r' é o retorno do carro, usado para simular a tecla "Enter"
+        }
+        // Aqui você pode verificar se há uma saída que indica sucesso e resolver a promessa
+      });
+
+      ptyProcess.onExit(({ exitCode }) => {
+        if (exitCode === 0) {
+          resolve(output);
+        } else {
+          reject(new Error(`Erro ao criar wallet: ${output}`));
+        }
+      });
+    });
   }
 }
