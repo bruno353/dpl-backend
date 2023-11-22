@@ -1,34 +1,48 @@
+import { spawn } from 'child_process';
 import { Injectable } from '@nestjs/common';
-import * as pty from 'node-pty';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class TestingService {
-  async createWallet(identity: string, passphrase: string): Promise<string> {
+  constructor(private readonly prisma: PrismaService) {}
+
+  createWallet(identity: string, passphrase: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const ptyProcess = pty.spawn('dfx', ['identity', 'new', identity], {
-        name: 'xterm-color',
-        cwd: process.cwd(), // Ou o diretório que você precisa
-        env: process.env,
-      });
+      const dfx = spawn('dfx', ['identity', 'new', identity]);
+      let isPassphraseEntered = false;
 
-      let output = '';
-
-      ptyProcess.onData((data) => {
-        output += data;
-        console.log(data); // Para debug, você verá o que está acontecendo no terminal
-        if (data.includes('passphrase')) {
-          console.log('includes sim o pass');
-          ptyProcess.write(passphrase + '\r'); // '\r' é o retorno do carro, usado para simular a tecla "Enter"
+      dfx.stdout.on('data', (data) => {
+        const strData = data.toString();
+        console.log(strData); // Log para debug, remover ou tratar em produção.
+        // Verificar se o prompt de passphrase apareceu.
+        if (
+          strData.toLowerCase().includes('passphrase') &&
+          !isPassphraseEntered
+        ) {
+          console.log('possuiiisisis');
+          return;
+          // Enviar a passphrase uma vez.
+          dfx.stdin.write('ewee');
+          dfx.stdin.end(); // Fechar o stdin após enviar a passphrase.
+          isPassphraseEntered = true;
         }
-        // Aqui você pode verificar se há uma saída que indica sucesso e resolver a promessa
       });
 
-      ptyProcess.onExit(({ exitCode }) => {
-        if (exitCode === 0) {
-          resolve(output);
+      dfx.stderr.on('data', (data) => {
+        const strData = data.toString();
+        console.error(strData); // Log para debug, remover ou tratar em produção.
+      });
+
+      dfx.on('close', (code) => {
+        if (code === 0) {
+          resolve('Wallet criada com sucesso.');
         } else {
-          reject(new Error(`Erro ao criar wallet: ${output}`));
+          reject(new Error('Erro ao criar wallet.'));
         }
+      });
+
+      dfx.on('error', (error) => {
+        reject(new Error(`Erro ao criar wallet: ${error.message}`));
       });
     });
   }
