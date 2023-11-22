@@ -16,6 +16,8 @@ export class TestingService {
   private execPromise = promisify(exec);
 
   async createWallet(identity: string): Promise<string> {
+    console.log('will start');
+    console.log(`PATH: ${process.env.PATH}`);
     try {
       const { stdout, stderr } = await this.execPromise(
         `dfx identity ${identity}`,
