@@ -1,10 +1,13 @@
 # Primeira Etapa: Construção (Builder)
-FROM node:16 AS builder
+FROM ubuntu:latest AS builder
+
+# Instalar ferramentas necessárias, incluindo Node.js versão 16
+RUN apt-get update && \
+    apt-get install -y curl python make g++ && \
+    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
 WORKDIR /app
-
-# Instalar ferramentas de compilação para módulos nativos
-RUN apt-get update && apt-get install -y python make g++ && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 RUN npm install
@@ -14,9 +17,15 @@ COPY . .
 RUN npm run build
 
 # Segunda Etapa: Imagem Final
-FROM node:16
+FROM ubuntu:latest
 
 WORKDIR /app
+
+# Instalar Node.js versão 16 e outras dependências
+RUN apt-get update && \
+    apt-get install -y curl python make g++ && \
+    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs
 
 # Instalar o dfx
 RUN curl -fsSL https://internetcomputer.org/install.sh | sh
