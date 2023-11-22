@@ -10,36 +10,40 @@ export class TestingService {
     console.log('comecando');
     return new Promise((resolve, reject) => {
       const dfx = spawn('dfx', ['identity', 'new', identity]);
-
-      let stdout = '';
-      let stderr = '';
+      let resolved = false;
 
       dfx.stdout.on('data', (data) => {
-        stdout += data.toString();
-        // Quando o comando pede por uma passphrase, escreva-a no stdin do processo
-        if (stdout.includes('Please enter a passphrase')) {
+        const strData = data.toString();
+        console.log(strData); // Remova isso em produção para evitar expor dados sensíveis.
+        if (strData.includes('Please enter a passphrase')) {
           console.log('tem passphrase');
           dfx.stdin.write(passphrase + '\n');
-          // Se você quiser deixar em branco, apenas envie '\n'
-          // dfx.stdin.write('\n');
+        }
+        if (strData.includes('algum indicador de sucesso')) {
+          if (!resolved) {
+            resolved = true;
+            resolve(strData);
+          }
         }
       });
-      console.log('n tem passphrase');
 
       dfx.stderr.on('data', (data) => {
-        stderr += data.toString();
+        console.error(data.toString()); // Remova isso em produção para evitar expor dados sensíveis.
       });
 
       dfx.on('close', (code) => {
-        if (code === 0) {
-          resolve(stdout);
-        } else {
-          reject(new Error(`Erro ao criar wallet: ${stderr}`));
+        if (code === 0 && !resolved) {
+          resolved = true;
+          resolve('Wallet criada com sucesso.');
+        } else if (!resolved) {
+          reject(new Error('Erro ao criar wallet.'));
         }
       });
 
       dfx.on('error', (error) => {
-        reject(new Error(`Erro ao criar wallet: ${error.message}`));
+        if (!resolved) {
+          reject(new Error(`Erro ao criar wallet: ${error.message}`));
+        }
       });
     });
   }
