@@ -1,3 +1,4 @@
+# Primeira Etapa: Construção (Builder)
 FROM node:latest AS builder
 
 WORKDIR /app
@@ -7,13 +8,15 @@ COPY prisma ./prisma/
 
 RUN npm install
 
-RUN npm install -g dfx
-
 COPY . .
 
 RUN npm run build
 
+# Segunda Etapa: Imagem Final
 FROM node:latest
+
+# Instalar o dfx globalmente na imagem final
+RUN npm install -g dfx
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
