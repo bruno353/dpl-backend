@@ -20,6 +20,7 @@ export class TestingService {
           !isPassphraseEntered
         ) {
           console.log('possuiiisisis');
+          process.stdin.emit('keypress', null, { name: 'g' });
           return;
           // Enviar a passphrase uma vez.
           dfx.stdin.write('ewee');
