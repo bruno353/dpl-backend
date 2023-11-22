@@ -1,47 +1,24 @@
-import { spawn } from 'child_process';
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 @Injectable()
 export class TestingService {
-  constructor(private readonly prisma: PrismaService) {}
+  private execPromise = promisify(exec);
 
-  createWallet(identity: string, passphrase: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const dfx = spawn('dfx', ['identity', 'new', identity]);
-      let isPassphraseEntered = false;
+  async createWallet(identity: string, passphrase: string): Promise<string> {
+    try {
+      const scriptPath = './create_wallet.sh';
+      const { stdout, stderr } = await this.execPromise(
+        `${scriptPath} ${identity} ${passphrase}`,
+      );
 
-      dfx.stdout.on('data', (data) => {
-        const strData = data.toString();
-        console.log(strData); // Log para debug, remover ou tratar em produção.
-        // Verificar se o prompt de passphrase apareceu.
-        if (
-          strData.toLowerCase().includes('please enter a passphrase') &&
-          !isPassphraseEntered
-        ) {
-          // Enviar a passphrase uma vez.
-          dfx.stdin.write('ewee');
-          dfx.stdin.end(); // Fechar o stdin após enviar a passphrase.
-          isPassphraseEntered = true;
-        }
-      });
-
-      dfx.stderr.on('data', (data) => {
-        const strData = data.toString();
-        console.error(strData); // Log para debug, remover ou tratar em produção.
-      });
-
-      dfx.on('close', (code) => {
-        if (code === 0) {
-          resolve('Wallet criada com sucesso.');
-        } else {
-          reject(new Error('Erro ao criar wallet.'));
-        }
-      });
-
-      dfx.on('error', (error) => {
-        reject(new Error(`Erro ao criar wallet: ${error.message}`));
-      });
-    });
+      if (stderr) {
+        throw new Error(stderr);
+      }
+      return stdout;
+    } catch (error) {
+      throw new Error(`Erro ao criar wallet: ${error.message}`);
+    }
   }
 }
