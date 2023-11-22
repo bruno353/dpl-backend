@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { join } from 'path';
 
 @Injectable()
 export class TestingService {
@@ -8,7 +9,7 @@ export class TestingService {
 
   async createWallet(identity: string, passphrase: string): Promise<string> {
     try {
-      const scriptPath = './create_wallet.sh';
+      const scriptPath = join(__dirname, 'create_wallet.sh');
       const { stdout, stderr } = await this.execPromise(
         `${scriptPath} ${identity} ${passphrase}`,
       );
