@@ -20,7 +20,7 @@ export class TestingService {
     console.log(`PATH: ${process.env.PATH}`);
     try {
       const { stdout, stderr } = await this.execPromise(
-        `dfx identity ${identity}`,
+        `dfx identity new ${identity}`,
       );
       if (stderr) {
         throw new Error(stderr);
