@@ -7,43 +7,40 @@ export class TestingService {
   constructor(private readonly prisma: PrismaService) {}
 
   createWallet(identity: string, passphrase: string): Promise<string> {
-    console.log('comecando');
     return new Promise((resolve, reject) => {
       const dfx = spawn('dfx', ['identity', 'new', identity]);
-      let resolved = false;
+      let isPassphraseEntered = false;
 
       dfx.stdout.on('data', (data) => {
         const strData = data.toString();
-        console.log(strData); // Remova isso em produção para evitar expor dados sensíveis.
-        if (strData.includes('Please enter a passphrase')) {
-          console.log('tem passphrase');
+        console.log(strData); // Log para debug, remover ou tratar em produção.
+        // Verificar se o prompt de passphrase apareceu.
+        if (
+          strData.toLowerCase().includes('please enter a passphrase') &&
+          !isPassphraseEntered
+        ) {
+          // Enviar a passphrase uma vez.
           dfx.stdin.write(passphrase + '\n');
-        }
-        if (strData.includes('algum indicador de sucesso')) {
-          if (!resolved) {
-            resolved = true;
-            resolve(strData);
-          }
+          dfx.stdin.end(); // Fechar o stdin após enviar a passphrase.
+          isPassphraseEntered = true;
         }
       });
 
       dfx.stderr.on('data', (data) => {
-        console.error(data.toString()); // Remova isso em produção para evitar expor dados sensíveis.
+        const strData = data.toString();
+        console.error(strData); // Log para debug, remover ou tratar em produção.
       });
 
       dfx.on('close', (code) => {
-        if (code === 0 && !resolved) {
-          resolved = true;
+        if (code === 0) {
           resolve('Wallet criada com sucesso.');
-        } else if (!resolved) {
+        } else {
           reject(new Error('Erro ao criar wallet.'));
         }
       });
 
       dfx.on('error', (error) => {
-        if (!resolved) {
-          reject(new Error(`Erro ao criar wallet: ${error.message}`));
-        }
+        reject(new Error(`Erro ao criar wallet: ${error.message}`));
       });
     });
   }
