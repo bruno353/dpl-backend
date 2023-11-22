@@ -9,11 +9,10 @@ export class TestingService {
 
   async createWallet(identity: string, passphrase: string): Promise<string> {
     try {
-      const scriptPath = join(__dirname, 'create_wallet.sh');
+      const scriptPath = '/app/src/xnodes/create_wallet.sh'; // Caminho absoluto dentro do container
       const { stdout, stderr } = await this.execPromise(
-        `${scriptPath} ${identity} ${passphrase}`,
+        `sh ${scriptPath} ${identity} ${passphrase}`,
       );
-
       if (stderr) {
         throw new Error(stderr);
       }
