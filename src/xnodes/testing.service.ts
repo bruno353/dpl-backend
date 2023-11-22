@@ -16,7 +16,8 @@ export class TestingService {
       ptyProcess.onData((data) => {
         output += data;
         console.log(data); // Para debug, você verá o que está acontecendo no terminal
-        if (data.includes('Please enter a passphrase')) {
+        if (data.includes('passphrase')) {
+          console.log('includes sim o pass');
           ptyProcess.write(passphrase + '\r'); // '\r' é o retorno do carro, usado para simular a tecla "Enter"
         }
         // Aqui você pode verificar se há uma saída que indica sucesso e resolver a promessa
