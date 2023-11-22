@@ -1,9 +1,9 @@
 # Primeira Etapa: Construção (Builder)
 FROM ubuntu:latest AS builder
 
-# Instalar ferramentas necessárias, incluindo Node.js versão 16
+# Instalar ferramentas necessárias
 RUN apt-get update && \
-    apt-get install -y curl python make g++ && \
+    apt-get install -y curl make g++ && \
     curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs
 
@@ -21,9 +21,9 @@ FROM ubuntu:latest
 
 WORKDIR /app
 
-# Instalar Node.js versão 16 e outras dependências
+# Instalar Node.js
 RUN apt-get update && \
-    apt-get install -y curl python make g++ && \
+    apt-get install -y curl make g++ && \
     curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs
 
