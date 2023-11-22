@@ -21,6 +21,7 @@ export class TestingService {
     try {
       const { stdout, stderr } = await this.execPromise(
         `dfx identity new ${identity}`,
+        { maxBuffer: 1024 * 1024 * 10 }, // 10 MB
       );
       if (stderr) {
         throw new Error(stderr);
