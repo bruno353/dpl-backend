@@ -14,12 +14,28 @@ import {
   IsArray,
   MaxLength,
   IsEnum,
+  Min,
+  Max,
+  IsNumberString,
 } from 'class-validator';
 
 enum XnodeEnum {
   DRAFT = 'Draft',
   RUNNING = 'Running',
   OFF = 'Off',
+}
+
+enum LocationEnum {
+  tr = 'tr',
+  at = 'at',
+  ch = 'ch',
+  da = 'da',
+  la = 'la',
+  ny = 'ny',
+  se = 'se',
+  sv = 'sv',
+  sy = 'sy',
+  dc = 'dc',
 }
 
 export class CreateXnodeDto {
@@ -83,6 +99,51 @@ export class CreateXnodeDto {
     enum: ['Draft', 'Running', 'Off'],
   })
   status: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEnum(LocationEnum, {
+    each: true,
+    message:
+      "The server location must be ['tr', 'at', 'ch', 'da', 'la', 'ny', 'se', 'sv', 'sy', 'dc']",
+  })
+  @ApiProperty({
+    required: false,
+    description: 'The server location',
+    enum: ['tr', 'at', 'ch', 'da', 'la', 'ny', 'se', 'sv', 'sy', 'dc'],
+  })
+  serverLoc: string;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  @ApiProperty({
+    required: false,
+    description: 'The number of servers',
+  })
+  serverNumber: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    required: false,
+    description: 'The xnode websocketEnabled is enabled',
+    example: true,
+  })
+  websocketEnabled: boolean;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayMaxSize(50)
+  @IsString({ each: true })
+  @ApiProperty({
+    required: false,
+    description: 'The xnode features',
+    isArray: true,
+    example: ['binance'],
+  })
+  features: string[];
 
   @IsOptional()
   @IsString()

@@ -19,6 +19,12 @@ import axios from 'axios';
 import { UtilsService } from '../utils/utils.service';
 import { OpenmeshExpertsAuthService } from 'src/openmesh-experts/openmesh-experts-auth.service';
 import { CreateXnodeDto, GetXnodeDto, UpdateXnodeDto } from './dto/xnodes.dto';
+import { features } from 'process';
+import {
+  defaultSourcePayload,
+  defaultStreamProcessorPayload,
+  defaultWSPayload,
+} from './utils/constants';
 
 @Injectable()
 export class XnodesService {
@@ -47,10 +53,28 @@ export class XnodesService {
       });
     }
 
+    const { features, serverNumber, websocketEnabled, ...dataNode } = dataBody;
+
+    const finalFeatures = [];
+
+    if (features.length > 0) {
+      finalFeatures.push(defaultStreamProcessorPayload);
+      finalFeatures.push({
+        ...defaultSourcePayload,
+        workloads: features,
+      });
+    }
+
+    if (websocketEnabled) {
+      finalFeatures.push(defaultWSPayload);
+    }
+
     return await this.prisma.xnode.create({
       data: {
         openmeshExpertUserId: user.id,
-        ...dataBody,
+        features: JSON.stringify(features),
+        serverNumber: JSON.stringify(serverNumber),
+        ...dataNode,
       },
     });
   }
