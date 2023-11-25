@@ -79,6 +79,7 @@ export class XnodesService {
       finalFeatures.push(defaultWSPayload);
     }
 
+    console.log('entrou payload');
     const payload = {
       builds: [
         {
@@ -96,7 +97,10 @@ export class XnodesService {
       ],
       adoBuildTag: uuid,
     };
+    console.log('saiu payload');
+
     const payloadStr = JSON.stringify(payload);
+    console.log('saiu payloadStr');
 
     const signature = Hex.stringify(hmacSHA1(payloadStr, this.SECRET));
 
