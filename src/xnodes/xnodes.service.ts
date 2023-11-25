@@ -183,8 +183,9 @@ export class XnodesService {
     console.log('now getting the build data');
     console.log(buildId);
 
-    const PAT = 'lokpbyadd7uod6xbro64bjepvnzeb2qs5n7ifqpyx2sbnjz5gfuq';
-    const encodedCredentials = Buffer.from(`user:${PAT}`).toString('base64');
+    const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
+      'base64',
+    );
 
     async function fetchLogs() {
       try {
