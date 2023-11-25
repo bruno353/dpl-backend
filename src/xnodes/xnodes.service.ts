@@ -14,8 +14,7 @@ import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 import Decimal from 'decimal.js';
 Decimal.set({ precision: 60 });
 
-import Hex from 'crypto-js/enc-hex';
-import hmacSHA1 from 'crypto-js/hmac-sha1';
+import { Hex, hmacSHA1 } from 'crypto-js';
 
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
