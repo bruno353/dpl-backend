@@ -14,7 +14,9 @@ import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
 import Decimal from 'decimal.js';
 Decimal.set({ precision: 60 });
 
-import { Hex, hmacSHA1 } from 'crypto-js';
+import Hex from 'crypto-js/enc-hex';
+import hmacSHA1 from 'crypto-js/hmac-sha1';
+import { createHmac } from 'crypto';
 
 import { PrismaService } from '../database/prisma.service';
 import { Request, response } from 'express';
@@ -100,9 +102,10 @@ export class XnodesService {
 
     const payloadStr = JSON.stringify(payload);
     console.log('saiu payloadStr');
-
-    const signature = Hex.stringify(hmacSHA1(payloadStr, this.SECRET));
-
+    const signature = createHmac('sha1', this.SECRET)
+      .update(payloadStr)
+      .digest('hex');
+    console.log('saiu signature');
     try {
       const config = {
         method: 'post',
@@ -149,7 +152,7 @@ export class XnodesService {
       'base64',
     );
 
-    async function fetchBuildId() {
+    const fetchBuildId = async () => {
       console.log('searching build');
       let buildId;
       try {
@@ -165,14 +168,18 @@ export class XnodesService {
         if (response.data?.value.length > 0) {
           console.log('there is a build');
           console.log(buildId);
+          console.log(response.data.value[0].id);
           buildId = response.data.value[0].id;
+          console.log(buildId);
           await this.getBuildLogs(buildId);
           clearInterval(interval);
+        } else {
+          console.log('no build now');
         }
       } catch (error) {
         console.error('error getting build:', error);
       }
-    }
+    };
     fetchBuildId();
     interval = setInterval(fetchBuildId, 10000);
 
