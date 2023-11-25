@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import {
   ConflictException,
   Injectable,
@@ -40,6 +41,7 @@ export class XnodesService {
 
   SECRET = process.env.XNODE_SECRET;
   WEBHOOK_URL = process.env.XNODE_WEBHOOK_URL;
+  PAT = process.env.AZURE_PAT;
 
   async createXnode(dataBody: CreateXnodeDto, req: Request) {
     const accessToken = String(req.headers['x-parse-session-token']);
@@ -117,15 +119,106 @@ export class XnodesService {
       console.log(err);
     }
 
+    await this.getXnodeDeploymentLog(uuid);
+
+    console.log('went through it');
+
     return await this.prisma.xnode.create({
       data: {
         openmeshExpertUserId: user.id,
+        adoBuildTag: uuid,
         features: JSON.stringify(features),
         serverNumber: JSON.stringify(serverNumber),
         websocketEnabled,
         ...dataNode,
       },
     });
+  }
+
+  //since the azure pipeline does not have a websocket to connect to see when the deployment is ready, we need to call the api every 2 seconds to see if the deploy was successfull
+  async getXnodeDeploymentLog(tagId: any) {
+    let interval: NodeJS.Timeout;
+
+    console.log('started getting the build tag');
+    console.log(tagId);
+
+    const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
+      'base64',
+    );
+
+    async function fetchBuildId() {
+      console.log('searching build');
+      let buildId;
+      try {
+        const response = await axios.get(
+          `https://dev.azure.com/gdafund/L3/_apis/build/builds?tagFilters=${tagId}`,
+          {
+            headers: {
+              Authorization: `Basic ${encodedCredentials}`,
+            },
+          },
+        );
+
+        if (response.data?.value.length > 0) {
+          console.log('there is a build');
+          console.log(buildId);
+          buildId = response.data.value[0].id;
+          await this.getBuildLogs(buildId);
+          clearInterval(interval);
+        }
+      } catch (error) {
+        console.error('error getting build:', error);
+      }
+    }
+    fetchBuildId();
+    interval = setInterval(fetchBuildId, 10000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }
+
+  async getBuildLogs(buildId: string) {
+    let interval: NodeJS.Timeout;
+    console.log('now getting the build data');
+    console.log(buildId);
+
+    const PAT = 'lokpbyadd7uod6xbro64bjepvnzeb2qs5n7ifqpyx2sbnjz5gfuq';
+    const encodedCredentials = Buffer.from(`user:${PAT}`).toString('base64');
+
+    async function fetchLogs() {
+      try {
+        const response = await axios.get(
+          `https://dev.azure.com/gdafund/L3/_apis/build/builds/${buildId}/logs?api-version=7.1-preview.2`,
+          {
+            headers: {
+              Authorization: `Basic ${encodedCredentials}`,
+            },
+          },
+        );
+
+        if (response.data?.value) {
+          console.log('the response data');
+          console.log(response.data);
+          if (response.data.value.some((log: any) => log.id > 31)) {
+            console.log('YES LOG DONE');
+            clearInterval(interval);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar os logs:', error);
+      }
+    }
+
+    console.log('went trhough fetch logs');
+
+    fetchLogs();
+    interval = setInterval(fetchLogs, 20000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }
 
   async updateXnode(dataBody: UpdateXnodeDto, req: Request) {

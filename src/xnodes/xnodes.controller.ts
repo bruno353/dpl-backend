@@ -128,6 +128,20 @@ export class XnodesController {
   }
 
   @ApiOperation({
+    summary: 'Returns all user xnodes',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Get('teste')
+  teste(@Body() data: any, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.getBuildLogs(data.buildId);
+  }
+
+  @ApiOperation({
     summary: 'test',
   })
   @ApiHeader({
