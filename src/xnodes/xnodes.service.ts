@@ -86,7 +86,7 @@ export class XnodesService {
           auth_token: 'KanJurHojus75VVgupdaEJY4BkqimRjW',
           aws_role_arn: 'arn:aws:iam::849828677909:role/super',
           ccm_enabled: 'true',
-          client_name: dataNode.name,
+          client_name: dataNode.name.replace(/\s+/g, ''),
           count_x86: JSON.stringify(serverNumber),
           features: finalFeatures,
           kubernetes_version: '1.25.10-00',
