@@ -92,12 +92,13 @@ export class XnodesService {
           kubernetes_version: '1.25.10-00',
           metro: dataNode.serverLoc,
           product_version: 'v3',
-          single_xnode: 'false',
+          single_xnode: dataNode.type === 'validator' ? 'true' : 'false',
         },
       ],
       adoBuildTag: uuid,
     };
     console.log('saiu payload');
+    console.log(payload);
 
     const payloadStr = JSON.stringify(payload);
     console.log('saiu payloadStr');
