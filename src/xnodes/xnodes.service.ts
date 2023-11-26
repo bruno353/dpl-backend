@@ -80,7 +80,6 @@ export class XnodesService {
       finalFeatures.push(defaultWSPayload);
     }
 
-    console.log('entrou payload');
     const payload = {
       builds: [
         {
@@ -89,7 +88,7 @@ export class XnodesService {
           ccm_enabled: 'true',
           client_name: dataNode.name,
           count_x86: JSON.stringify(serverNumber),
-          features,
+          features: finalFeatures,
           kubernetes_version: '1.25.10-00',
           metro: dataNode.serverLoc,
           product_version: 'v3',
@@ -106,6 +105,8 @@ export class XnodesService {
       .update(payloadStr)
       .digest('hex');
     console.log('saiu signature');
+    console.log(signature);
+
     try {
       const config = {
         method: 'post',
