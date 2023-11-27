@@ -347,7 +347,7 @@ export class XnodesService {
       accessToken,
     );
 
-   // validating the equinix key:
-
+    // validating the equinix key:
+    return;
   }
 }
