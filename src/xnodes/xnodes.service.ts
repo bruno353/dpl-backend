@@ -348,6 +348,40 @@ export class XnodesService {
     );
 
     // validating the equinix key:
+    const config = {
+      method: 'get',
+      url: 'https://api.equinix.com/metal/v1/projects',
+      headers: {
+        Accept: 'application/json',
+        'X-Auth-Token': dataBody.apiKey,
+      },
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log(err.response.data.error);
+      console.log(err.response);
+      throw new BadRequestException(`${err.response.data.error}`, {
+        cause: new Error(),
+        description: `${err.response.data.error}`,
+      });
+    }
+
+    //if the api is valid, store in user account
+    await this.prisma.openmeshExpertUser.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        equinixAPIKey: dataBody.apiKey,
+      },
+    });
+
     return;
   }
 }
