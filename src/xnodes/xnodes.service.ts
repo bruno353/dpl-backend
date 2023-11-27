@@ -23,7 +23,12 @@ import { Request, response } from 'express';
 import axios from 'axios';
 import { UtilsService } from '../utils/utils.service';
 import { OpenmeshExpertsAuthService } from 'src/openmesh-experts/openmesh-experts-auth.service';
-import { CreateXnodeDto, GetXnodeDto, UpdateXnodeDto } from './dto/xnodes.dto';
+import {
+  CreateXnodeDto,
+  GetXnodeDto,
+  StoreXnodeData,
+  UpdateXnodeDto,
+} from './dto/xnodes.dto';
 import { features } from 'process';
 import {
   defaultSourcePayload,
@@ -327,5 +332,11 @@ export class XnodesService {
       },
       nodes: nodesListing,
     };
+  }
+
+  async storeXnodeData(data: StoreXnodeData) {
+    console.log('the log data');
+    console.log(data);
+    return;
   }
 }

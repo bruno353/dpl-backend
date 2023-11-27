@@ -26,16 +26,7 @@ enum XnodeEnum {
 }
 
 enum LocationEnum {
-  tr = 'tr',
-  at = 'at',
-  ch = 'ch',
-  da = 'da',
-  la = 'la',
   ny = 'ny',
-  se = 'se',
-  sv = 'sv',
-  sy = 'sy',
-  dc = 'dc',
 }
 
 export class CreateXnodeDto {
@@ -258,4 +249,46 @@ export class GetXnodeDto {
     maxLength: 1000,
   })
   id: string;
+}
+
+export class StoreXnodeData {
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'Url1',
+    example: 'https://query.ju98i2.tech.openmesh.network',
+    maxLength: 1000,
+  })
+  url1: string;
+
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'Url1',
+    example: 'https://query.ju98i2.tech.openmesh.network',
+    maxLength: 1000,
+  })
+  url2: string;
+
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'Url1',
+    example: 'https://query.ju98i2.tech.openmesh.network',
+    maxLength: 1000,
+  })
+  url3: string;
+
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
+    description: 'Url1',
+    example: 'https://query.ju98i2.tech.openmesh.network',
+    maxLength: 1000,
+  })
+  url4: string;
 }

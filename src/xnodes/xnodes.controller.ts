@@ -25,7 +25,12 @@ import {
 import { Request } from 'express';
 
 import { XnodesService } from './xnodes.service';
-import { CreateXnodeDto, GetXnodeDto, UpdateXnodeDto } from './dto/xnodes.dto';
+import {
+  CreateXnodeDto,
+  GetXnodeDto,
+  StoreXnodeData,
+  UpdateXnodeDto,
+} from './dto/xnodes.dto';
 import { TestingService } from './testing.service';
 
 @ApiTags('Xnodes - Managing xnodes')
@@ -51,6 +56,23 @@ export class XnodesController {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.xnodesService.createXnode(data, req);
+  }
+
+  @ApiOperation({
+    summary: 'Store xnode information',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('storeXnodeData')
+  storeXnodeData(@Body() data: StoreXnodeData, @Req() req: Request) {
+    if (
+      String(req.headers['x-deeeplink-team-signature']) !==
+      this.deeplinkSignature
+    )
+      throw new UnauthorizedException();
+    return this.xnodesService.storeXnodeData(data);
   }
 
   @ApiOperation({
