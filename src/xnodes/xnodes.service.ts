@@ -162,6 +162,8 @@ export class XnodesService {
               },
             },
           );
+          console.log('getting data build');
+          console.log(response.data);
 
           if (response.data?.value.length > 0) {
             const buildId = response.data.value[0].id;
