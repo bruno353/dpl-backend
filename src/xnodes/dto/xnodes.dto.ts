@@ -256,6 +256,16 @@ export class StoreXnodeData {
   @MaxLength(1000)
   @IsString()
   @ApiProperty({
+    description: 'The xnode build id',
+    example: '321',
+    maxLength: 1000,
+  })
+  buildId: string;
+
+  @IsNotEmpty()
+  @MaxLength(1000)
+  @IsString()
+  @ApiProperty({
     description: 'Url1',
     example: 'https://query.ju98i2.tech.openmesh.network',
     maxLength: 1000,
