@@ -429,6 +429,8 @@ model OpenmeshExpertUser {
   email    String @unique //unique
   password String
 
+  equinixAPIKey String?
+
   companyName String?
   firstName String?
   lastName String?

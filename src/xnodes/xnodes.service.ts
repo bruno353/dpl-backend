@@ -24,6 +24,7 @@ import axios from 'axios';
 import { UtilsService } from '../utils/utils.service';
 import { OpenmeshExpertsAuthService } from 'src/openmesh-experts/openmesh-experts-auth.service';
 import {
+  ConnectEquinixAPI,
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
@@ -338,5 +339,15 @@ export class XnodesService {
     console.log('the log data');
     console.log(data);
     return;
+  }
+
+  async connectEquinixAPI(dataBody: ConnectEquinixAPI, req: Request) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+    const user = await this.openmeshExpertsAuthService.verifySessionToken(
+      accessToken,
+    );
+
+   // validating the equinix key:
+
   }
 }

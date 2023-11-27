@@ -26,6 +26,7 @@ import { Request } from 'express';
 
 import { XnodesService } from './xnodes.service';
 import {
+  ConnectEquinixAPI,
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
@@ -62,8 +63,8 @@ export class XnodesController {
     summary: 'Store xnode information',
   })
   @ApiHeader({
-    name: 'X-Parse-Application-Id',
-    description: 'Token mandatory to connect with the app',
+    name: 'x-deeeplink-team-signature',
+    description: 'Private token to auth',
   })
   @Post('storeXnodeData')
   storeXnodeData(@Body() data: StoreXnodeData, @Req() req: Request) {
@@ -73,6 +74,20 @@ export class XnodesController {
     )
       throw new UnauthorizedException();
     return this.xnodesService.storeXnodeData(data);
+  }
+
+  @ApiOperation({
+    summary: 'Connects and store the user equinix api key',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('connectEquinixAPI')
+  connectEquinixAPI(@Body() data: ConnectEquinixAPI, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.connectEquinixAPI(data, req);
   }
 
   @ApiOperation({
