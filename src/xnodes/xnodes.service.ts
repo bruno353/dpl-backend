@@ -145,93 +145,82 @@ export class XnodesService {
 
   //since the azure pipeline does not have a websocket to connect to see when the deployment is ready, we need to call the api every 2 seconds to see if the deploy was successfull
   async getXnodeDeploymentLog(tagId: any) {
-    let interval: NodeJS.Timeout;
+    return new Promise<void>(async (resolve, reject) => {
+      const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
+        'base64',
+      );
 
-    console.log('started getting the build tag');
-    console.log(tagId);
+      let interval: NodeJS.Timeout; // Variável para armazenar o intervalo
 
-    const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
-      'base64',
-    );
-
-    const fetchBuildId = async () => {
-      console.log('searching build');
-      let buildId;
-      try {
-        const response = await axios.get(
-          `https://dev.azure.com/gdafund/L3/_apis/build/builds?tagFilters=${tagId}`,
-          {
-            headers: {
-              Authorization: `Basic ${encodedCredentials}`,
+      const fetchBuildId = async () => {
+        try {
+          const response = await axios.get(
+            `https://dev.azure.com/gdafund/L3/_apis/build/builds?tagFilters=${tagId}`,
+            {
+              headers: {
+                Authorization: `Basic ${encodedCredentials}`,
+              },
             },
-          },
-        );
+          );
 
-        if (response.data?.value.length > 0) {
-          console.log('there is a build');
-          console.log(buildId);
-          console.log(response.data.value[0].id);
-          buildId = response.data.value[0].id;
-          console.log(buildId);
-          await this.getBuildLogs(buildId);
-          clearInterval(interval);
-        } else {
-          console.log('no build now');
+          if (response.data?.value.length > 0) {
+            const buildId = response.data.value[0].id;
+            await this.getBuildLogs(buildId);
+            clearInterval(interval); // Limpa o intervalo quando a condição de sucesso for atendida
+            resolve(); // Resolve a promessa
+          }
+        } catch (error) {
+          console.error('error getting build:', error);
+          clearInterval(interval); // Limpa o intervalo em caso de erro
+          reject(error); // Rejeita a promessa
         }
-      } catch (error) {
-        console.error('error getting build:', error);
-      }
-    };
-    fetchBuildId();
-    interval = setInterval(fetchBuildId, 10000);
+      };
 
-    return () => {
-      clearInterval(interval);
-    };
+      await fetchBuildId();
+
+      interval = setInterval(fetchBuildId, 10000); // Configura o intervalo
+    });
   }
 
-  async getBuildLogs(buildId: string) {
-    let interval: NodeJS.Timeout;
-    console.log('now getting the build data');
-    console.log(buildId);
+  async getBuildLogs(buildId: string): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+      const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
+        'base64',
+      );
 
-    const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
-      'base64',
-    );
+      let interval: NodeJS.Timeout;
 
-    async function fetchLogs() {
-      try {
-        const response = await axios.get(
-          `https://dev.azure.com/gdafund/L3/_apis/build/builds/${buildId}/logs?api-version=7.1-preview.2`,
-          {
-            headers: {
-              Authorization: `Basic ${encodedCredentials}`,
+      const fetchLogs = async () => {
+        try {
+          const response = await axios.get(
+            `https://dev.azure.com/gdafund/L3/_apis/build/builds/${buildId}/logs?api-version=7.1-preview.2`,
+            {
+              headers: {
+                Authorization: `Basic ${encodedCredentials}`,
+              },
             },
-          },
-        );
+          );
 
-        if (response.data?.value) {
-          console.log('the response data');
-          console.log(response.data);
-          if (response.data.value.some((log: any) => log.id > 31)) {
-            console.log('YES LOG DONE');
-            clearInterval(interval);
-            return;
+          if (response.data?.value) {
+            console.log('the response data');
+            console.log(response.data);
+            if (response.data.value.some((log: any) => log.id > 31)) {
+              console.log('YES LOG DONE');
+              clearInterval(interval);
+              resolve(); // Resolve a promessa quando a condição é atendida
+            }
           }
+        } catch (error) {
+          console.error('Erro ao buscar os logs:', error);
+          clearInterval(interval);
+          reject(error); // Rejeita a promessa em caso de erro
         }
-      } catch (error) {
-        console.error('Erro ao buscar os logs:', error);
-      }
-    }
+      };
 
-    console.log('went trhough fetch logs');
+      await fetchLogs();
 
-    fetchLogs();
-    interval = setInterval(fetchLogs, 20000);
-
-    return () => {
-      clearInterval(interval);
-    };
+      interval = setInterval(fetchLogs, 20000);
+    });
   }
 
   async updateXnode(dataBody: UpdateXnodeDto, req: Request) {
