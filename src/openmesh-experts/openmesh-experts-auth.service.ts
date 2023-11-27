@@ -446,6 +446,7 @@ export class OpenmeshExpertsAuthService {
 
     const userFinalReturn = {
       email: user.email,
+      equinixAPIKey: user.equinixAPIKey,
       firstName: user.firstName,
       lastName: user.lastName,
       companyName: user.companyName,
