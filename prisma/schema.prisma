@@ -552,7 +552,13 @@ model Xnode {
   consoleNodes      String? //The nodes that exists in the console created by the user
   consoleEdges    String? //The edges (connections bettwen nodes) that exists in the console created by the user
 
+  url1   String? //Xnode url connection
+  url2   String? //Xnode url connection
+  url3   String? //Xnode url connection
+  url4   String? //Xnode url connection
+
   adoBuildTag String? //The xnode build tag
+  buildId String? //The xnode build id
   serverNumber String? //The number of servers
   serverLoc String? //The server location
   features     String? //The xnode feature

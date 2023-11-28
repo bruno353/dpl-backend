@@ -187,6 +187,16 @@ export class XnodesService {
 
           if (response.data?.value.length > 0) {
             const buildId = response.data.value[0].id;
+            console.log('found build');
+            console.log(buildId);
+            await this.prisma.xnode.update({
+              where: {
+                id: xnodeId,
+              },
+              data: {
+                buildId,
+              },
+            });
             this.getBuildLogs(buildId, xnodeId);
             clearInterval(interval); // Limpa o intervalo quando a condição de sucesso for atendida
             resolve(); // Resolve a promessa
@@ -359,6 +369,17 @@ export class XnodesService {
 
   async storeXnodeData(data: StoreXnodeData) {
     console.log('the log data');
+
+    const { buildId, ...finalData } = data;
+
+    await this.prisma.xnode.updateMany({
+      where: {
+        buildId,
+      },
+      data: {
+        ...finalData,
+      },
+    });
     console.log(data);
     return;
   }
