@@ -194,7 +194,7 @@ export class XnodesService {
                 id: xnodeId,
               },
               data: {
-                buildId,
+                buildId: JSON.stringify(buildId),
               },
             });
             this.getBuildLogs(buildId, xnodeId);
