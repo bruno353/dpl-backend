@@ -83,7 +83,8 @@ export class CreateXnodeDto {
   @IsString()
   @IsEnum(XnodeEnum, {
     each: true,
-    message: 'Status value must be one of the following: Draft, Deploying, Running, Off',
+    message:
+      'Status value must be one of the following: Draft, Deploying, Running, Off',
   })
   @ApiProperty({
     required: false,
