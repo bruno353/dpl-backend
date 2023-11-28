@@ -175,7 +175,7 @@ export class XnodesController {
   teste(@Body() data: any, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
-    return this.xnodesService.getXnodeDeploymentLog(data.tagId);
+    return this.xnodesService.getXnodeDeploymentLog(data.tagId, data.xnodeId);
   }
 
   @ApiOperation({

@@ -21,6 +21,7 @@ import {
 
 enum XnodeEnum {
   DRAFT = 'Draft',
+  DEPLOYING = 'Deploying',
   RUNNING = 'Running',
   OFF = 'Off',
 }
@@ -82,12 +83,12 @@ export class CreateXnodeDto {
   @IsString()
   @IsEnum(XnodeEnum, {
     each: true,
-    message: 'Status value must be one of the following: Draft, Running, Off',
+    message: 'Status value must be one of the following: Draft, Deploying, Running, Off',
   })
   @ApiProperty({
     required: false,
     description: 'The xnode status',
-    enum: ['Draft', 'Running', 'Off'],
+    enum: ['Draft', 'Deploying', 'Running', 'Off'],
   })
   status: string;
 
@@ -95,13 +96,12 @@ export class CreateXnodeDto {
   @IsString()
   @IsEnum(LocationEnum, {
     each: true,
-    message:
-      "The server location must be ['tr', 'at', 'ch', 'da', 'la', 'ny', 'se', 'sv', 'sy', 'dc']",
+    message: "The server location must be ['ny']",
   })
   @ApiProperty({
     required: false,
     description: 'The server location',
-    enum: ['tr', 'at', 'ch', 'da', 'la', 'ny', 'se', 'sv', 'sy', 'dc'],
+    enum: ['ny'],
   })
   serverLoc: string;
 
@@ -215,7 +215,7 @@ export class UpdateXnodeDto {
   @ApiProperty({
     required: false,
     description: 'The xnode status',
-    enum: ['Draft', 'Running', 'Off'],
+    enum: ['Draft', 'Running', 'Deploying', 'Off'],
   })
   status: string;
 

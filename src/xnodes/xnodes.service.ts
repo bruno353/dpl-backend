@@ -69,7 +69,18 @@ export class XnodesService {
       });
     }
 
-    const { features, serverNumber, websocketEnabled, ...dataNode } = dataBody;
+    if (!user.equinixAPIKey) {
+      throw new BadRequestException(
+        'User need to have a valid equinix api key',
+        {
+          cause: new Error(),
+          description: 'User need to have a valid equinix api key',
+        },
+      );
+    }
+
+    const { features, serverNumber, websocketEnabled, status, ...dataNode } =
+      dataBody;
 
     const uuid = generateUUID8();
     const finalFeatures = [];
@@ -89,7 +100,7 @@ export class XnodesService {
     const payload = {
       builds: [
         {
-          auth_token: 'KanJurHojus75VVgupdaEJY4BkqimRjW',
+          auth_token: user.equinixAPIKey,
           aws_role_arn: 'arn:aws:iam::849828677909:role/super',
           ccm_enabled: 'true',
           client_name: dataNode.name.replace(/\s+/g, ''),
@@ -133,24 +144,27 @@ export class XnodesService {
       console.log(err);
     }
 
-    await this.getXnodeDeploymentLog(uuid);
-
-    console.log('went through it');
-
-    return await this.prisma.xnode.create({
+    const xnode = await this.prisma.xnode.create({
       data: {
         openmeshExpertUserId: user.id,
         adoBuildTag: uuid,
         features: JSON.stringify(features),
         serverNumber: JSON.stringify(serverNumber),
         websocketEnabled,
+        status: 'Deploying',
         ...dataNode,
       },
     });
+
+    console.log('went through it');
+
+    await this.getXnodeDeploymentLog(uuid, xnode.id);
+
+    return xnode;
   }
 
   //since the azure pipeline does not have a websocket to connect to see when the deployment is ready, we need to call the api every 2 seconds to see if the deploy was successfull
-  async getXnodeDeploymentLog(tagId: any) {
+  async getXnodeDeploymentLog(tagId: any, xnodeId) {
     return new Promise<void>(async (resolve, reject) => {
       const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
         'base64',
@@ -173,7 +187,7 @@ export class XnodesService {
 
           if (response.data?.value.length > 0) {
             const buildId = response.data.value[0].id;
-            await this.getBuildLogs(buildId);
+            this.getBuildLogs(buildId, xnodeId);
             clearInterval(interval); // Limpa o intervalo quando a condição de sucesso for atendida
             resolve(); // Resolve a promessa
           }
@@ -190,7 +204,7 @@ export class XnodesService {
     });
   }
 
-  async getBuildLogs(buildId: string): Promise<void> {
+  async getBuildLogs(buildId: string, xnodeId: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
       const encodedCredentials = Buffer.from(`user:${this.PAT}`).toString(
         'base64',
@@ -214,6 +228,14 @@ export class XnodesService {
             console.log(response.data);
             if (response.data.value.some((log: any) => log.id > 31)) {
               console.log('YES LOG DONE');
+              await this.prisma.xnode.update({
+                where: {
+                  id: xnodeId,
+                },
+                data: {
+                  status: 'Running',
+                },
+              });
               clearInterval(interval);
               resolve(); // Resolve a promessa quando a condição é atendida
             }
