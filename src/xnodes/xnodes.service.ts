@@ -372,7 +372,21 @@ export class XnodesService {
 
     const { buildId, ...finalData } = data;
 
-    await this.prisma.xnode.updateMany({
+    const buildIdExists = await this.prisma.xnode.findFirst({
+      where: {
+        buildId,
+      },
+    });
+
+    if (!buildIdExists) {
+      throw new BadRequestException('BuildId not found', {
+        cause: new Error(),
+        description: 'BuildId not found',
+      });
+    }
+    console.log(data);
+
+    return await this.prisma.xnode.updateMany({
       where: {
         buildId,
       },
@@ -380,8 +394,6 @@ export class XnodesService {
         ...finalData,
       },
     });
-    console.log(data);
-    return;
   }
 
   async connectEquinixAPI(dataBody: ConnectEquinixAPI, req: Request) {
