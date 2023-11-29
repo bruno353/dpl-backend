@@ -118,6 +118,8 @@ export class XnodesService {
     };
     console.log('saiu payload');
     console.log(payload);
+    console.log('features');
+    console.log(finalFeatures);
 
     const payloadStr = JSON.stringify(payload);
     console.log('saiu payloadStr');
@@ -185,7 +187,6 @@ export class XnodesService {
             },
           );
           console.log('getting data build');
-          console.log(response.data);
 
           if (response.data?.value.length > 0) {
             const buildId = response.data.value[0].id;
@@ -237,7 +238,6 @@ export class XnodesService {
 
           if (response.data?.value) {
             console.log('the response data');
-            console.log(response.data);
             if (response.data.value.some((log: any) => log.id > 31)) {
               console.log('YES LOG DONE');
               await this.prisma.xnode.update({
