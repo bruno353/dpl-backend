@@ -405,7 +405,7 @@ export class XnodesService {
     // validating the equinix key:
     const config = {
       method: 'get',
-      url: 'https://api.equinix.com/metal/v1/projects',
+      url: 'https://api.equinix.com/metal/v1/user',
       headers: {
         Accept: 'application/json',
         'X-Auth-Token': dataBody.apiKey,

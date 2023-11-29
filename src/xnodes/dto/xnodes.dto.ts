@@ -273,7 +273,7 @@ export class StoreXnodeData {
   })
   buildId: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(1000)
   @IsString()
   @ApiProperty({
@@ -283,7 +283,7 @@ export class StoreXnodeData {
   })
   url1: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(1000)
   @IsString()
   @ApiProperty({
@@ -293,7 +293,7 @@ export class StoreXnodeData {
   })
   url2: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(1000)
   @IsString()
   @ApiProperty({
@@ -303,7 +303,7 @@ export class StoreXnodeData {
   })
   url3: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(1000)
   @IsString()
   @ApiProperty({
