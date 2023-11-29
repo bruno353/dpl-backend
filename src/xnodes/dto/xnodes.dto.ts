@@ -312,4 +312,14 @@ export class StoreXnodeData {
     maxLength: 1000,
   })
   url4: string;
+
+  @IsOptional()
+  @MaxLength(100000)
+  @IsString()
+  @ApiProperty({
+    description: 'Any additional value',
+    example: 'https://query.ju98i2.tech.openmesh.network',
+    maxLength: 100000,
+  })
+  additional: string;
 }

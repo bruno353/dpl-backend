@@ -372,6 +372,7 @@ export class XnodesService {
   async storeXnodeData(data: StoreXnodeData) {
     console.log('the log data');
 
+    console.log(data);
     const { buildId, ...finalData } = data;
 
     const buildIdExists = await this.prisma.xnode.findFirst({
