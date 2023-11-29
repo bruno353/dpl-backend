@@ -36,7 +36,7 @@ import {
   defaultStreamProcessorPayload,
   defaultWSPayload,
 } from './utils/constants';
-import { generateUUID8 } from './utils/uuidGenerator';
+import { generateUUID8, generateUUID16 } from './utils/uuidGenerator';
 
 @Injectable()
 export class XnodesService {
@@ -103,7 +103,9 @@ export class XnodesService {
           auth_token: user.equinixAPIKey,
           aws_role_arn: 'arn:aws:iam::849828677909:role/super',
           ccm_enabled: 'true',
-          client_name: dataNode.name.replace(/\s+/g, ''),
+          client_name: `${dataNode.name.replace(/\s+/g, '')}-${
+            user.id
+          }-${generateUUID16}`,
           count_x86: JSON.stringify(serverNumber),
           features: finalFeatures,
           kubernetes_version: '1.25.10-00',
