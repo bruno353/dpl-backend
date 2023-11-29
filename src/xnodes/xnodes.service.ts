@@ -105,7 +105,7 @@ export class XnodesService {
           ccm_enabled: 'true',
           client_name: `${dataNode.name.replace(/\s+/g, '')}-${
             user.id
-          }-${generateUUID16}`,
+          }-${generateUUID16()}`,
           count_x86: JSON.stringify(serverNumber),
           features: finalFeatures,
           kubernetes_version: '1.25.10-00',
