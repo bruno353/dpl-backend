@@ -389,11 +389,13 @@ export class XnodesService {
     }
     console.log(data);
 
+    //if you receive the data, it also means the node has been deployed succesfully
     return await this.prisma.xnode.updateMany({
       where: {
         buildId,
       },
       data: {
+        status: 'Running',
         ...finalData,
       },
     });
