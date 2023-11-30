@@ -262,6 +262,29 @@ export class ConnectEquinixAPI {
   apiKey: string;
 }
 
+export class StoreXnodeSigningMessageDataDTO {
+  @IsNotEmpty()
+  @MaxLength(10000)
+  @IsString()
+  @ApiProperty({
+    description: 'The xnode id',
+    example: '321',
+    maxLength: 10000,
+  })
+  xnodeId: string;
+
+  @IsNotEmpty()
+  @MaxLength(10000)
+  @IsString()
+  @ApiProperty({
+    description: 'The signed message',
+    example:
+      '0x9204i12df90jk209dijk12092i1903i90213i920390213i9012i3902i30921i903i213903i9012i39012i903ehjd209jh1209',
+    maxLength: 10000,
+  })
+  signedMessage: string;
+}
+
 export class StoreXnodeData {
   @IsNotEmpty()
   @MaxLength(1000)

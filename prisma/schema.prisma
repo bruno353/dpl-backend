@@ -552,6 +552,8 @@ model Xnode {
   consoleNodes      String? //The nodes that exists in the console created by the user
   consoleEdges    String? //The edges (connections bettwen nodes) that exists in the console created by the user
 
+  validatorSignature String? //If it is a validator, we request the user to sign a message with its wallet so we can now which wallet we are going to mint tokens of staking - the message signed here is: "I want to participate in the Validator beta"
+
   url1   String? //Xnode url connection
   url2   String? //Xnode url connection
   url3   String? //Xnode url connection

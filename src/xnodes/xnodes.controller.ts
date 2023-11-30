@@ -30,6 +30,7 @@ import {
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
+  StoreXnodeSigningMessageDataDTO,
   UpdateXnodeDto,
 } from './dto/xnodes.dto';
 import { TestingService } from './testing.service';
@@ -74,6 +75,25 @@ export class XnodesController {
     )
       throw new UnauthorizedException();
     return this.xnodesService.storeXnodeData(data);
+  }
+
+  @ApiOperation({
+    summary: 'Store xnode signing message',
+    description:
+      'If it is a validator, we request the user to sign a message with its wallet so we can now which wallet we are going to mint tokens of staking - the message signed here is: "I want to participate in the Validator beta"',
+  })
+  @ApiHeader({
+    name: 'x-deeeplink-team-signature',
+    description: 'Private token to auth',
+  })
+  @Post('storeXnodeSigningMessage')
+  storeXnodeSigningMessage(
+    @Body() data: StoreXnodeSigningMessageDataDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.storeXnodeSigningMessage(data, req);
   }
 
   @ApiOperation({
@@ -191,4 +211,16 @@ export class XnodesController {
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.testingService.createWallet(data.name, data.senha);
   }
+
+  // @ApiOperation({
+  //   summary: 'storeDb',
+  // })
+  // @ApiHeader({
+  //   name: 'X-Parse-Application-Id',
+  //   description: 'Token mandatory to connect with the app',
+  // })
+  // @Post('storeDb')
+  // storeDb() {
+  //   return this.xnodesService.deleteTable();
+  // }
 }

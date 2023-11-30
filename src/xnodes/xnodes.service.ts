@@ -5,6 +5,9 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import * as path from 'path';
+import * as Papa from 'papaparse';
+import * as fs from 'fs';
 
 // import { import_ } from '@brillout/import';
 import { ethers } from 'ethers';
@@ -28,6 +31,7 @@ import {
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
+  StoreXnodeSigningMessageDataDTO,
   UpdateXnodeDto,
 } from './dto/xnodes.dto';
 import { features } from 'process';
@@ -401,6 +405,38 @@ export class XnodesService {
     });
   }
 
+  async storeXnodeSigningMessage(
+    dataBody: StoreXnodeSigningMessageDataDTO,
+    req: Request,
+  ) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+    const user = await this.openmeshExpertsAuthService.verifySessionToken(
+      accessToken,
+    );
+
+    const xnodeExists = await this.prisma.xnode.findFirst({
+      where: {
+        id: dataBody.xnodeId,
+        openmeshExpertUserId: user.id,
+      },
+    });
+
+    if (!xnodeExists)
+      throw new BadRequestException(`Xnode not found`, {
+        cause: new Error(),
+        description: `Xnode not found`,
+      });
+
+    return await this.prisma.xnode.update({
+      where: {
+        id: dataBody.xnodeId,
+      },
+      data: {
+        validatorSignature: dataBody.signedMessage,
+      },
+    });
+  }
+
   async connectEquinixAPI(dataBody: ConnectEquinixAPI, req: Request) {
     const accessToken = String(req.headers['x-parse-session-token']);
     const user = await this.openmeshExpertsAuthService.verifySessionToken(
@@ -443,5 +479,20 @@ export class XnodesService {
     });
 
     return;
+  }
+
+  async storeDb() {
+    const data = await this.prisma.xnodeClaimActivities.findMany();
+    const csv = Papa.unparse(data);
+
+    const filePath = path.join(__dirname, 'xnodeClaimActivities.csv');
+    fs.writeFileSync(filePath, csv);
+
+    return { message: 'CSV file created', filePath };
+  }
+
+  async deleteTable() {
+    await this.prisma.$queryRaw`DROP TABLE readonlytest;`;
+    console.log('Tabela "readonlytest" excluída com sucesso.');
   }
 }
