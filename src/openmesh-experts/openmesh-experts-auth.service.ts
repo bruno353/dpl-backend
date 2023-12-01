@@ -199,6 +199,7 @@ export class OpenmeshExpertsAuthService {
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
     const userFinalReturn = {
+      id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -260,6 +261,7 @@ export class OpenmeshExpertsAuthService {
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
     const userFinalReturn = {
+      id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -445,6 +447,7 @@ export class OpenmeshExpertsAuthService {
     const user = await this.verifySessionToken(accessToken);
 
     const userFinalReturn = {
+      id: user.id,
       email: user.email,
       equinixAPIKey: user.equinixAPIKey,
       firstName: user.firstName,
