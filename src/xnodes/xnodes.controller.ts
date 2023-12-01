@@ -213,14 +213,14 @@ export class XnodesController {
   }
 
   // @ApiOperation({
-  //   summary: 'storeDb',
+  //   summary: 'deleteTable',
   // })
   // @ApiHeader({
   //   name: 'X-Parse-Application-Id',
   //   description: 'Token mandatory to connect with the app',
   // })
-  // @Post('storeDb')
-  // storeDb() {
+  // @Post('deleteTable')
+  // deleteTable() {
   //   return this.xnodesService.deleteTable();
   // }
 }

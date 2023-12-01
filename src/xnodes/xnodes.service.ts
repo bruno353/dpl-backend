@@ -491,8 +491,8 @@ export class XnodesService {
     return { message: 'CSV file created', filePath };
   }
 
-  async deleteTable() {
-    await this.prisma.$queryRaw`DROP TABLE readonlytest;`;
-    console.log('Tabela "readonlytest" excluída com sucesso.');
-  }
+  // async deleteTable() {
+  //   await this.prisma.$queryRaw`DROP EXTENSION timescaledb;`;
+  //   console.log('Tabela "chunk" excluída com sucesso.');
+  // }
 }
