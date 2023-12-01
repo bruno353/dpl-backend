@@ -124,7 +124,7 @@ export class XnodesService {
     console.log(payload);
     console.log('features');
     console.log(finalFeatures);
-    return;
+
     const payloadStr = JSON.stringify(payload);
     console.log('saiu payloadStr');
     const signature = createHmac('sha1', this.SECRET)
