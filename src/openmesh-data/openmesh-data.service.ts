@@ -69,4 +69,28 @@ export class OpenmeshDataService {
     });
     return dataset;
   }
+
+  async updateLinksDataProducts(dataBody: any) {
+    for (let i = 0; i < dataBody.length; i++) {
+      console.log('entrei');
+      console.log(dataBody[i].Entity);
+      await this.prisma.openmeshDataProviders.updateMany({
+        where: {
+          name: dataBody[i].Entity,
+        },
+        data: {
+          linkDevelopersDocs: dataBody[i].Developers,
+          linkProducts: dataBody[i].Products,
+          linkCareers: dataBody[i].Careers,
+          linkTwitter: dataBody[i].Twitter,
+          linkContact: dataBody[i].Contact,
+          linkAboutUs: dataBody[i]['About Us'],
+          linkMedium: dataBody[i].Medium,
+          linkLinkedin: dataBody[i].Linkedin,
+          linkGithub: dataBody[i].Github,
+        },
+      });
+      console.log('sai');
+    }
+  }
 }

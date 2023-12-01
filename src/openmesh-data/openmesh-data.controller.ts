@@ -89,4 +89,9 @@ export class OpenmeshDataController {
       throw new UnauthorizedException();
     return this.openmeshDataService.uploadDatasets(data);
   }
+
+  // @Post('updateLinksDataProducts')
+  // updateLinksDataProducts(@Body() data: any) {
+  //   return this.openmeshDataService.updateLinksDataProducts(data);
+  // }
 }

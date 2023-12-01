@@ -501,6 +501,16 @@ model OpenmeshDataProviders {
   location String?
   foundingYear String?
   relevantDocs String?
+ 
+  linkDevelopersDocs String?
+  linkProducts   String?
+  linkCareers    String?
+  linkTwitter    String?
+  linkContact    String?
+  linkAboutUs    String?
+  linkMedium     String?
+  linkLinkedin   String?
+  linkGithub     String?
 
   type String @default("data") // - the product type, ex: data, analytics, apis etc.
 
