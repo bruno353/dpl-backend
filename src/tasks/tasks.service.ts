@@ -1675,6 +1675,7 @@ export class TasksService {
     const balanceInEther = ethers.utils.formatEther(balanceWei);
 
     console.log(balanceInEther);
+    return balanceInEther;
   }
 
   //GET ethereum sends to contract
