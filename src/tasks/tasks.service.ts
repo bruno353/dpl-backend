@@ -9,6 +9,7 @@ import {
 import { ethers } from 'ethers';
 import * as taskContractABI from '../contracts/taskContractABI.json';
 import * as erc20ContractABI from '../contracts/erc20ContractABI.json';
+import * as fundraiserContractABI from '../contracts/fundraiserContractABI.json';
 
 import Decimal from 'decimal.js';
 Decimal.set({ precision: 60 });
@@ -57,6 +58,10 @@ export class TasksService {
   wEthTokenAddress = process.env.WETH_TOKEN_ADDRESS;
   priceFeedETHUSDAddress =
     process.env.CHAINLINK_PRICE_FEED_ETHUSD_CONTRACT_ADDRESS;
+  fundraisingContractAddress = process.env.FUNDRAISING_CONTRACT_ADDRESS;
+  web3UrlProviderFundraising = process.env.WEB3_URL_PROVIDER_FUNDRAISING;
+  // eslint-disable-next-line prettier/prettier
+  web3ProviderFundraising = new ethers.providers.JsonRpcProvider(this.web3UrlProviderFundraising);
 
   statusOptions = ['open', 'active', 'completed', 'draft'];
 
@@ -1657,5 +1662,34 @@ export class TasksService {
     });
 
     return application;
+  }
+
+  //FUNDRAISING FUNCTIONS:
+
+  //GET HOW MANY ETHERS WERE TRANSFERED TO THE CONTRACT:
+  async getFundraisingInfo() {
+    //here it is utilizyng the network polygon, but probably it will be ethereum
+    const balanceWei = await this.web3ProviderFundraising.getBalance(
+      this.fundraisingContractAddress,
+    );
+    const balanceInEther = ethers.utils.formatEther(balanceWei);
+
+    console.log(balanceInEther);
+  }
+
+  //GET ethereum sends to contract
+  async getFundraisingTransactions() {
+    const etherscanProvider = new ethers.providers.EtherscanProvider('sepolia');
+
+    const finalTransactions = await etherscanProvider.getHistory(
+      this.fundraisingContractAddress,
+    );
+
+    for (let i = 0; i < finalTransactions.length; i++) {
+      finalTransactions[i]['valueFormatted'] = ethers.utils.formatEther(
+        finalTransactions[i].value,
+      );
+    }
+    return finalTransactions;
   }
 }
