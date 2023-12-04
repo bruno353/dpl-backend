@@ -88,7 +88,7 @@ export class UsersService {
         orderBy = {
           estimatedBudget:
             data.estimatedBudgetSorting === 'greater' ? 'desc' : 'asc',
-          ...orderBy, // Caso deadlineSorting também esteja definido, será de menor prioridade
+          ...orderBy, // Caso deadlineSorting também esteja definido, será de menor prioridade - agora
         };
       }
 
