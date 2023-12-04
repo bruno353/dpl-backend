@@ -63,10 +63,10 @@ export class CreateOpenmeshExpertUserDTO {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(8)
+  // @MinLength(8)
   @MaxLength(500)
   @ApiProperty({
-    minLength: 8,
+    // minLength: 8,
     maxLength: 500,
     description: 'User-password-',
     example: '12345',
@@ -167,7 +167,7 @@ export class CreateOpenmeshExpertUserDTO {
   })
   foundingYear: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(500)
   @ApiProperty({
@@ -435,10 +435,10 @@ export class RecoverPasswordIsValidDTO {
 export class ChangePasswordOpenmeshExpertUserDTO {
   @IsNotEmpty()
   @IsString()
-  @MinLength(8)
+  // @MinLength(8)
   @MaxLength(500)
   @ApiProperty({
-    minLength: 8,
+    // minLength: 8,
     maxLength: 500,
     description: 'User new password',
     example: '12345',
@@ -447,10 +447,10 @@ export class ChangePasswordOpenmeshExpertUserDTO {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(8)
+  // @MinLength(8)
   @MaxLength(500)
   @ApiProperty({
-    minLength: 8,
+    // minLength: 8,
     maxLength: 500,
     description: 'User old password',
     example: '12345',
