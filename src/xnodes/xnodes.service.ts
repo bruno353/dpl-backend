@@ -130,7 +130,7 @@ export class XnodesService {
     const signature = createHmac('sha1', this.SECRET)
       .update(payloadStr)
       .digest('hex');
-    console.log('saiu signature');
+    console.log('saiu signature new');
     console.log(signature);
 
     try {
