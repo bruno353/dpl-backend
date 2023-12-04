@@ -78,7 +78,7 @@ export class OpenmeshExpertsAuthService {
       ) {
         await this.prisma.openmeshExpertUser.delete({
           where: {
-            email: data.email,
+            id: results.id,
           },
         });
       }
