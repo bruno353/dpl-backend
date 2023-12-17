@@ -462,7 +462,7 @@ export class XnodesService {
     } catch (err) {
       console.log(err.response.data.error);
       console.log(err.response);
-      throw new BadRequestException(`Error validating the key`, {
+      throw new BadRequestException(`Error validating api key`, {
         cause: new Error(),
         description: `${err}`,
       });

@@ -24,7 +24,7 @@ import {
 
 import { Request } from 'express';
 
-import { XnodesService } from './XnodesService';
+import { XnodesService } from './xnodes.service';
 import {
   ConnectEquinixAPI,
   CreateXnodeDto,
