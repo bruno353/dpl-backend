@@ -28,4 +28,10 @@ export class JobsCron {
       );
     }
   }
+
+  @Cron('*/7 * * * *') //runs every 7 minutes
+  async handleUpdateTasks() {
+    console.log('calling the update handleUpdateTaskse');
+    await this.tasksService.updateTasksData();
+  }
 }
