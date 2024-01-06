@@ -443,6 +443,7 @@ model OpenmeshExpertUser {
   description String?
   scheduleCalendlyLink String?
   profilePictureHash String?
+  walletAddress String? //when registering to become a verified contributor, user can input its wallet.
   isCompany Boolean @default(false) //if its not, it means its a individual.
 
   scheduleCall Boolean @default(false)
