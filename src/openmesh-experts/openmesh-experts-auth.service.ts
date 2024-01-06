@@ -225,7 +225,7 @@ export class OpenmeshExpertsAuthService {
       sessionToken: jwt,
     };
 
-    await this.openmeshExpertsEmailManagerService.emailConfirmationAccount(
+    await this.openmeshExpertsEmailManagerService.emailConfirmationAccountVC(
       response.email,
       id2,
     );
