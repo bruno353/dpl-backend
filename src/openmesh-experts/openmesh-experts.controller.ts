@@ -66,6 +66,24 @@ export class OpenmeshExpertsController {
   }
 
   @ApiOperation({
+    summary:
+      'Create an openmesh user if he wants to become a verified contributor',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('createUserByVerifiedContributor')
+  createUserByVerifiedContributor(
+    @Body() data: CreateOpenmeshExpertUserDTO,
+    @Req() req: Request,
+  ) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.openmeshExpertsAuthService.createUser(data);
+  }
+
+  @ApiOperation({
     summary: 'Login an openmesh user',
   })
   @ApiHeader({

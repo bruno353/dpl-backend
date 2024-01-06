@@ -449,6 +449,8 @@ model OpenmeshExpertUser {
 
   userEnabled     Boolean @default(true)
 
+  registrationByVerifiedContributor   Boolean @default(false) //if the user registred to become a verified contributor
+
   confirmedEmail       Boolean?  @default(false)
   hashConfirmEmail    String?
   registrationByOpenRD Boolean @default(false) // if the user registered through the openrd plataform. 
