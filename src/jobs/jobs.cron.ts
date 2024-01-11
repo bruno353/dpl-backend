@@ -29,7 +29,7 @@ export class JobsCron {
     }
   }
 
-  @Cron('*/20 * * * *') //runs every 20 minutes
+  @Cron('0/20 * * * *') //runs every 20 minutes
   async handleUpdateTasks() {
     console.log('calling the update handleUpdateTaskse');
     await this.tasksService.updateTasksData();

@@ -180,7 +180,53 @@ export class TasksService {
       });
       await this.applicationsFromTask(task['id']);
     }
+
+    await this.updateOffChainBudgetTasks();
     return tasksWithMetadata;
+  }
+
+  //This is a temporary function, since some tasks are not funded yet but we wnat to show how much the user will earn if he gets it, we will manually update this tasks
+  async updateOffChainBudgetTasks() {
+    const taskIdToBudget = {
+      '1': '55.000',
+      '2': '30.000',
+      '3': '30.000',
+      '4': '20.000',
+      '5': '25.000',
+      '6': '30.000',
+      '7': '45.000',
+      '8': '95.000',
+      '9': '50.000',
+      '10': '65.000',
+      '11': '50.000',
+      '12': '35.000',
+      '13': '90.000',
+      '14': '85.000',
+      '15': '70.000',
+      '16': '60.000',
+      '17': '40.000',
+      '18': '30.000',
+      '19': '30.000',
+      '20': '6.000',
+      '21': '6.000',
+      '22': '20.000',
+      '23': '30.000',
+      '24': '500',
+      '25': '1.500',
+      '26': '45.000',
+      '27': '15.000',
+      '28': '100.000',
+    };
+    for (const [taskId, budget] of Object.entries(taskIdToBudget)) {
+      await this.prisma.task.update({
+        where: {
+          taskId,
+        },
+        data: {
+          estimatedBudget: budget,
+        },
+      });
+    }
   }
 
   async uploadIPFSMetadataTaskCreation(
