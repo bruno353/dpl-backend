@@ -14,8 +14,6 @@ import Decimal from 'decimal.js';
 Decimal.set({ precision: 60 });
 
 import { PrismaService } from '../database/prisma.service';
-import { Request, response } from 'express';
-import axios from 'axios';
 import {
   GetSubmissionDto,
   GetTaskDto,
