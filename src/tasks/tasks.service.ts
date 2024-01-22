@@ -1355,7 +1355,7 @@ export class TasksService {
           applicant: event['args'][5],
           metadataDescription: metadataData?.description || '',
           metadataProposedBudget:
-            String(metadataData['budgetPercentageRequested']) || '',
+            String(metadataData?.budgetPercentageRequested) || '',
           metadataAdditionalLink: metadataData?.additionalLink || '',
           metadataDisplayName: metadataData?.displayName || '',
           timestamp: event['timestamp'],
