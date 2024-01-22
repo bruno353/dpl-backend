@@ -1694,15 +1694,15 @@ export class TasksService {
         },
       );
     }
-
+    console.log('trying now application 1290');
     const application = await this.prisma.applicationOffChain.create({
       data: {
         openmeshExpertUserId: user.id,
-        taskId: data.taskId,
-        metadataDisplayName: data.displayName,
-        metadataDescription: data.description,
-        metadataAdditionalLink: JSON.stringify(data.links),
-        metadataProposedBudget: JSON.stringify(data.budgetPercentageRequested),
+        taskId: data?.taskId,
+        metadataDisplayName: data?.displayName,
+        metadataDescription: data?.description,
+        metadataAdditionalLink: JSON.stringify(data?.links),
+        metadataProposedBudget: JSON.stringify(data?.budgetPercentageRequested),
         timestamp: String(Date.now() / 1000),
       },
     });
