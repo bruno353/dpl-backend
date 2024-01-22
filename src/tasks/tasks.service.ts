@@ -1335,7 +1335,7 @@ export class TasksService {
           );
         }
 
-        console.log('getting metadata if its exists');
+        console.log('getting metadata if its exists 11');
         let metadataData;
         try {
           if (String(event['args'][2]).length > 0) {

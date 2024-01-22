@@ -350,7 +350,7 @@ export class UpdatesService {
         );
       }
 
-      console.log('getting metadata if its exists');
+      console.log('getting metadata if its exists 22');
       let metadataData;
       try {
         if (String(event['args'][2]).length > 0) {
@@ -385,7 +385,7 @@ export class UpdatesService {
       } catch (err) {
         console.log('error getting estimated budget3');
       }
-
+      console.log('application creating - upserting');
       await this.prisma.application.upsert({
         where: {
           taskId_applicationId: {
@@ -398,9 +398,9 @@ export class UpdatesService {
           reward: event['reward'] || [],
           proposer: event['args'][4],
           applicant: event['args'][5],
-          metadataDescription: metadataData ? metadataData['description'] : '',
+          metadataDescription: metadataData ? metadataData?.description : '',
           metadataProposedBudget: finalPercentageBudget,
-          metadataDisplayName: metadataData ? metadataData['displayName'] : '',
+          metadataDisplayName: metadataData ? metadataData?.displayName : '',
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),
@@ -412,9 +412,9 @@ export class UpdatesService {
           reward: event['reward'] || [],
           proposer: event['args'][4],
           applicant: event['args'][5],
-          metadataDescription: metadataData ? metadataData['description'] : '',
+          metadataDescription: metadataData ? metadataData?.description : '',
           metadataProposedBudget: finalPercentageBudget,
-          metadataDisplayName: metadataData ? metadataData['displayName'] : '',
+          metadataDisplayName: metadataData ? metadataData?.displayName : '',
           timestamp: event['timestamp'],
           transactionHash: event['transactionHash'],
           blockNumber: String(event['blockNumber']),
@@ -639,7 +639,7 @@ export class UpdatesService {
         event['timestamp'] = String(timestamp);
       }
 
-      console.log('getting metadata if its exists');
+      console.log('getting metadata if its exists 33');
       let metadataData;
       try {
         if (String(event['args'][2]).length > 0) {
@@ -748,7 +748,7 @@ export class UpdatesService {
         event['timestamp'] = String(timestamp);
       }
 
-      console.log('getting metadata if its exists');
+      console.log('getting metadata if its exists 44');
       let metadataData;
       try {
         if (String(event['args'][3]).length > 0) {
