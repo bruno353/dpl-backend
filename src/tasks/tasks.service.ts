@@ -187,6 +187,9 @@ export class TasksService {
 
   //This is a temporary function, since some tasks are not funded yet but we wnat to show how much the user will earn if he gets it, we will manually update this tasks
   async updateOffChainBudgetTasks() {
+    if (process.env.CHAIN_ENV === 'ETHEREUM') {
+      return;
+    }
     const taskIdToBudget = {
       '1': '55000',
       '2': '30000',
