@@ -56,6 +56,28 @@ export class UpdatesService {
 
   statusOptions = ['open', 'active', 'completed', 'draft'];
 
+  async updateAllSingleTaskData() {
+    console.log('getting all tasks updateds task');
+    const walletEther = new ethers.Wallet(this.viewPrivateKey);
+    const connectedWallet = walletEther.connect(this.web3Provider);
+    const newcontract = new ethers.Contract(
+      this.taskContractAddress,
+      taskContractABI,
+      this.web3Provider,
+    );
+
+    const contractSigner = await newcontract.connect(connectedWallet);
+
+    let taskCount = 0;
+    await contractSigner.taskCount().then(function (response) {
+      taskCount = response;
+    });
+
+    for (let i = 0; i < Number(taskCount); i++) {
+      await this.updateSingleTaskData(i);
+    }
+  }
+
   //updates a single task
   async updateSingleTaskData(id: number) {
     console.log('getting a updated task');
