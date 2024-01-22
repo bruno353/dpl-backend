@@ -664,10 +664,10 @@ export class UpdatesService {
           metadata: String(event['args'][2]),
           proposer: String(event['args'][3]),
           applicant: String(event['args'][4]),
-          metadataDescription: metadataData ? metadataData['description'] : '',
+          metadataDescription: metadataData ? metadataData?.description : '',
           // eslint-disable-next-line prettier/prettier
             metadataAdditionalLinks: metadataData
-              ? metadataData['links']
+              ? metadataData?.links
               : [],
           timestamp: event['timestamp'],
           transactionHash: event.transactionHash,
@@ -678,10 +678,10 @@ export class UpdatesService {
           metadata: String(event['args'][2]),
           proposer: String(event['args'][3]),
           applicant: String(event['args'][4]),
-          metadataDescription: metadataData ? metadataData['description'] : '',
+          metadataDescription: metadataData ? metadataData?.description : '',
           // eslint-disable-next-line prettier/prettier
               metadataAdditionalLinks: metadataData
-                ? metadataData['links']
+                ? metadataData?.links
                 : [],
           timestamp: event['timestamp'],
           transactionHash: event.transactionHash,
