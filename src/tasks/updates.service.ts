@@ -427,6 +427,7 @@ export class UpdatesService {
 
   //Query the events log to get all the applications that were accepted from a task and store it on database
   async updateApplicationsAcceptedFromTask(taskId: number) {
+    console.log('UPDATE APPLICATIONS ACCEPTED');
     const newcontract = new ethers.Contract(
       this.taskContractAddress,
       taskContractABI,
@@ -462,7 +463,8 @@ export class UpdatesService {
         transactionHash: log.transactionHash,
       };
     });
-
+    console.log('FITLERED EVENTS');
+    console.log(filteredEvents);
     // Define a cache for timestamps
     const timestampCache = {};
 
