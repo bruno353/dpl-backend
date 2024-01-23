@@ -236,8 +236,8 @@ export class UpdatesService {
       console.log('and the application payment');
       console.log(application[3]);
       console.log('another one');
-      console.log(application[3][0]);
-      console.log(Number(application[3][0][2]['hex']));
+      console.log(application?.at(3)?.at(0));
+      // console.log(Number(application[3][0][2]['hex']));
 
       console.log('and now the task payments');
       console.log(task.payments);
@@ -246,7 +246,9 @@ export class UpdatesService {
       if (!applicationExists) {
         console.log('getting the estimated budget of payments');
         for (let i = 0; i < task.payments.length; i++) {
-          task.payments[i].amount = String(Number(application[3][i][2]['hex']));
+          task.payments[i].amount = String(
+            Number(application?.at(3)?.at(i)?.at(2)?.at('hex')),
+          );
         }
         console.log('budget for budgetApplication');
         console.log(task.payments);
