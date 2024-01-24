@@ -494,7 +494,7 @@ export class XnodesService {
       id: 1,
     };
 
-    // validating the equinix key:
+    // validating the key:
     const config = {
       method: 'post',
       url: `https://mainnet.ethereum.validationcloud.io/v1/${dataBody.apiKey}`,
@@ -532,7 +532,7 @@ export class XnodesService {
         id: user.id,
       },
       data: {
-        validationCloudApiKeyEthereum: dataBody.apiKey,
+        validationCloudAPIKeyEthereum: dataBody.apiKey,
       },
     });
 
@@ -545,14 +545,21 @@ export class XnodesService {
       accessToken,
     );
 
-    // validating the equinix key:
+    const dataBodyAPI = {
+      jsonrpc: '2.0',
+      method: 'eth_accounts',
+      params: [],
+      id: 1,
+    };
+
+    // validating the key:
     const config = {
-      method: 'get',
-      url: 'https://api.equinix.com/metal/v1/user',
+      method: 'post',
+      url: `https://mainnet.polygon.validationcloud.io/v1/${dataBody.apiKey}`,
       headers: {
         Accept: 'application/json',
-        'X-Auth-Token': dataBody.apiKey,
       },
+      data: dataBodyAPI,
     };
 
     let dado;
@@ -570,13 +577,20 @@ export class XnodesService {
       });
     }
 
+    if (dado?.error) {
+      throw new BadRequestException(`Error validating api key`, {
+        cause: new Error(),
+        description: `${dado?.error}`,
+      });
+    }
+
     //if the api is valid, store in user account
     await this.prisma.openmeshExpertUser.update({
       where: {
         id: user.id,
       },
       data: {
-        validationCloudApiKeyPolygon: dataBody.apiKey,
+        validationCloudAPIKeyPolygon: dataBody.apiKey,
       },
     });
 
