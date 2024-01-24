@@ -432,6 +432,7 @@ model OpenmeshExpertUser {
   password String
 
   equinixAPIKey String?
+  validationCloudAPIKey String?
 
   companyName String?
   firstName String?

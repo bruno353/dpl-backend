@@ -252,7 +252,7 @@ export class GetXnodeDto {
   id: string;
 }
 
-export class ConnectEquinixAPI {
+export class ConnectAPI {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({

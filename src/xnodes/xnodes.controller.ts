@@ -26,7 +26,7 @@ import { Request } from 'express';
 
 import { XnodesService } from './xnodes.service';
 import {
-  ConnectEquinixAPI,
+  ConnectAPI,
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
@@ -104,7 +104,7 @@ export class XnodesController {
     description: 'Token mandatory to connect with the app',
   })
   @Post('connectEquinixAPI')
-  connectEquinixAPI(@Body() data: ConnectEquinixAPI, @Req() req: Request) {
+  connectEquinixAPI(@Body() data: ConnectAPI, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.xnodesService.connectEquinixAPI(data, req);
