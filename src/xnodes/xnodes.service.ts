@@ -481,7 +481,65 @@ export class XnodesService {
     return;
   }
 
-  async connectValidationCloudAPI(dataBody: ConnectAPI, req: Request) {
+  async connectValidationCloudAPIEthereum(dataBody: ConnectAPI, req: Request) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+    const user = await this.openmeshExpertsAuthService.verifySessionToken(
+      accessToken,
+    );
+
+    const dataBodyAPI = {
+      jsonrpc: '2.0',
+      method: 'eth_accounts',
+      params: [],
+      id: 1,
+    };
+
+    // validating the equinix key:
+    const config = {
+      method: 'post',
+      url: `https://mainnet.ethereum.validationcloud.io/v1/${dataBody.apiKey}`,
+      headers: {
+        Accept: 'application/json',
+      },
+      data: dataBodyAPI,
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log(err.response.data.error);
+      console.log(err.response);
+      throw new BadRequestException(`Error validating api key`, {
+        cause: new Error(),
+        description: `${err.response.data.error}`,
+      });
+    }
+
+    if (dado?.error) {
+      throw new BadRequestException(`Error validating api key`, {
+        cause: new Error(),
+        description: `${dado?.error}`,
+      });
+    }
+
+    //if the api is valid, store in user account
+    await this.prisma.openmeshExpertUser.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        validationCloudApiKeyEthereum: dataBody.apiKey,
+      },
+    });
+
+    return;
+  }
+
+  async connectValidationCloudAPIPolygon(dataBody: ConnectAPI, req: Request) {
     const accessToken = String(req.headers['x-parse-session-token']);
     const user = await this.openmeshExpertsAuthService.verifySessionToken(
       accessToken,
@@ -518,7 +576,7 @@ export class XnodesService {
         id: user.id,
       },
       data: {
-        validationCloudApiKey: dataBody.apiKey,
+        validationCloudApiKeyPolygon: dataBody.apiKey,
       },
     });
 
