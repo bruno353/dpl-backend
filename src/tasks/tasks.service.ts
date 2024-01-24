@@ -587,6 +587,7 @@ export class TasksService {
         deadline: true,
         departament: true,
         skills: true,
+        taskTaken: true,
         estimatedBudget: true,
         projectLength: true,
         contributorsNeeded: true,

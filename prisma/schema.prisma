@@ -20,6 +20,8 @@ model Task {
 
   status String? //The task status -> 0, 1, 2 - ['open', 'active', 'completed']
 
+  taskTaken Boolean @default(false) //If the task was taken
+
   type String? @default("Individual") //the type of the task -> individual or group
 
   skills String[] @default([]) //the skills of this task. ex: Frontend, Backend, Solidity

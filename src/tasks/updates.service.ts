@@ -601,6 +601,7 @@ export class UpdatesService {
         },
         data: {
           status: String(1),
+          taskTaken: true,
         },
       });
       await this.utilsService.updatesJobSuccess(event['args'][3]);
