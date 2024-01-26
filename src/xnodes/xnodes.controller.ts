@@ -127,6 +127,7 @@ export class XnodesController {
     return this.xnodesService.connectValidationCloudAPIPolygon(data, req);
   }
 
+  // testing ci cd railway
   @ApiOperation({
     summary: 'Connects and store the user valcloud api key - eth',
   })
