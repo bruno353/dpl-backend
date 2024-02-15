@@ -252,11 +252,11 @@ export class GetXnodeDto {
   id: string;
 }
 
-export class ConnectEquinixAPI {
+export class ConnectAPI {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
-    description: 'The equinix api key',
+    description: 'The api key',
     example: '2012-12--32-134--214-213421412-421412',
   })
   apiKey: string;

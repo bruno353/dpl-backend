@@ -27,7 +27,7 @@ import axios from 'axios';
 import { UtilsService } from '../utils/utils.service';
 import { OpenmeshExpertsAuthService } from 'src/openmesh-experts/openmesh-experts-auth.service';
 import {
-  ConnectEquinixAPI,
+  ConnectAPI,
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
@@ -437,7 +437,7 @@ export class XnodesService {
     });
   }
 
-  async connectEquinixAPI(dataBody: ConnectEquinixAPI, req: Request) {
+  async connectEquinixAPI(dataBody: ConnectAPI, req: Request) {
     const accessToken = String(req.headers['x-parse-session-token']);
     const user = await this.openmeshExpertsAuthService.verifySessionToken(
       accessToken,
@@ -450,6 +450,50 @@ export class XnodesService {
       headers: {
         Accept: 'application/json',
         'X-Auth-Token': dataBody.apiKey,
+      },
+    };
+
+    let dado;
+
+    try {
+      await axios(config).then(function (response) {
+        dado = response.data;
+      });
+    } catch (err) {
+      console.log(err.response.data.error);
+      console.log(err.response);
+      throw new BadRequestException(`Error validating api key`, {
+        cause: new Error(),
+        description: `${err.response.data.error}`,
+      });
+    }
+
+    //if the api is valid, store in user account
+    await this.prisma.openmeshExpertUser.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        equinixAPIKey: dataBody.apiKey,
+      },
+    });
+
+    return;
+  }
+
+  async connectAivenAPI(dataBody: ConnectAPI, req: Request) {
+    const accessToken = String(req.headers['x-parse-session-token']);
+    const user = await this.openmeshExpertsAuthService.verifySessionToken(
+      accessToken,
+    );
+
+    // validating the equinix key:
+    const config = {
+      method: 'get',
+      url: 'https://api.aiven.io/v1/project',
+      headers: {
+        Accept: 'application/json',
+        'Authorization': `aivenv1 ${dataBody.apiKey}`,
       },
     };
 

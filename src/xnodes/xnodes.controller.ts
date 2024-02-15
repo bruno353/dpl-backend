@@ -26,7 +26,7 @@ import { Request } from 'express';
 
 import { XnodesService } from './xnodes.service';
 import {
-  ConnectEquinixAPI,
+  ConnectAPI,
   CreateXnodeDto,
   GetXnodeDto,
   StoreXnodeData,
@@ -104,10 +104,24 @@ export class XnodesController {
     description: 'Token mandatory to connect with the app',
   })
   @Post('connectEquinixAPI')
-  connectEquinixAPI(@Body() data: ConnectEquinixAPI, @Req() req: Request) {
+  connectEquinixAPI(@Body() data: ConnectAPI, @Req() req: Request) {
     const apiToken = String(req.headers['x-parse-application-id']);
     if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
     return this.xnodesService.connectEquinixAPI(data, req);
+  }
+
+  @ApiOperation({
+    summary: 'Connects and store the user aiven api key - https://api.aiven.io/v1/project',
+  })
+  @ApiHeader({
+    name: 'X-Parse-Application-Id',
+    description: 'Token mandatory to connect with the app',
+  })
+  @Post('connectAivenAPI')
+  connectAivenAPI(@Body() data: ConnectAPI, @Req() req: Request) {
+    const apiToken = String(req.headers['x-parse-application-id']);
+    if (apiToken !== this.apiTokenKey) throw new UnauthorizedException();
+    return this.xnodesService.connectAivenAPI(data, req);
   }
 
   @ApiOperation({

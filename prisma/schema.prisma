@@ -430,6 +430,7 @@ model OpenmeshExpertUser {
   password String
 
   equinixAPIKey String?
+  aivenAPIKey String?
 
   companyName String?
   firstName String?
