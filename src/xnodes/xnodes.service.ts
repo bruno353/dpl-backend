@@ -219,7 +219,7 @@ export class XnodesService {
       const fetchBuildId = async () => {
         try {
           const response = await axios.get(
-            `https://dev.azure.com/gdafund/L3/_apis/build/builds?tagFilters=${tagId}`,
+            `https://dev.azure.com/openmesh-network/xnode-deploy/_apis/build/builds?tagFilters=${tagId}`,
             {
               headers: {
                 Authorization: `Basic ${encodedCredentials}`,
@@ -268,7 +268,7 @@ export class XnodesService {
       const fetchLogs = async () => {
         try {
           const response = await axios.get(
-            `https://dev.azure.com/gdafund/L3/_apis/build/builds/${buildId}/logs?api-version=7.1-preview.2`,
+            `https://dev.azure.com/openmesh-network/xnode-deploy/_apis/build/builds/${buildId}/logs?api-version=7.1-preview.2`,
             {
               headers: {
                 Authorization: `Basic ${encodedCredentials}`,
