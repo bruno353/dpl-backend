@@ -94,48 +94,56 @@ export class XnodesService {
       finalFeatures.push(defaultStreamProcessorPayload);
       finalFeatures.push({
         ...defaultSourcePayload,
-        workloads: features,
+        workloads: features, // Could be ambiguous (features:workloads:features)
       });
     }
 
+    // Private UnifiedAPI Websocket Endpoint
     if (websocketEnabled) {
       finalFeatures.push(defaultWSPayload);
     }
+  // ValidationCloud ingest Ethereum data
+  let validationCloudEthereum = false
+  if (validationCloudEthereum) {
+    finalFeatures.push(defaultSourcePayload)
+  }
+  //ValidationCloud ingest Polygon data
+  let validationCloudPolygon = false
+  if (validationCloudPolygon) {
+    finalFeatures.push(defaultSourcePayload)
+  }
 
-    // XXX: This is a HACK! This is a HACK! This is a HACK! This is a HACK! This is a HACK!
-    // NOTE (Tomas): Bruno pls change this :)
-    // To fix this:
-    //  Add a flag sort of like "websocketEnabled" that gets passed along here
-    //  use that as the condition to deploy this thing. Otherwise people who enter an API key once will
-    //  have all future XNodes include the ValidationCloud collector
-    // Also this should work for the Polygon version too! So one flag for each.
-    //  There's more work to be done on the collector before that would work.
-    if (user.validationCloudAPIKeyEthereum != null) {
-      // 4 is arbitrary just wanna keep this temp code future proof
-      if (user.validationCloudAPIKeyEthereum.length > 4) {
-        // NOTE(Tomas): Not sure if this is correct way to clone in Typescript.
-        //  Bruno you're the master this is also your house up to you
-        let scuffedPayload = { ...defaultSourcePayload };
+  // XXX: This is a HACK! This is a HACK! This is a HACK! This is a HACK! This is a HACK!
+  // NOTE (Tomas): Bruno pls change this :)
+  // To fix this:
+  //  Add a flag sort of like "websocketEnabled" that gets passed along here
+  //  use that as the condition to deploy this thing. Otherwise people who enter an API key once will
+  //  have all future XNodes include the ValidationCloud collector
+  // Also this should work for the Polygon version too! So one flag for each.
+  //  There's more work to be done on the collector before that would work.
+  // Second conditional for validationCloudAPIKeyPolygon to get add workload.
+  if (user.validationCloudAPIKeyEthereum != null || validationCloudEthereum) {
+    // Should be inside 'if': 'ValidationcloudEnabled"
+    
+    // TO-DO LATER: Pass parameter as a separate kafka topic, to support separate ethereum, polygon or other streams at the same time.
 
-        let apiKey = user.validationCloudAPIKeyEthereum;
+    let scuffedPayload = { ...defaultSourcePayload };
+    let apiKey = user.validationCloudAPIKeyEthereum;
 
-        // NOTE(Tomas): Docs aren't that easy to interpret, chatgpt said env variables set like this are added as OS env variables on the container. ( it works I promise :) )
-        scuffedPayload.args +=
-          ' --set env.ETHEREUM_NODE_WS_URL=https://mainnet.ethereum.validationcloud.io/v1/wss/' +
-          apiKey;
-        scuffedPayload.args +=
-          ' --set env.ETHEREUM_NODE_HTTP_URL=wss://mainnet.ethereum.validationcloud.io/v1/' +
-          apiKey;
-        scuffedPayload.args += ' --set env.ETHEREUM_NODE_SECRET=' + apiKey;
+    // NOTE(Tomas): Docs aren't that easy to interpret, chatgpt said env variables set like this are added as OS env variables on the container. ( it works I promise :) )
+    scuffedPayload.args +=
+      ' --set env.ETHEREUM_NODE_WS_URL=https://mainnet.ethereum.validationcloud.io/v1/wss/'+apiKey;
+    scuffedPayload.args +=
+      ' --set env.ETHEREUM_NODE_HTTP_URL=wss://mainnet.ethereum.validationcloud.io/v1/'+apiKey;
+    scuffedPayload.args += ' --set env.ETHEREUM_NODE_SECRET='+apiKey;
 
-        // NOTE(Tomas): Has to have at least one workload.
-        //  Here we piggyback off of ethereum since it's the closest config.
-        //  Ideally all this code would be abstracted/burned.
-        scuffedPayload['workloads'] = ['ethereum'];
+    // NOTE(Tomas): Has to have at least one workload.
+    //  Here we piggyback off of ethereum since it's the closest config.
+    //  Ideally all this code would be abstracted/burned.
+    scuffedPayload['workloads'] = ['ethereum'];
 
-        finalFeatures.push(scuffedPayload);
-      }
-    }
+    finalFeatures.push(scuffedPayload);
+  }
 
     const payload = {
       builds: [
