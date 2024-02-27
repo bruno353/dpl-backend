@@ -125,6 +125,15 @@ export class CreateXnodeDto {
   })
   websocketEnabled: boolean;
 
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({
+    required: false,
+    description: 'The xnode validationcloud add-on is enabled',
+    example: true,
+  })
+  validationcloudEnabled: boolean;
+  
   @IsNotEmpty()
   @IsArray()
   @ArrayMaxSize(50)

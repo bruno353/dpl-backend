@@ -591,6 +591,7 @@ model Xnode {
   features     String? //The xnode feature
 
   websocketEnabled Boolean @default(false) //if the xnode websocket is enabled
+  validationcloudEnabled Boolean @default(false) // if this xnode add-on is enabled
 
   openmeshExpertUserId String   
   openmeshExpertUser   OpenmeshExpertUser  @relation(fields: [openmeshExpertUserId], references: [id])
